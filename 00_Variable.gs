@@ -1,8 +1,15 @@
+const vCat = 20;
+
 const sURL = 'https://ratio100.com';
 
+const oURL = sURL + '/wp-json/wp/v2/posts/';
+const vURL = sURL + '/wp-json/wp/v2/video/';
+const cURL = sURL + '/wp-json/wp/v2/channel/';
 const pURL = sURL + '/wp-json/wp/v2/pages/';
-const tURL = sURL + '/wp-json/wp/v2/taxonomies/';
+const gURL = sURL + '/wp-json/wp/v2/categories/';
+const tURL = sURL + '/wp-json/wp/v2/tags/';
 
+const apiKey = 'AIzaSyCMgNyHWJRWDrOZO9EWnL0LP0H_HJ-0gCM';
 const authUser = 'syo-zid';
 const authPass = 'lpwN R9pX bviV fliz CZIo wV8W';
 

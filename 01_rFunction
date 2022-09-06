@@ -1,0 +1,216 @@
+//■■■■ 変数 ■■■■
+const sURL = 'https://ratio100.com';
+const oURL = sURL + '/wp-json/wp/v2/posts/';
+const vURL = sURL + '/wp-json/wp/v2/video/';
+const cURL = sURL + '/wp-json/wp/v2/channel/';
+const pURL = sURL + '/wp-json/wp/v2/pages/';
+const rURL = sURL + '/wp-json/wp/v2/categories/';
+const tURL = sURL + '/wp-json/wp/v2/tags/';
+
+const apiKey = 'AIzaSyCMgNyHWJRWDrOZO9EWnL0LP0H_HJ-0gCM';
+const authUser = 'syo-zid';
+const authPass = 'lpwN R9pX bviV fliz CZIo wV8W';
+
+const rFile = SpreadsheetApp.openById('1RfQm5kCOdYX4cnjYXcfMPNB4KE0Z17tF32v9PHnBUak');
+const fSheet = rFile.getSheetByName('F');
+const cSheet = rFile.getSheetByName('wC');
+const vSheet = rFile.getSheetByName('wV');
+const rSheet = rFile.getSheetByName('wR');
+const tSheet = rFile.getSheetByName('wT');
+
+//■■■■ WP関数 ■■■■
+function wpView(url) {
+
+  const headers = {
+    'Content-Type': 'application/json',
+    'Authorization': 'Basic ' + Utilities.base64Encode(authUser + ":" + authPass)
+  };
+  const options = {
+    'muteHttpExceptions': true,
+    'headers': headers,
+  };
+
+  const resJson = JSON.parse(UrlFetchApp.fetch(url, options).getContentText());
+  return resJson
+}
+
+function wpEmbed(url, arguments) {
+
+  const headers = {
+    'Content-Type': 'application/json',
+    'Authorization': 'Basic ' + Utilities.base64Encode(authUser + ":" + authPass)
+  };
+  const options = {
+    'method': 'POST',
+    'muteHttpExceptions': true,
+    'headers': headers,
+    'payload': JSON.stringify(arguments)
+  };
+
+  const resJson = JSON.parse(UrlFetchApp.fetch(url, options).getContentText());
+  return resJson
+}
+
+function wpEdit(url, arguments) {
+
+  const headers = {
+  'Content-Type': 'application/json',
+  'Authorization': 'Basic ' + Utilities.base64Encode(authUser + ":" + authPass)
+  };
+  const options = {
+    'method': 'POST',
+    'muteHttpExceptions': true,
+    'headers': headers,
+    'payload': JSON.stringify(arguments)
+  };
+
+  const resJson = JSON.parse(UrlFetchApp.fetch(url, options).getContentText());
+  return resJson
+}
+
+//■■■■ SS関数 ■■■■
+function getData(sheet) {
+
+  const row = sheet.getLastRow();
+  const clm = sheet.getLastColumn();
+  const data = sheet.getRange(1, 1, row, clm).getValues();
+  return data
+}
+
+function setData(sheet, data) {
+
+  sheet.getRange(1, 1, data.length, data[0].length).setValues();
+}
+
+function setFlag(flag) {
+  rFile.insertSheet(flag);
+}
+
+//■■■■ YT関数 ■■■■
+function getPopular(nextPageToken) {
+
+  const part = 'snippet,contentDetails,statistics';
+  const vfields = 'items(id,snippet(title,description,publishedAt,thumbnails(medium(url)),tags,channelId),contentDetails(duration),statistics(viewCount,likeCount,commentCount)),nextPageToken';
+  const options = {chart: 'mostPopular', regionCode: 'jp', videoCategoryId: vCat, maxResults: 50, fields: vfields, pageToken: nextPageToken};
+
+  const resJson = YouTube.Videos.list(part, options);
+  return resJson
+}
+
+function getChannel(cID, nextPageToken) {
+
+  const part = 'snippet,statistics';
+  const cfields = 'items(id,snippet(title,description,publishedAt,thumbnails(medium(url)),customUrl),statistics(viewCount,subscriberCount,videoCount)),nextPageToken';
+  const options = {id: cID, fields: cfields, pageToken: nextPageToken};
+
+  const resJson = YouTube.Channels.list(part, options);
+  return resJson
+}
+
+function getActivities(cID, nextPageToken) {
+
+  const part = 'id,snippet'
+  const afields = 'items(id,snippet(title,description,publishedAt,thumbnails(medium(url))))';
+  const options = {channelId: cID, fields: afields, maxResults: 10, pageToken: nextPageToken};
+
+  const resJson = YouTube.Activities.list(part, options);
+  return resJson
+}
+
+function rFunction() {
+
+  //■■■■ 実行判定 ■■■■
+  const date = new Date(Utilities.formatDate(new Date(), 'JST', 'yyyy/MM/dd-HH:mm'));
+  const hours = date.getHours();
+  const done = fSheet.getRange('A1').getValue();
+  if (hours === done) { return console.log('実施済み') }
+
+  //■■■■ getPopular ■■■■
+  setFlag('doing');
+  fSheet.getRange('A1').setValue(hours);
+  fSheet.deleteSheet('doing');
+
+  //■■■■ updateFlash ■■■■
+
+  //■■■■ updateChannel ■■■■
+
+  //■■■■ updateVideo ■■■■
+
+  //■■■■ createResult ■■■■
+
+}
+
+function getPopular() {
+
+  //■■■■ BS_C ■■■■
+  function CbsMinIndex(clm, target, from, to) {
+    while (from !== to) {
+      const middle = from + Math.floor((to - from) / 2);
+      if (cList[middle][clm] < target) {
+        from = middle + 1;
+      } else {
+        to = middle;
+      }
+    }
+    return from;
+  }
+
+  function CbsMaxIndex(clm, target, from, to) {
+    while (from !== to) {
+      const middle = from + Math.ceil((to - from) / 2);
+      if (cList[middle][clm] > target) {
+        to = middle - 1;
+      } else {
+        from = middle;
+      }
+    }
+    if (cList[from][clm] === target) {
+      return from;
+    } else {
+      return -1;
+    }
+  }
+
+  function CbsRange(clm, target) {
+    const from = CbsMinIndex(clm, target, 0, cList.length - 1);
+    const to = CbsMaxIndex(clm, target, from, cList.length - 1);
+    return { from: from, to: to };
+  }
+
+  //■■■■ BS_V ■■■■
+  function VbsMinIndex(clm, target, from, to) {
+    while (from !== to) {
+      const middle = from + Math.floor((to - from) / 2);
+      if (vList[middle][clm] < target) {
+        from = middle + 1;
+      } else {
+        to = middle;
+      }
+    }
+    return from;
+  }
+
+  function VbsMaxIndex(clm, target, from, to) {
+    while (from !== to) {
+      const middle = from + Math.ceil((to - from) / 2);
+      if (vList[middle][clm] > target) {
+        to = middle - 1;
+      } else {
+        from = middle;
+      }
+    }
+    if (vList[from][clm] === target) {
+      return from;
+    } else {
+      return -1;
+    }
+  }
+
+  function VbsRange(clm, target) {
+    const from = VbsMinIndex(clm, target, 0, vList.length - 1);
+    const to = VbsMaxIndex(clm, target, from, vList.length - 1);
+    return { from: from, to: to };
+  }
+
+
+}

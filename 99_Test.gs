@@ -108,3 +108,64 @@ function testArg(id, i, d) {
 
   return arg
 }
+
+function getPopular(nextPageToken) {
+
+  let [
+    token, vID, vTitle, vDate, dur, cntV, cntL, cntC, cID, cTitle,
+    cDate, cntS, cntN, totV, vDesc, vURL, vTmb, vTags, cDesc, cURL,
+    cTmb, cCustom
+  ] = [
+    '',[],[],[],[],[],[],[],[],[],
+    [],[],[],[],[],[],[],[],[],[],
+    [],[]
+  ];
+  let c_tmp = ''
+
+  const vfields = 'items(id,snippet(title,description,publishedAt,thumbnails(medium(url)),tags,channelId),contentDetails(duration),statistics(viewCount,likeCount,commentCount)),nextPageToken';
+  let optJson = {chart: 'mostPopular', regionCode: 'jp', videoCategoryId: vCat, maxResults: 50, fields: vfields, pageToken: nextPageToken};
+
+  vJson = YouTube.Videos.list('snippet,contentDetails,statistics',optJson);
+  token = vJson.nextPageToken;
+
+  vJson.items.forEach((vJ) => {
+
+    const cfields = 'items(id,snippet(title,description,publishedAt,thumbnails(medium(url)),customUrl),statistics(viewCount,subscriberCount,videoCount)),nextPageToken';
+    optJson = {id: vJ.snippet.channelId, fields: cfields, key: apiKey};
+    cJ = YouTube.Channels.list('snippet,statistics',optJson).items[0];
+
+    vID.push(vJ.id);
+    vTitle.push(vJ.snippet.title);
+    vDate.push(Utilities.formatDate(new Date(vJ.snippet.publishedAt), 'JST', 'yyyy-MM-dd HH:mm:ss'));
+    dur.push(convertTime(vJ.contentDetails.duration));
+    cntV.push(vJ.statistics.viewCount);
+    cntL.push(vJ.statistics.likeCount);
+    cntC.push(vJ.statistics.commentCount);
+    cID.push(vJ.snippet.channelId);
+    cTitle.push(cJ.snippet.title);
+    cDate.push(Utilities.formatDate(new Date(cJ.snippet.publishedAt), 'JST"', 'yyyy-MM-dd HH:mm:ss'));
+    cntS.push(cJ.statistics.subscriberCount);
+    cntN.push(cJ.statistics.videoCount);
+    totV.push(cJ.statistics.viewCount);
+    vDesc.push(vJ.snippet.description);
+    vURL.push('https://youtube.com/watch?v='+vJ.id);
+    vTmb.push(vJ.snippet.thumbnails.medium.url);
+    vTags.push(joinArr(vJ.snippet.tags));
+    cDesc.push(cJ.snippet.description);
+    cTmb.push(cJ.snippet.thumbnails.medium.url);
+
+    c_tmp = removeAt(cJ.snippet.customUrl)
+    cCustom.push(c_tmp);
+
+    if (c_tmp) { cURL.push('https://youtube.com/c/'+c_tmp) }
+    else { cURL.push('https://youtube.com/channel/'+vJ.snippet.channelId) }
+  })
+
+  const srcData = [
+    token, vID, vTitle, vDate, dur, cntV, cntL, cntC, cID, cTitle,
+    cDate, cntS, cntN, totV, vDesc, vURL, vTmb, vTags, cDesc, cURL,
+    cTmb, cCustom
+  ];
+
+  return srcData
+}
