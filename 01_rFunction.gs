@@ -371,3 +371,39 @@ function doHourly() {
 
   setData(vSheet, vList);
 }
+
+function editCategories() {
+
+  let tData = getData(tSheet);
+  tData = tData.filter(x => x[1]==='C')
+  const len = tData.length;
+
+  for (let i=0; i<len; i++) {
+    const url = rURL + tData[i][2];
+    let arg = {
+      slug: tData[i][0],
+      name: tData[i][5],
+      description: tData[i][6],
+      cf: { child: tData[i][4].split(',')}
+    };
+    if (tData[i][3] !== ''){ arg.parent = tData[i][3] }
+    console.log(wpEdit(url, arg))
+  }
+}
+
+function editTags() {
+
+  let tData = getData(tSheet);
+  tData = tData.filter(x => x[1]==='T')
+  const len = tData.length;
+
+  for (let i=0; i<len; i++) {
+    const url = tURL + tData[i][2];
+    let arg = {
+      slug: tData[i][0],
+      name: tData[i][5],
+      description: tData[i][6],
+    };
+    wpEdit(url, arg)
+  }
+}
