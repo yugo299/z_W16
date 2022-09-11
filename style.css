@@ -1,5 +1,16 @@
-h2 {
-  color: blueviolet;
+:root {
+  --t1: 255 255 255;
+
+  --w4: 400px;
+  --h3: 320px;
+  --h2: 225px;
+  --h1: 100px;
+  --h0: 95px;
+  --b5: 50px;
+}
+
+body {
+  background-color: #e0e0e0;
 }
 .carousel-cell {
   min-width: 300px;
@@ -8,6 +19,101 @@ h2 {
   flex-direction: column;
   justify-content: space-between;
 }
-.h-200 {
-  height: 300px;
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  z-index: 0;
+}
+.inner {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  border-radius: 10px;
+  overflow: hidden;
+  margin: 0.5rem;
+  width: var(--w4);
+  height: var(--h3);
+  text-align: center;
+  z-index: 0;
+  color: rgb(var(--t1));
+  box-shadow: rgba(17, 17, 26, 0.1) 0px 4px 16px, rgba(17, 17, 26, 0.05) 0px 8px 32px;
+}
+.top {
+  display: flex;
+  justify-content: space-between;
+  position: relative;
+}
+.button {
+  position: absolute;
+  right: 10px;
+  top: var(--h1);
+  height: var(--b5);
+  line-height: var(--b5);
+  width: var(--b5);
+  border-radius: 50%;
+  border: 2px solid white;
+  text-align: center;
+  font-weight: bold;
+  font-size: 200%;
+  box-shadow: rgba(0, 0, 0, 0.16) 0px 3px 6px, rgba(0, 0, 0, 0.23) 0px 3px 6px;
+}
+.thmb {
+  position: relative;
+  text-align: center;
+  overflow: hidden;
+  width: var(--w4);
+  height: var(--h2);
+}
+.baw {
+  position: absolute;
+  width: var(--w4);
+  height: var(--h2);
+  top: 0;
+  left: 0;
+  filter: grayscale(100%) brightness(150%);
+  z-index: -2;
+  transition: 0.3s;
+}
+.mask {
+  position: absolute;
+  width: var(--w4);
+  height: var(--h2);
+  top: 0;
+  left: 0;
+  opacity: 0.3;
+  z-index: -1;
+  transition: 0.3s;
+}
+.thmb:hover .mask{
+  display: none;
+  transition: 0.3s;
+}
+.thmb:hover .baw {
+  filter: none;
+  transition: 0.3s;
+  transform: scale(1.02,1.02);
+}
+.bottom {
+  height: var(--h0);
+  padding: 1rem;
+  white-space: nowrap;
+  overflow-x: auto;
+  overflow-y: hidden;
+  text-overflow: fade;
+}
+.c1 {
+  background: linear-gradient(-45deg, #2196f3, #3f51b5);
+}
+.c2 {
+  background: linear-gradient(-45deg, #d6c500, #bd900b);
+}
+.c3 {
+  background: linear-gradient(-45deg, #ea6161, #9c27b0);
+}
+.c4 {
+  background: linear-gradient(-45deg, #66d241, #008048);
+}
+.c0 {
+  background: linear-gradient(-45deg, #ffa500, #ff6347);
 }

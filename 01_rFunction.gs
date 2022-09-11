@@ -59,7 +59,7 @@ function rFunction() {
         cf: { child: tData[i][4].split(',')}
       };
       if (tData[i][3] !== ''){ arg.parent = tData[i][3] }
-      console.log(wpEdit(url, arg))
+      wpEdit(url, arg)
     }
   }
 
@@ -196,7 +196,7 @@ function deleteRows(sheet, data) {
 function getPopular(nextPageToken) {
 
   const part = 'snippet,contentDetails,statistics';
-  const vfields = 'items(id,snippet(title,description,publishedAt,thumbnails(medium(url)),tags,channelId),contentDetails(duration),statistics(viewCount,likeCount,commentCount)),nextPageToken';
+  const vfields = 'items(id,snippet(title,description,publishedAt,thumbnails(medium(url)),tags,channelId,channelTitle),contentDetails(duration),statistics(viewCount,likeCount,commentCount)),nextPageToken';
   const options = {chart: 'mostPopular', regionCode: 'jp', videoCategoryId: vCat, maxResults: 50, fields: vfields, pageToken: nextPageToken};
 
   const resJson = YouTube.Videos.list(part, options);
@@ -246,7 +246,7 @@ function getActivities(cID, nextPageToken) {
 
   function strSlice(str, len) {
     const sLen = str.length
-    if (sLen*2 < len) { return str }
+    if (sLen*2 <= len) { return str }
     let cnt = 0;
     for (let i = 0; i < sLen-1; i++) {
       cnt = (escape(str[i]).charAt(0) === '%' && escape(str[i]).charAt(1) === 'u')? cnt+2: cnt+1;
@@ -266,6 +266,7 @@ function getActivities(cID, nextPageToken) {
         else { return str.slice(0, i+2)+'…' }
       }
     }
+    return str
   }
 
   function strView(num) {
@@ -304,14 +305,20 @@ function doHourly() {
     0.0145,0.014,0.0135,0.013,0.0125,0.012,0.0115,0.011,0.0105,0.01
   ];
 
+  const cat = [,
+    '映画とアニメ','自動車と乗り物',,,,,,,,'音楽',
+    ,,,,'ペットと動物',,'スポーツ',,,'ゲーム',
+    ,'ブログ','お笑い','エンタメ','ニュースと政治','ハウツーとスタイル',,'科学と技術',
+  ]
+
   //■■■■ BS_C ■■■■
   function CbsMin(clm, target, from, to) {
-    while (from !== to) {
+    while (from <= to) {
       const middle = from + Math.floor((to - from) / 2);
       if (cList[middle][clm] < target) {
         from = middle + 1;
       } else {
-        to = middle;
+        to = middle - 1;
       }
     }
     return from;
@@ -341,12 +348,12 @@ function doHourly() {
 
   //■■■■ BS_V ■■■■
   function VbsMin(clm, target, from, to) {
-    while (from !== to) {
+    while (from <= to) {
       const middle = from + Math.floor((to - from) / 2);
       if (vList[middle][clm] < target) {
         from = middle + 1;
       } else {
-        to = middle;
+        to = middle - 1;
       }
     }
     return from;
@@ -374,6 +381,38 @@ function doHourly() {
     return { from: from, to: to };
   }
 
+  //■■■■ convertTime ■■■■
+  function convertTime(duration) {
+
+    if (duration === '' || duration === 'P0D' || duration.slice(0,2) === 'P1') { return }
+    var reg = new RegExp('^PT([0-9]*H)?([0-9]*M)?([0-9]*S)?');
+    var regResult = duration.match(reg);
+
+    var hour = regResult[1];
+    var minutes = regResult[2];
+    var sec = regResult[3];
+
+    if(hour == undefined) {hour = '00';}
+    else {
+      hour = hour.split('H')[0];
+      if(hour.length == 1){hour = '0' + hour;}
+    }
+
+    if(minutes == undefined) {minutes = '00';}
+    else {
+      minutes = minutes.split('M')[0];
+      if(minutes.length == 1){minutes = '0' + minutes;}
+    }
+
+    if(sec == undefined) {sec = '00';}
+    else {
+      sec = sec.split('S')[0];
+      if(sec.length == 1){sec = '0' + sec;}
+    }
+
+    return hour + ":" + minutes + ":" + sec
+  }
+
   function vSetData(json) {
     json.items.forEach((j) => {
       const data = [j.id, j, ++rank];
@@ -387,7 +426,7 @@ function doHourly() {
 
     //■■■■ 各種項目 ■■■■
     function vTitle(str) {
-      return 'YouTubeチャンネル[' + strSlice(str, 14) + ']の動画が急上昇⤴'
+      return 'YouTubeチャンネル[' + strSlice(str, 7) + ']の動画が急上昇⤴'
     }
 
     function vContent(i) {
@@ -395,7 +434,7 @@ function doHourly() {
     }
 
     function vExcerpt(i) {
-      return '【視聴数' + strView(ytJ.statistics.viewCount) + '万|' + cat[vCat] + '#' + vData[i][2] + '位】YouTube急上昇ランキングを集計！"' + ytJ.channelTitle + '"のバズり動画⇒' + ytJ.title
+      return '【視聴数' + strView(ytJ.statistics.viewCount) + '万|' + cat[vCat] + '#' + vData[i][2] + '位】YouTube急上昇ランキングを集計！"' + ytJ.snippet.channelTitle + '"のバズり動画⇒' + ytJ.snippet.title
     }
 
     let a = {};
@@ -403,34 +442,34 @@ function doHourly() {
       a = {
         slug: 'v-'+vList[row][3],
 //        status: 'private',
+        title: vTitle(ytJ.snippet.channelTitle),
 //        content: vContent(i),
         excerpt: vExcerpt(i),
-//        featured_media: '',
-        tags: [vData[i][2]+100, vData[i][2]+200],
+//        featured_media: 0,
         cf: {
-          name: ytJ.title,
-          desc: ytJ.description,
+          name: ytJ.snippet.title,
+          desc: ytJ.snippet.description,
           thmb: ytJ.snippet.thumbnails.medium.url,
           lb_n: lb_n,
-          lb24: wpJ.cf.lb24.push(lb_n),
+          lb24: wpJ.cf.lb24.concat(lb_n),
           rn_n: vData[i][2],
-          rn24: wpJ.cf.rn24.push(vData[i][2]),
-          rt_n: wpJ.cf.rt_n + ratio[vData[i][2]],
-          rt24: wpJ.cf.rt24.push(wpJ.cf.rt_n + ratio[vData[i][2]]),
+          rn24: wpJ.cf.rn24.concat(vData[i][2]),
+          rt_n: Number(wpJ.cf.rt_n) + ratio[vData[i][2]],
+          rt24: wpJ.cf.rt24.concat(Number(wpJ.cf.rt_n) + ratio[vData[i][2]]),
           vw_n: ytJ.statistics.viewCount,
-          vw24: wpJ.cf.vw24.push(ytJ.statistics.viewCount),
+          vw24: wpJ.cf.vw24.concat(ytJ.statistics.viewCount),
           lk_n: ytJ.statistics.likeCount,
-          lk24: wpJ.cf.lk24.push(ytJ.statistics.likeCount),
+          lk24: wpJ.cf.lk24.concat(ytJ.statistics.likeCount),
           cm_n: ytJ.statistics.commentCount,
-          cm24: wpJ.cf.cm24.push(ytJ.statistics.commentCount),
+          cm24: wpJ.cf.cm24.concat(ytJ.statistics.commentCount),
         }
       }
-      if (vData[i][2] <= wpJ.rn_n) {
-        a.cf.rn_b = vData[i][2];
+      if (a.cf.rn_n <= wpJ.rn_n) {
+        a.cf.rn_b = a.cf.rn_n;
         a.cf.rn_d = lb_n;
-        a.tags = wpJ.tags.filter(x => x > 300).unshift(vData[i][2]+100, vData[i][2]+200);
+        a.tags = wpJ.tags.filter(x => x > 300).concat(a.cf.rn_n+100, a.cf.rn_n+200);
       } else {
-        a.tags = wpJ.tags.filter(x => x > 200).unshift(vData[i][2]+100);
+        a.tags = wpJ.tags.filter(x => x > 200).concat(a.cf.rn_n+100);
       }
       if (a.cf.pd_l === lb_b) {
         a.cf.pd_n = wpJ.pd_n + 1;
@@ -446,12 +485,12 @@ function doHourly() {
         a.cf.pd_e = lb_n;
       }
       if (wpJ.cf.lb7[wpJ.cf.lb7.length-1] !== today &&  tDay === 1) {
-        a.cf.lb7 = wpJ.cf.lb7.push(today);
-        a.cf.rn7 = wpJ.cf.rn7.push(a.cf.rn_n);
-        a.cf.rt7 = wpJ.cf.rt7.push(a.cf.rt_n);
-        a.cf.vw7 = wpJ.cf.vw7.push(a.cf.vw_n);
-        a.cf.lk7 = wpJ.cf.lk7.push(a.cf.lk_n);
-        a.cf.cm7 = wpJ.cf.cm7.push(a.cf.cm_n)
+        a.cf.lb7 = wpJ.cf.lb7.concat(today);
+        a.cf.rn7 = wpJ.cf.rn7.concat(a.cf.rn_n);
+        a.cf.rt7 = wpJ.cf.rt7.concat(a.cf.rt_n);
+        a.cf.vw7 = wpJ.cf.vw7.concat(a.cf.vw_n);
+        a.cf.lk7 = wpJ.cf.lk7.concat(a.cf.lk_n);
+        a.cf.cm7 = wpJ.cf.cm7.concat(a.cf.cm_n)
       } else {
         a.cf.lb7 = wpJ.cf.lb7.slice(0,-1).concat(today);
         a.cf.rn7 = wpJ.cf.rn7.slice(0,-1).concat(a.cf.rn_n);
@@ -461,12 +500,12 @@ function doHourly() {
         a.cf.cm7 = wpJ.cf.cm7.slice(0,-1).concat(a.cf.cm_n)
       }
       if (wpJ.cf.lb12[wpJ.cf.lb12.length-1] !== today &&  tDate === 1) {
-        a.cf.lb12 = wpJ.cf.lb12.push(today);
-        a.cf.rn12 = wpJ.cf.rn12.push(a.cf.rn_n);
-        a.cf.rt12 = wpJ.cf.rt12.push(a.cf.rt_n);
-        a.cf.vw12 = wpJ.cf.vw12.push(a.cf.vw_n);
-        a.cf.lk12 = wpJ.cf.lk12.push(a.cf.lk_n);
-        a.cf.cm12 = wpJ.cf.cm12.push(a.cf.cm_n)
+        a.cf.lb12 = wpJ.cf.lb12.concat(today);
+        a.cf.rn12 = wpJ.cf.rn12.concat(a.cf.rn_n);
+        a.cf.rt12 = wpJ.cf.rt12.concat(a.cf.rt_n);
+        a.cf.vw12 = wpJ.cf.vw12.concat(a.cf.vw_n);
+        a.cf.lk12 = wpJ.cf.lk12.concat(a.cf.lk_n);
+        a.cf.cm12 = wpJ.cf.cm12.concat(a.cf.cm_n)
       } else {
         a.cf.lb12 = wpJ.cf.lb12.slice(0,-1).concat(today);
         a.cf.rn12 = wpJ.cf.rn12.slice(0,-1).concat(a.cf.rn_n);
@@ -476,21 +515,22 @@ function doHourly() {
         a.cf.cm12 = wpJ.cf.cm12.slice(0,-1).concat(a.cf.cm_n)
       }
     } else {
-      arg = {
+      a = {
         date: Utilities.formatDate(new Date(ytJ.snippet.publishedAt), 'JST', 'yyyy-MM-dd HH:mm:ss'),
         slug: 'v-'+ytJ.statistics.viewCount,
         status: 'private',
-        title: vTitle(ytJ.channelTitle),
+        title: vTitle(ytJ.snippet.channelTitle),
         content: vContent(i),
         excerpt: vExcerpt(i),
-        featured_media: '',
+        featured_media: 0,
         categories: [vCat],
         tags: [vData[i][2]+100, vData[i][2]+200],
         cf: {
-          name: ytJ.title,
-          desc: ytJ.description,
+          name: ytJ.snippet.title,
+          desc: ytJ.snippet.description,
           link: 'https://youtube.com/watch?v='+ytJ.id,
           thmb: ytJ.snippet.thumbnails.medium.url,
+          dur: convertTime(ytJ.contentDetails.duration),
           yt: ytJ.id,
           channel: ytJ.snippet.channelId,
           rn_b: vData[i][2],
@@ -555,10 +595,9 @@ function doHourly() {
       vList[row] = vUpdate(vJson);
     }
     else {
-      row = (ListL) ? VbsMin(2, vData[i][0], start, ListL++): 0;
       const url = vURL;
       const vJson = wpEmbed(url, vArguments(i));
-      if (!row) { row = 1 }
+      row = VbsMin(2, vData[i][0], start, ListL++);
       vList.splice(row, 0, vUpdate(vJson));
     }
     start = (row<ListL) ? row + 1: row;
