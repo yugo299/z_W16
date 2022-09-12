@@ -18,29 +18,40 @@ const vSheet = rFile.getSheetByName(vCat);
 const rSheet = rFile.getSheetByName('wR');
 const tSheet = rFile.getSheetByName('wT');
 
+const date = new Date(Utilities.formatDate(new Date(), 'JST', 'yyyy/MM/dd-HH:mm'));
+const hours = date.getHours();
+
+let vList = [];
+let vData = [];
+let step = 0;
+let eFlag = true;
+
 function rFunction() {
 
-  //■■■■ 実行判定 ■■■■
-  const date = new Date(Utilities.formatDate(new Date(), 'JST', 'yyyy/MM/dd-HH:mm'));
-  const hours = date.getHours();
-  const done = fSheet.getRange('A1').getValue();
-  if (hours === done) { return console.log('実施済み') }
-  setFlag('f'+vCat);
+  try {
+    //■■■■ 実行判定 ■■■■
+    const done = fSheet.getRange('A1').getValue();
+    if (hours === done) { return console.log('実施済み') }
+    setFlag('f'+vCat);
+    eFlag = false;
 
-  deleteData(vSheet, vURL);
+    doHourly();
 
-  doHourly();
-  fSheet.getRange('A1').setValue(hours);
+    //■■■■ updateFlash ■■■■
 
-  //■■■■ updateFlash ■■■■
+    //■■■■ updateChannel ■■■■
 
-  //■■■■ updateChannel ■■■■
+    //■■■■ updateVideo ■■■■
 
-  //■■■■ updateVideo ■■■■
+    //■■■■ createResult ■■■■
 
-  //■■■■ createResult ■■■■
-
-  deleteFlag('f'+vCat);
+  } catch(e) {
+    console.log('エラー内容：'+e.message+'\nステップ：'+step);
+    if (!eFlag) { doHourly() }
+    if (eFlag && step) { console.log('【連続】エラー内容：'+e.message+'\nステップ：'+step) }
+  } finally {
+    deleteFlag('f'+vCat);
+  }
 }
 
 //■■■■ 単発編集 ■■■■
@@ -80,7 +91,10 @@ function rFunction() {
     }
   }
 
-  function deleteData(sheet, url) {
+  function deleteData() {
+    const sheet = vSheet;
+    const url = vURL;
+
     let data = getData(sheet);
     let id = [];
 
@@ -95,7 +109,7 @@ function rFunction() {
     if (!len) { return }
 
     sheet.clearContents();
-    setData(sheet, data);
+    writeData(sheet, data);
 
     for (let i=0; i<len; i++) {
       wpDelete(url+id[i]);
@@ -277,10 +291,10 @@ function getActivities(cID, nextPageToken) {
 function doHourly() {
 
   //■■■■ 変数 ■■■■
-  let vList = getData(vSheet);
-  let row = 0;
+  if (!eFlag) { vList = getData(vSheet) }
   let rank = 0;
-  let vData = [];
+  let row = 0;
+  let start = 1;
 
   const today = Utilities.formatDate(new Date(), 'Etc/GMT-4', 'yyyy-MM-dd');
   const tDay = new Date(today).getDay();
@@ -291,6 +305,8 @@ function doHourly() {
   const tHour = ts.getHours();
   ts = ts.getTime() - (1000 * 60 * 60);
   const lb_b = Utilities.formatDate(new Date(ts), 'JST', 'yyyy-MM-dd HH:') + '00';
+  ts = new Date(ts);
+  const bHour = ts.getHours();
 
   const ratio = [
     0.113,0.1,0.0995,0.099,0.0985,0.086,0.0855,0.085,0.0845,0.084,
@@ -411,6 +427,14 @@ function doHourly() {
     }
 
     return hour + ":" + minutes + ":" + sec
+  }
+
+  function vReset() {
+    vList = vList.map(function(x){
+      if (x[1]===bHour) {x[1] = 'R'}
+      return x
+    });
+    writeData(vSheet, vList);
   }
 
   function vSetData(json) {
@@ -571,37 +595,46 @@ function doHourly() {
     return a
   }
 
-  function vUpdate(j) {
-    return [today, tHour, j.cf.yt, j.id, j.cf.channel]
+  function vUpdate(json) {
+    return [today, tHour, json.cf.yt, json.id, json.cf.channel]
+  }
+
+  function vPost() {
+
+    for (let i=step; i<DataL; i++) {
+      row = (ListL) ? VbsMax(2, vData[i][0], start, ListL): 0;
+      if (row) {
+        const url = vURL + vList[row][3];
+        const vJson = wpEdit(url, vArguments(i));
+        vList[row] = vUpdate(vJson);
+      }
+      else {
+        const url = vURL;
+        const vJson = wpEmbed(url, vArguments(i));
+        row = VbsMin(2, vData[i][0], start, ListL++);
+        vList.splice(row, 0, vUpdate(vJson));
+      }
+      start = (row<ListL) ? row + 1: row;
+      step++;
+      eFlag = false;
+    }
   }
 
   //■■■■ 処理開始 ■■■■
-  const vJson1 = getPopular();
-  const vJson2 = (typeof(vJson1.nextPageToken)==='undefined') ? {}: getPopular(vJson1.nextPageToken);
+  if (!eFlag) {
 
-  vSetData(vJson1);
-  vSetData(vJson2);
-
-  vData = vData.sort((a, b) => (a > b)? 1: -1);
-  const DataL = vData.length;
-  let ListL = vList.length - 1;
-  let start = 1;
-
-  for (let i=0; i<DataL; i++) {
-    row = (ListL) ? VbsMax(2, vData[i][0], start, ListL): 0;
-    if (row) {
-      const url = vURL + vList[row][3];
-      const vJson = wpEdit(url, vArguments(i));
-      vList[row] = vUpdate(vJson);
-    }
-    else {
-      const url = vURL;
-      const vJson = wpEmbed(url, vArguments(i));
-      row = VbsMin(2, vData[i][0], start, ListL++);
-      vList.splice(row, 0, vUpdate(vJson));
-    }
-    start = (row<ListL) ? row + 1: row;
+    vReset();
+    const vJson1 = getPopular();
+    const vJson2 = (typeof(vJson1.nextPageToken)==='undefined') ? {}: getPopular(vJson1.nextPageToken);
+    vSetData(vJson1);
+    vSetData(vJson2);
+    vData = vData.sort((a, b) => (a > b)? 1: -1);
   }
 
+  const DataL = vData.length;
+  let ListL = vList.length - 1;
+
+  vPost(step);
   writeData(vSheet, vList);
+  fSheet.getRange('A1').setValue(hours);
 }
