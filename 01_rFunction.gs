@@ -11,12 +11,23 @@ const apiKey = 'AIzaSyCMgNyHWJRWDrOZO9EWnL0LP0H_HJ-0gCM';
 const authUser = 'syo-zid';
 const authPass = 'lpwN R9pX bviV fliz CZIo wV8W';
 
-const rFile = SpreadsheetApp.openById('1RfQm5kCOdYX4cnjYXcfMPNB4KE0Z17tF32v9PHnBUak');
-const fSheet = rFile.getSheetByName('F');
-const cSheet = rFile.getSheetByName('wC');
-const vSheet = rFile.getSheetByName(vCat);
-const rSheet = rFile.getSheetByName('wR');
-const tSheet = rFile.getSheetByName('wT');
+//■■■■ ファイルID ■■■■
+const fileID = [,
+  ,,,,,,,,,,
+  ,,,,,,,,, '1RfQm5kCOdYX4cnjYXcfMPNB4KE0Z17tF32v9PHnBUak',
+  ,,,,,,,,,
+];
+
+const vFile = SpreadsheetApp.openById(fileID[vCat]);
+const cFile = SpreadsheetApp.openById('1WsUl5TYWxcE4ltAisWPja9fkqb5hd48uvAeT-r5HrQ4');
+const tFile = SpreadsheetApp.openById('1CqRNxJNTJttnqv5cYnkNoo-6DW_7RDlpLyaGXDz7CC8');
+
+const vSheet = vFile.getSheetByName('wV');
+const cSheet = cFile.getSheetByName('wC');
+const rSheet = vFile.getSheetByName('wR');
+const tSheet = tFile.getSheetByName('wT');
+const fSheet = vFile.getSheetByName('F');
+
 
 const date = new Date(Utilities.formatDate(new Date(), 'JST', 'yyyy-MM-dd HH:mm'));
 const tHour = date.getHours();
@@ -42,8 +53,8 @@ function rFunction() {
         eFlag = false;
         doVideo();
       } catch(e) {
-        console.log('【VIdeo】エラー内容：'+e.message+'\nステップ：'+step);
-        if (!eFlag) { doHourly() }
+        console.log('【Video】エラー内容：'+e.message+'\nステップ：'+step);
+        if (!eFlag) { doVideo() }
         if (eFlag && step) { console.log('【Video-連続】エラー内容：'+e.message+'\nステップ：'+step) }
       } finally {
         deleteFlag('f'+vCat);
@@ -67,6 +78,7 @@ function rFunction() {
       try {
         setFlag('f'+vCat);
         doFlash();
+        setFlag('todo');
       } catch(e) {
         console.log('【Flash】エラー内容：'+e.message);
       } finally {
@@ -74,7 +86,12 @@ function rFunction() {
       }
       return;
 
+    case 'S': //■■■■ doSummarize ■■■■
+
+    case 'C': //■■■■ doChannel ■■■■
+
       //■■■■ updateChannel ■■■■
+
 
       //■■■■ updateVideo ■■■■
 
@@ -353,43 +370,8 @@ function doVideo() {
     ,'ブログ','お笑い','エンタメ','ニュースと政治','ハウツーとスタイル',,'科学と技術',
   ]
 
-  //■■■■ BS_C ■■■■
-  function CbsMin(col, target, from, to) {
-    while (from <= to) {
-      const middle = from + Math.floor((to - from) / 2);
-      if (cList[middle][col] < target) {
-        from = middle + 1;
-      } else {
-        to = middle - 1;
-      }
-    }
-    return from;
-  }
-
-  function CbsMax(col, target, from, to) {
-    while (from !== to) {
-      const middle = from + Math.ceil((to - from) / 2);
-      if (cList[middle][col] > target) {
-        to = middle - 1;
-      } else {
-        from = middle;
-      }
-    }
-    if (cList[from][col] === target) {
-      return from;
-    } else {
-      return 0;
-    }
-  }
-
-  function CbsRange(col, target) {
-    const from = CbsMin(col, target, 0, cList.length - 1);
-    const to = CbsMax(col, target, from, cList.length - 1);
-    return { from: from, to: to };
-  }
-
-  //■■■■ BS_V ■■■■
-  function VbsMin(col, target, from, to) {
+  //■■■■ BS ■■■■
+  function bsMin(col, target, from, to) {
     while (from <= to) {
       const middle = from + Math.floor((to - from) / 2);
       if (List[middle][col] < target) {
@@ -401,7 +383,7 @@ function doVideo() {
     return from;
   }
 
-  function VbsMax(col, target, from, to) {
+  function bsMax(col, target, from, to) {
     while (from !== to) {
       const middle = from + Math.ceil((to - from) / 2);
       if (List[middle][col] > target) {
@@ -417,9 +399,9 @@ function doVideo() {
     }
   }
 
-  function VbsRange(col, target) {
-    const from = VbsMin(col, target, 0, List.length - 1);
-    const to = VbsMax(col, target, from, List.length - 1);
+  function bsRange(col, target) {
+    const from = bsMin(col, target, 0, List.length - 1);
+    const to = bsMax(col, target, from, List.length - 1);
     return { from: from, to: to };
   }
 
@@ -457,7 +439,7 @@ function doVideo() {
 
   function vReset() {
     List = List.map(function(x){
-      if (x[1]===bHour) {x[1] = 'R'}
+      if (typeof(x[1]) === 'number') {x[1] = 'R'}
       return x
     });
     writeData(vSheet, List);
@@ -522,7 +504,7 @@ function doVideo() {
         a.tags = wpJ.tags.filter(x => x > 200).concat(a.cf.rn_n+100);
       }
       if (wpJ.cf.pd_l === lb_b) {
-        a.cf.pd_n = wpJ.pd_n + 1;
+        a.cf.pd_n = Number(wpJ.cf.pd_n) + 1;
         a.cf.pd_l = lb_n;
       } else {
         a.cf.pd_n = 0;
@@ -628,7 +610,7 @@ function doVideo() {
   function vPost() {
 
     for (let i=step; i<DataL; i++) {
-      row = (ListL) ? VbsMax(2, Data[i][0], start, ListL): 0;
+      row = (ListL) ? bsMax(2, Data[i][0], start, ListL): 0;
       if (row) {
         const url = vURL + List[row][3];
         const vJson = wpEdit(url, vArguments(i));
@@ -637,7 +619,7 @@ function doVideo() {
       else {
         const url = vURL;
         const vJson = wpEmbed(url, vArguments(i));
-        row = VbsMin(2, Data[i][0], start, ListL++);
+        row = bsMin(2, Data[i][0], start, ListL++);
         List.splice(row, 0, vUpdate(vJson));
       }
       start = (row<ListL) ? row + 1: row;
@@ -671,7 +653,7 @@ function doReset(sheet) {
 
   for (let i=step; i<ListL; i++) {
     if (List[i][1]==='R') {
-      const tags = wpView(url+List[i][3]).tags.filter(x => x > 300);
+      const tags = wpView(url+List[i][3]).tags.filter(x => x > 200);
       const arg = { tags: tags };
       wpEdit(url+List[i][3], arg);
       List[i][1] = 'D';
@@ -686,9 +668,78 @@ function doReset(sheet) {
 function doFlash() {
   Data = getData(vSheet);
   Data = Data.filter(x => typeof(x[1]) === 'number').sort((a, b) => (a[1] > b[1])? 1: -1).map(x => x[3]);
-  arg = { child: Data }
+  arg = { cf: {child: Data } }
   wpEdit(oURL+vCat, arg);
   vSheet.getRange('A1').setValue(tHour);
+}
+
+function doSummarize() {
+
+  //■■■■ 変数 ■■■■
+  const filtering = '?per_page=100&tags=101+102+103+104+105+106+107+108+109+110+111+112+113+114+115+116+117+118+119+120+121+122+123+124+125+126+127+128+129+130+131+132+133+134+135+136+137+138+139+140+141+142+143+144+145+146+147+148+149+150+151+152+153+154+155+156+157+158+159+160+161+162+163+164+165+166+167+168+169+170+171+172+173+174+175+176+177+178+179+180+181+182+183+184+185+186+187+188+189+190+191+192+193+194+195+196+197+198+199+200&page=';
+
+  //■■■■ BS ■■■■
+  function bsMin(col, target, from, to) {
+    while (from <= to) {
+      const middle = from + Math.floor((to - from) / 2);
+      if (List[middle][col] < target) {
+        from = middle + 1;
+      } else {
+        to = middle - 1;
+      }
+    }
+    return from;
+  }
+
+  function bsMax(col, target, from, to) {
+    while (from !== to) {
+      const middle = from + Math.ceil((to - from) / 2);
+      if (List[middle][col] > target) {
+        to = middle - 1;
+      } else {
+        from = middle;
+      }
+    }
+    if (List[from][col] === target) {
+      return from;
+    } else {
+      return 0;
+    }
+  }
+
+  function bsRange(col, target) {
+    const from = bsMin(col, target, 0, List.length - 1);
+    const to = bsMax(col, target, from, List.length - 1);
+    return { from: from, to: to };
+  }
+
+  function cReset() {
+    List = getData(cSheet)
+    List = List.map(function(x){
+      if (typeof(x[1]) === 'number') {x[1] = 'R'}
+      return x
+    });
+    writeData(cSheet, List);
+  }
+
+  cReset();
+
+  Data = [];
+  const cNum = fileID.reduce((sum, x) => sum + ((x)? 1: 0), 0);
+
+  for (let i=1; i<=cNum; i++) {
+    const url = vURL + filtering + i;
+    const videos = wpView(url);
+    Data = Data.concat(('data' in videos) ? []: videos);
+  }
+  Data = Data.sort((a,b) => ((a.cf.channel > b.cf.channel) ?  1: -1) );
+
+
+
+  let vSheets = fileID;
+  vSheets = vSheets.map(x => (x)? SpreadsheetApp.openById(x): x);
+  vSheets = vSheets.map(x => (x)? x.getSheetByName('wV'): x);
+
 }
 
 function doChannel() {
