@@ -36,9 +36,6 @@ let ts = date.getTime() - (1000 * 60 * 60);
 ts = new Date(ts);
 const bHour = ts.getHours();
 
-let List = [];
-let Data = [];
-let cArg = [];
 let step = 0;
 let eFlag = true;
 
@@ -658,8 +655,21 @@ function doFlash() {
 function doSummarize() {
 
   //■■■■ 変数 ■■■■
+  let List = []; //スプレッドシート
+  let vData = []; //WP動画最新
+  let cData = []; //WPチャンネル既存
+  let New = [];
+  let Still = [];
+  let Drop = [];
+  let lL = 0;
+  let vL = 0;
+  let cL = 0;
+  let row = 0;
+  let start = 1;
+  let s = 0;
+  let e = 0;
+
   const filtering = '?per_page=100&tags=101+102+103+104+105+106+107+108+109+110+111+112+113+114+115+116+117+118+119+120+121+122+123+124+125+126+127+128+129+130+131+132+133+134+135+136+137+138+139+140+141+142+143+144+145+146+147+148+149+150+151+152+153+154+155+156+157+158+159+160+161+162+163+164+165+166+167+168+169+170+171+172+173+174+175+176+177+178+179+180+181+182+183+184+185+186+187+188+189+190+191+192+193+194+195+196+197+198+199+200&page=';
-  let Src = [];
 
   //■■■■ BS ■■■■
   function bsMin(col, target, from, to) {
@@ -717,48 +727,136 @@ function doSummarize() {
     return resJson
   }
 
-  function cReset() {
-    List = getData(cSheet);
-    List = List.map(function(x){
+  function updateList(id) {
+    row = (lL) ? bsMax(2, id, start, lL): 0;
+    if (row) {
+      List[row][0] = today;
+      List[row][1] = tHour;
+      Still.push([id, List[row][3], , s, e]);
+    }
+    else {
+      row = bsMin(2, id, start, lL++);
+      List.splice(row, 0, [today, tHour, id, ]);
+      New.push([id, row, , s, e]);
+    }
+    start = (row<lL) ? row + 1: row;
+  }
+
+  function cArguments(f, i) {
+    switch (f) {
+      case 'S':
+        const j = cData.filter(x => x.id === Still[i][1])[0];
+        const v = vData.slice(Still[i][3], Still[i][4])
+        return
+      case 'N':
+
+        return
+    }
+    const i = cData.findIndex(x => x[2] === Data[j].cf.channel);
+  }
+
+  do { //ランクイン動画WP取得&ソート
+    let err = {};
+    try {
+      const cNum = cNo.length;
+      for (let i=1; i<=cNum; i++) {
+        const url = vURL + filtering + i;
+        const videos = wpView(url);
+        vData = vData.concat(('data' in videos) ? []: videos);
+      }
+      vData = vData.sort((a,b) => ((a.cf.channel > b.cf.channel) ?  1: -1) );
+      vL = vData.length;
+
+    } catch (e) {
+      console.log('チャンネルリスト取得、ランクイン動画WP取得&ソート\n' + e.message);
+      err = e;
+    }
+  } while (!'message' in err);
+
+  do { //List更新、WP既存チャンネル情報取得
+    let err = {};
+
+    List = getData(cSheet).map(function(x){
       if (typeof(x[1]) === 'number') {x[1] = 'R'}
       return x
     });
-    writeData(cSheet, List);
-  }
+    lL = List.length - 1;
+    row = 0;
+    start = 1;
+    cData = [];
+    New = [];
+    Still = [];
 
-  cReset();
-
-  Data = [];
-  const cNum = cNo.length;
-
-  for (let i=1; i<=cNum; i++) {
-    const url = vURL + filtering + i;
-    const videos = wpView(url);
-    Data = Data.concat(('data' in videos) ? []: videos);
-  }
-  Data = Data.sort((a,b) => ((a.cf.channel > b.cf.channel) ?  1: -1) );
-  const DataL = Data.length;
-
-  let i = 0;
-  while (i<DataL) {
-    let c = 0;
-    let channels = '';
-    while (c<50 && i<DataL) {
-      c++;
-      channels += Data[i].cf.channel;
-      let f = true;
-      while (f) {
-        if (i+1<DataL) {
-          if (Data[i+1].cf.channel === Data[i].cf.channel) {
-            i++;
+    try {
+      let i = 0;
+      while (i<vL) {
+        let c = 0;
+        let channels = '';
+        while (c++<50 && i<vL) {
+          let cID = vData[i].cf.channel;
+          let f = true;
+          s = i;
+          while (f) {
+            if (i+1<vL) {
+              if (vData[i+1].cf.channel === cID) {
+                i++;
+              }
+              else { f = false }
+            }
+            else { f = false }
           }
-          else { f = false }
+          e = i + 1;
+          channels += cID;
+          updateList(cID);
         }
-        else { f = false }
+        cData.concat(getChannel(channels).items);
       }
+      Drop = List.filter(x => x[1] === 'R');
+    } catch (e) {
+      console.log('List更新、WP既存チャンネル情報取得\n' + e.message);
+      err = e;
     }
-    Src.concat(getChannel(channels).items);
-  }
+  } while (!'message' in err);
+
+  do { //スプレッドシート更新
+    let err = {};
+    try {
+      writeData(cSheet, List);
+      console.log('Still : ' + Still.length + '\nNew : ' + New.length + '\nDrop : ' + Drop.length);
+    } catch (e) {
+      console.log('スプレッドシート更新\n' + e.message);
+      err = e;
+    }
+  } while (!'message' in err);
+
+  do { //Arg : Still
+    let err = {};
+    const sL = Still.length;
+    try {
+      for (let i=1; i<=sL; i++) {
+        cArguments('S', i);
+      }
+      console.log('Still : ' + sL);
+    } catch (e) {
+      console.log('Arg : Still\n' + e.message);
+      err = e;
+    }
+  } while (!'message' in err);
+
+  do { //Arg : New
+    let err = {};
+    const nL = New.length;
+    try {
+      for (let i=1; i<=nL; i++) {
+        cArguments('N', i);
+      }
+      console.log('New : ' + nL);
+    } catch (e) {
+      console.log('Arg : New\n' + e.message);
+      err = e;
+    }
+  } while (!'message' in err);
+
 
   for (let i=0; i<cNum; i++) {
     let d = [];
