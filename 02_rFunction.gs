@@ -7,28 +7,14 @@ const pURL = sURL + '/wp-json/wp/v2/pages/';
 const rURL = sURL + '/wp-json/wp/v2/categories/';
 const tURL = sURL + '/wp-json/wp/v2/tags/';
 
-const apiKey = 'AIzaSyCMgNyHWJRWDrOZO9EWnL0LP0H_HJ-0gCM';
 const authUser = 'syo-zid';
 const authPass = 'lpwN R9pX bviV fliz CZIo wV8W';
 
-//■■■■ ファイルID ■■■■
 const cNo = [1,2,10,15,17,20,22,23,24,25,26,28];
-const fID = [,
-  ,,,,,,,,,,
-  ,,,,,,,,, '1RfQm5kCOdYX4cnjYXcfMPNB4KE0Z17tF32v9PHnBUak',
-  ,,,,,,,,,
-];
 
-const vFile = SpreadsheetApp.openById(fID[vCat]);
 const cFile = SpreadsheetApp.openById('1WsUl5TYWxcE4ltAisWPja9fkqb5hd48uvAeT-r5HrQ4');
-const tFile = SpreadsheetApp.openById('1CqRNxJNTJttnqv5cYnkNoo-6DW_7RDlpLyaGXDz7CC8');
-
-const vSheet = vFile.getSheetByName('wV');
 const cSheet = cFile.getSheetByName('wC');
-const rSheet = vFile.getSheetByName('wR');
-const tSheet = tFile.getSheetByName('wT');
-const fSheet = vFile.getSheetByName('F');
-
+const fSheet = cFile.getSheetByName('F');
 
 const date = new Date(Utilities.formatDate(new Date(), 'JST', 'yyyy-MM-dd HH:mm'));
 const tHour = date.getHours();
@@ -36,131 +22,25 @@ let ts = date.getTime() - (1000 * 60 * 60);
 ts = new Date(ts);
 const bHour = ts.getHours();
 
-let step = 0;
-let eFlag = true;
-
 function rFunction() {
 
-  const done = vSheet.getRange('A1').getValue();
+  //フラグ取得
+  let done = getData(fSheet);
+  done = done[6][1];
+
   switch (done) {
 
-    case tHour: return console.log('実施済み')
+    case 'Done': return console.log('実施済み')
 
-    case bHour: //■■■■ doVideo ■■■■
-      try {
-        setFlag('f'+vCat);
-        eFlag = false;
-        doVideo();
-      } catch(e) {
-        console.log('【Video】エラー内容：'+e.message+'\nステップ：'+step);
-        if (!eFlag) { doVideo() }
-        if (eFlag && step) { console.log('【Video-連続】エラー内容：'+e.message+'\nステップ：'+step) }
-      } finally {
-        deleteFlag('f'+vCat);
-      }
-
-    case 'R': //■■■■ doReset ■■■■
-      try {
-        setFlag('f'+vCat);
-        step = 0;
-        eFlag = false;
-        doReset(vSheet);
-      } catch(e) {
-        if (!eFlag) { doReset(vSheet) }
-        console.log('【Reset】エラー内容：'+e.message+'\n行：'+step);
-        if (eFlag && step) { console.log('【Reset-連続】エラー内容：'+e.message+'\n行：'+step) }
-      } finally {
-        deleteFlag('f'+vCat);
-      }
-
-    case 'F': //■■■■ doFlash ■■■■
-      try {
-        setFlag('f'+vCat);
-        doFlash();
-        setFlag('todo');
-      } catch(e) {
-        console.log('【Flash】エラー内容：'+e.message);
-      } finally {
-        deleteFlag('f'+vCat);
-      }
-      return;
-
-    case 'S': //■■■■ doSummarize ■■■■
-
-    case 'C': //■■■■ doChannel ■■■■
-
-      //■■■■ updateChannel ■■■■
-
-
-      //■■■■ updateVideo ■■■■
-
-      //■■■■ createResult ■■■■
+    case tHour: //■■■■ fSummarize ■■■■
+      try { setFlag('doing') }
+      catch(e) { return console.log('実施中') }
+      fSummarize();
+      deleteFlag('doing');
+      fSheet.getRange('B7').setValue('Done');
+      return console.log('実行完了 : fSummarize')
   }
-
-  return console.log('エラー：switch')
 }
-
-//■■■■ 単発編集 ■■■■
-  function editCategories() {
-
-    let tData = getData(tSheet);
-    tData = tData.filter(x => x[1]==='C')
-    const len = tData.length;
-
-    for (let i=0; i<len; i++) {
-      const url = rURL + tData[i][2];
-      let arg = {
-        slug: tData[i][0],
-        name: tData[i][5],
-        description: tData[i][6],
-        cf: { child: tData[i][4].split(',')}
-      };
-      if (tData[i][3] !== ''){ arg.parent = tData[i][3] }
-      wpEdit(url, arg)
-    }
-  }
-
-  function editTags() {
-
-    let tData = getData(tSheet);
-    tData = tData.filter(x => x[1]==='T')
-    const len = tData.length;
-
-    for (let i=0; i<len; i++) {
-      const url = tURL + tData[i][2];
-      let arg = {
-        slug: tData[i][0],
-        name: tData[i][5],
-        description: tData[i][6],
-      };
-      wpEdit(url, arg)
-    }
-  }
-
-  function deleteData() {
-    const sheet = vSheet;
-    const url = vURL;
-
-    let src = getData(sheet);
-    let id = [];
-
-    src = src.filter(function(x){
-      if (x[1]==='X') {
-        id.push(x[3])
-        return false;
-      }
-      else { return true }
-    })
-    const len = id.length
-    if (!len) { return }
-
-    sheet.clearContents();
-    writeData(sheet, src);
-
-    for (let i=0; i<len; i++) {
-      wpDelete(url+id[i]);
-    }
-  }
 
 //■■■■ WP関数 ■■■■
 function wpView(url) {
@@ -243,9 +123,9 @@ function writeData(sheet, src) {
   sheet.getRange(1, 1, src.length, src[0].length).setValues(src);
 }
 
-function setFlag(flag) { rFile.insertSheet(flag) }
+function setFlag(flag) { cFile.insertSheet(flag) }
 
-function deleteFlag(flag) { rFile.deleteSheet(rFile.getSheetByName(flag)) }
+function deleteFlag(flag) { cFile.deleteSheet(cFile.getSheetByName(flag)) }
 
 function deleteRows(sheet, src) {
 
@@ -314,13 +194,26 @@ function getPopular(nextPageToken) {
     else { return String(Math.floor(num/1000)/10) }
   }
 
-function doVideo() {
+function fSummarize() {
 
   //■■■■ 変数 ■■■■
-  if (!eFlag) { List = getData(vSheet) }
-  let rank = 0;
+  let List = []; //スプレッドシート
+  let vData = []; //WP動画最新
+  let cData = []; //WPチャンネル既存
+  let yData = []; //YTチャンネル情報
+  let New = [];
+  let Still = [];
+  let Drop = [];
+  let lL = 0;
+  let vL = 0;
+  let cL = 0;
+  let sL = 0;
+  let nL = 0;
   let row = 0;
   let start = 1;
+  let s = 0;
+  let e = 0;
+  let err = {};
 
   const today = Utilities.formatDate(new Date(), 'Etc/GMT-4', 'yyyy-MM-dd');
   const tDay = new Date(today).getDay();
@@ -348,326 +241,6 @@ function doVideo() {
     ,,,,'ペットと動物',,'スポーツ',,,'ゲーム',
     ,'ブログ','お笑い','エンタメ','ニュースと政治','ハウツーとスタイル',,'科学と技術',
   ]
-
-  //■■■■ BS ■■■■
-  function bsMin(col, target, from, to) {
-    while (from <= to) {
-      const middle = from + Math.floor((to - from) / 2);
-      if (List[middle][col] < target) {
-        from = middle + 1;
-      } else {
-        to = middle - 1;
-      }
-    }
-    return from;
-  }
-
-  function bsMax(col, target, from, to) {
-    while (from !== to) {
-      const middle = from + Math.ceil((to - from) / 2);
-      if (List[middle][col] > target) {
-        to = middle - 1;
-      } else {
-        from = middle;
-      }
-    }
-    if (List[from][col] === target) {
-      return from;
-    } else {
-      return 0;
-    }
-  }
-
-  function bsRange(col, target) {
-    const from = bsMin(col, target, 0, List.length - 1);
-    const to = bsMax(col, target, from, List.length - 1);
-    return { from: from, to: to };
-  }
-
-  //■■■■ convertTime ■■■■
-  function convertTime(duration) {
-
-    if (duration === '' || duration === 'P0D' || duration.slice(0,2) === 'P1') { return }
-    var reg = new RegExp('^PT([0-9]*H)?([0-9]*M)?([0-9]*S)?');
-    var regResult = duration.match(reg);
-
-    var hour = regResult[1];
-    var minutes = regResult[2];
-    var sec = regResult[3];
-
-    if(hour == undefined) {hour = '00';}
-    else {
-      hour = hour.split('H')[0];
-      if(hour.length == 1){hour = '0' + hour;}
-    }
-
-    if(minutes == undefined) {minutes = '00';}
-    else {
-      minutes = minutes.split('M')[0];
-      if(minutes.length == 1){minutes = '0' + minutes;}
-    }
-
-    if(sec == undefined) {sec = '00';}
-    else {
-      sec = sec.split('S')[0];
-      if(sec.length == 1){sec = '0' + sec;}
-    }
-
-    return hour + ":" + minutes + ":" + sec
-  }
-
-  function vReset() {
-    List = List.map(function(x){
-      if (typeof(x[1]) === 'number') {x[1] = 'R'}
-      return x
-    });
-    writeData(vSheet, List);
-  }
-
-  function vSetData(json) {
-    json.items.forEach((j) => {
-      const src = [j.id, j, ++rank];
-      Data.push(src);
-    });
-  }
-
-  function vArguments(i) {
-    const wpJ = (row) ? wpView(vURL+List[row][3]): {};
-    const ytJ = Data[i][1];
-
-    //■■■■ 各種項目 ■■■■
-    function vTitle(str) {
-      return 'YouTubeチャンネル[' + strSlice(str, 7) + ']の動画が急上昇⤴'
-    }
-
-    function vContent(i) {
-      return ''
-    }
-
-    function vExcerpt(i) {
-      return '【視聴数' + strView(ytJ.statistics.viewCount) + '万|' + cat[vCat] + '#' + Data[i][2] + '位】YouTube急上昇ランキングを集計！"' + ytJ.snippet.channelTitle + '"のバズり動画⇒' + ytJ.snippet.title
-    }
-
-    let a = {};
-    if (row) {
-      a = {
-        slug: 'v-'+List[row][3],
-//        status: 'private',
-        title: vTitle(ytJ.snippet.channelTitle),
-//        content: vContent(i),
-        excerpt: vExcerpt(i),
-//        featured_media: 0,
-        cf: {
-          name: ytJ.snippet.title,
-          desc: ytJ.snippet.description,
-          thmb: ytJ.snippet.thumbnails.medium.url,
-          lb_n: lb_n,
-          lb24: wpJ.cf.lb24.concat(lb_n),
-          rn_n: Data[i][2],
-          rn24: wpJ.cf.rn24.concat(Data[i][2]),
-          rt_n: Number(wpJ.cf.rt_n) + ratio[Data[i][2]],
-          rt24: wpJ.cf.rt24.concat(Number(wpJ.cf.rt_n) + ratio[Data[i][2]]),
-          vw_n: ytJ.statistics.viewCount,
-          vw24: wpJ.cf.vw24.concat(ytJ.statistics.viewCount),
-          lk_n: ytJ.statistics.likeCount,
-          lk24: wpJ.cf.lk24.concat(ytJ.statistics.likeCount),
-          cm_n: ytJ.statistics.commentCount,
-          cm24: wpJ.cf.cm24.concat(ytJ.statistics.commentCount),
-        }
-      }
-      if (a.cf.rn_n <= wpJ.cf.rn_b) {
-        a.cf.rn_b = a.cf.rn_n;
-        a.cf.rn_d = lb_n;
-        a.tags = wpJ.tags.filter(x => x > 300).concat(a.cf.rn_n+100, a.cf.rn_n+200);
-      } else {
-        a.tags = wpJ.tags.filter(x => x > 200).concat(a.cf.rn_n+100);
-      }
-      if (wpJ.cf.pd_l === lb_b) {
-        a.cf.pd_n = Number(wpJ.cf.pd_n) + 1;
-        a.cf.pd_l = lb_n;
-      } else {
-        a.cf.pd_n = 0;
-        a.cf.pd_f = lb_n;
-        a.cf.pd_l = lb_n;
-      }
-      if (a.cf.pd_n >= a.cf.pd_b) {
-        a.cf.pd_b = a.cf.pd_n;
-        a.cf.pd_s = wpJ.pd_f;
-        a.cf.pd_e = lb_n;
-      }
-      if (wpJ.cf.lb7[wpJ.cf.lb7.length-1] !== today &&  tDay === 1) {
-        a.cf.lb7 = wpJ.cf.lb7.concat(today);
-        a.cf.rn7 = wpJ.cf.rn7.concat(a.cf.rn_n);
-        a.cf.rt7 = wpJ.cf.rt7.concat(a.cf.rt_n);
-        a.cf.vw7 = wpJ.cf.vw7.concat(a.cf.vw_n);
-        a.cf.lk7 = wpJ.cf.lk7.concat(a.cf.lk_n);
-        a.cf.cm7 = wpJ.cf.cm7.concat(a.cf.cm_n)
-      } else {
-        a.cf.lb7 = wpJ.cf.lb7.slice(0,-1).concat(today);
-        a.cf.rn7 = wpJ.cf.rn7.slice(0,-1).concat(a.cf.rn_n);
-        a.cf.rt7 = wpJ.cf.rt7.slice(0,-1).concat(a.cf.rt_n);
-        a.cf.vw7 = wpJ.cf.vw7.slice(0,-1).concat(a.cf.vw_n);
-        a.cf.lk7 = wpJ.cf.lk7.slice(0,-1).concat(a.cf.lk_n);
-        a.cf.cm7 = wpJ.cf.cm7.slice(0,-1).concat(a.cf.cm_n)
-      }
-      if (wpJ.cf.lb12[wpJ.cf.lb12.length-1] !== today &&  tDate === 1) {
-        a.cf.lb12 = wpJ.cf.lb12.concat(today);
-        a.cf.rn12 = wpJ.cf.rn12.concat(a.cf.rn_n);
-        a.cf.rt12 = wpJ.cf.rt12.concat(a.cf.rt_n);
-        a.cf.vw12 = wpJ.cf.vw12.concat(a.cf.vw_n);
-        a.cf.lk12 = wpJ.cf.lk12.concat(a.cf.lk_n);
-        a.cf.cm12 = wpJ.cf.cm12.concat(a.cf.cm_n)
-      } else {
-        a.cf.lb12 = wpJ.cf.lb12.slice(0,-1).concat(today);
-        a.cf.rn12 = wpJ.cf.rn12.slice(0,-1).concat(a.cf.rn_n);
-        a.cf.rt12 = wpJ.cf.rt12.slice(0,-1).concat(a.cf.rt_n);
-        a.cf.vw12 = wpJ.cf.vw12.slice(0,-1).concat(a.cf.vw_n);
-        a.cf.lk12 = wpJ.cf.lk12.slice(0,-1).concat(a.cf.lk_n);
-        a.cf.cm12 = wpJ.cf.cm12.slice(0,-1).concat(a.cf.cm_n)
-      }
-    } else {
-      a = {
-        date: Utilities.formatDate(new Date(ytJ.snippet.publishedAt), 'JST', 'yyyy-MM-dd HH:mm:ss'),
-        slug: 'v-'+ytJ.statistics.viewCount,
-        status: 'private',
-        title: vTitle(ytJ.snippet.channelTitle),
-        content: vContent(i),
-        excerpt: vExcerpt(i),
-        featured_media: 0,
-        categories: [vCat],
-        tags: [Data[i][2]+100, Data[i][2]+200],
-        cf: {
-          name: ytJ.snippet.title,
-          desc: ytJ.snippet.description,
-          link: 'https://youtube.com/watch?v='+ytJ.id,
-          thmb: ytJ.snippet.thumbnails.medium.url,
-          dur: convertTime(ytJ.contentDetails.duration),
-          yt: ytJ.id,
-          channel: ytJ.snippet.channelId,
-          rn_b: Data[i][2],
-          rn_d: lb_n,
-          pd_b: 0,
-          pd_s: lb_n,
-          pd_e: lb_n,
-          lb_n: lb_n,
-          lb24: [lb_n],
-          lb7: [today],
-          lb12: [today],
-          pd_n: 0,
-          pd_f: lb_n,
-          pd_l: lb_n,
-          rn_n: Data[i][2],
-          rn24: [Data[i][2]],
-          rn7: [Data[i][2]],
-          rn12: [Data[i][2]],
-          rt_n: ratio[Data[i][2]],
-          rt24: [ratio[Data[i][2]]],
-          rt7: [ratio[Data[i][2]]],
-          rt12: [ratio[Data[i][2]]],
-          vw_n: ytJ.statistics.viewCount,
-          vw24: [ytJ.statistics.viewCount],
-          vw7: [ytJ.statistics.viewCount],
-          vw12: [ytJ.statistics.viewCount],
-          lk_n: ytJ.statistics.likeCount,
-          lk24: [ytJ.statistics.likeCount],
-          lk7: [ytJ.statistics.likeCount],
-          lk12: [ytJ.statistics.likeCount],
-          cm_n: ytJ.statistics.commentCount,
-          cm24: [ytJ.statistics.commentCount],
-          cm7: [ytJ.statistics.commentCount],
-          cm12: [ytJ.statistics.commentCount]
-        }
-      }
-    }
-    return a
-  }
-
-  function vUpdate(json) {
-    return [today, json.cf.rn_n, json.cf.yt, json.id, json.cf.channel]
-  }
-
-  function vPost() {
-
-    for (let i=step; i<DataL; i++) {
-      row = (ListL) ? bsMax(2, Data[i][0], start, ListL): 0;
-      if (row) {
-        const url = vURL + List[row][3];
-        const vJson = wpEdit(url, vArguments(i));
-        List[row] = vUpdate(vJson);
-      }
-      else {
-        const url = vURL;
-        const vJson = wpEmbed(url, vArguments(i));
-        row = bsMin(2, Data[i][0], start, ListL++);
-        List.splice(row, 0, vUpdate(vJson));
-      }
-      start = (row<ListL) ? row + 1: row;
-      step++;
-      eFlag = false;
-    }
-  }
-
-  //■■■■ 処理開始 ■■■■
-  if (!eFlag) {
-    vReset();
-    const vJson1 = getPopular();
-    const vJson2 = (typeof(vJson1.nextPageToken)==='undefined') ? {}: getPopular(vJson1.nextPageToken);
-    vSetData(vJson1);
-    vSetData(vJson2);
-    Data = Data.sort((a, b) => (a > b)? 1: -1);
-  }
-
-  const DataL = Data.length;
-  let ListL = List.length - 1;
-
-  vPost(step);
-  writeData(vSheet, List);
-  vSheet.getRange('A1').setValue('R');
-}
-
-function doReset(sheet) {
-  List = getData(sheet);
-  const ListL = List.length;
-  const url = (sheet === vSheet)? vURL: cURL;
-
-  for (let i=step; i<ListL; i++) {
-    if (List[i][1]==='R') {
-      const tags = wpView(url+List[i][3]).tags.filter(x => x > 200);
-      const arg = { tags: tags };
-      wpEdit(url+List[i][3], arg);
-      List[i][1] = 'D';
-      step++;
-      eFlag = false;
-    }
-  }
-  writeData(sheet, List)
-  sheet.getRange('A1').setValue((sheet === vSheet)? 'F': tHour);
-}
-
-function doFlash() {
-  Data = getData(vSheet);
-  Data = Data.filter(x => typeof(x[1]) === 'number').sort((a, b) => (a[1] > b[1])? 1: -1).map(x => x[3]);
-  arg = { cf: {child: Data } }
-  wpEdit(oURL+vCat, arg);
-  vSheet.getRange('A1').setValue(tHour);
-}
-
-function doSummarize() {
-
-  //■■■■ 変数 ■■■■
-  let List = []; //スプレッドシート
-  let vData = []; //WP動画最新
-  let cData = []; //WPチャンネル既存
-  let New = [];
-  let Still = [];
-  let Drop = [];
-  let lL = 0;
-  let vL = 0;
-  let cL = 0;
-  let row = 0;
-  let start = 1;
-  let s = 0;
-  let e = 0;
 
   const filtering = '?per_page=100&tags=101+102+103+104+105+106+107+108+109+110+111+112+113+114+115+116+117+118+119+120+121+122+123+124+125+126+127+128+129+130+131+132+133+134+135+136+137+138+139+140+141+142+143+144+145+146+147+148+149+150+151+152+153+154+155+156+157+158+159+160+161+162+163+164+165+166+167+168+169+170+171+172+173+174+175+176+177+178+179+180+181+182+183+184+185+186+187+188+189+190+191+192+193+194+195+196+197+198+199+200&page=';
 
@@ -709,7 +282,7 @@ function doSummarize() {
   //■■■■ YT関数 ■■■■
   function getChannel(cID, nextPageToken) {
 
-    const part = 'snippet,statistics';
+    const part = 'id,snippet,statistics';
     const cfields = 'items(id,snippet(title,description,publishedAt,thumbnails(medium(url)),customUrl),statistics(viewCount,subscriberCount,videoCount)),nextPageToken';
     const options = {id: cID, fields: cfields, pageToken: nextPageToken};
 
@@ -727,6 +300,20 @@ function doSummarize() {
     return resJson
   }
 
+  //■■■■ WP関数 ■■■■
+  function wpChannel() {
+    const wID = Still.map(x => x[1]);
+    const wL = wID.length;
+    let s = 0;
+    let e = 0;
+    while (s < wL) {
+      e = (s+50-1 < wL)? s+50: wL;
+      url = cURL + '?per_page=100&include=' + wID.slice(s,e).join('+');
+      cData = cData.concat(wpView(url));
+      s = e;
+    } ;
+  }
+
   function updateList(id) {
     row = (lL) ? bsMax(2, id, start, lL): 0;
     if (row) {
@@ -736,30 +323,187 @@ function doSummarize() {
     }
     else {
       row = bsMin(2, id, start, lL++);
-      List.splice(row, 0, [today, tHour, id, ]);
+      List.splice(row, 0, [today, tHour, id, '']);
       New.push([id, row, , s, e]);
     }
     start = (row<lL) ? row + 1: row;
   }
 
   function cArguments(f, i) {
+
+    //■■■■ 変数 ■■■■
+    let vJ = [];
+    let rt = 0;
+    let video = [];
+    let yJ = {};
+    let cJ = {};
+    let a = {};
+
+    //■■■■ 各種項目 ■■■■
+    function cTitle() {
+      return 'YouTubeチャンネル[' + strSlice(yJ.snippet.title, 8) + ']の統計まとめ⤴'
+    }
+
+    function cContent() {
+      return ''
+    }
+
+    function cExcerpt() {
+      return '【登録者数' + strView(yJ.statistics.subscriberCount) + '万人|' + cat[vJ[0].categories] + '#' + vJ[0].cf.rn_n + '位】YouTube急上昇ランキングを集計！"' + yJ.snippet.title + '"のバズり動画⇒' + vJ[0].cf.name
+    }
+
     switch (f) {
       case 'S':
-        const j = cData.filter(x => x.id === Still[i][1])[0];
-        const v = vData.slice(Still[i][3], Still[i][4])
-        return
-      case 'N':
+        vJ = vData.slice(Still[i][3], Still[i][4]).sort(function(a,b){ return ((a.cf.rn_n > b.cf.rn_n) ?  1: -1) });
+        rt = vJ.reduce((sum, x) => sum + ratio[x.cf.rn_n], 0);
+        video = vJ.map(x => x.id);
 
-        return
+        yJ = yData.filter(x => x.id === Still[i][0])[0];
+        cJ = cData.filter(x => x.id === Still[i][1])[0];
+        video = Array.from(new Set(video.concat(cJ.video)));
+        a = {
+          slug: 'c-'+cJ.id,
+  //        status: 'private',
+          title: cTitle(yJ.snippet.title),
+          excerpt: cExcerpt(),
+  //        featured_media: 0,
+          cf: {
+            name: yJ.snippet.title,
+            desc: yJ.snippet.description,
+            thmb: yJ.snippet.thumbnails.medium.url,
+            video: video,
+            lb_n: lb_n,
+            lb24: cJ.cf.lb24.concat(lb_n),
+            rn_n: vJ[0].cf.rn_n,
+            rn24: cJ.cf.rn24.concat(vJ[0].cf.rn_n),
+            rt_n: Number(cJ.cf.rt_n) + rt,
+            rt24: cJ.cf.rt24.concat(Number(cJ.cf.rt_n) + rt),
+            vw_n: yJ.statistics.viewCount,
+            vw24: cJ.cf.vw24.concat(yJ.statistics.viewCount),
+            sb_n: yJ.statistics.subscriberCount,
+            sb24: cJ.cf.sb24.concat(yJ.statistics.subscriberCount),
+            vc_n: yJ.statistics.videoCount,
+            vc24: cJ.cf.vc24.concat(yJ.statistics.videoCount),
+          }
+        }
+        a.content = a.excerpt;
+        if (Number(a.cf.rn_n) <= Number(cJ.cf.rn_b)) {
+          a.cf.rn_b = a.cf.rn_n;
+          a.cf.rn_d = lb_n;
+          a.tags = cJ.tags.filter(x => x > 300).concat(a.cf.rn_n+100, a.cf.rn_n+200);
+        } else {
+          a.tags = cJ.tags.filter(x => x > 200).concat(a.cf.rn_n+100);
+        }
+        if (cJ.cf.pd_l === lb_b) {
+          a.cf.pd_n = Number(cJ.cf.pd_n) + 1;
+          a.cf.pd_l = lb_n;
+        } else {
+          a.cf.pd_n = 0;
+          a.cf.pd_f = lb_n;
+          a.cf.pd_l = lb_n;
+        }
+        if (a.cf.pd_n >= a.cf.pd_b) {
+          a.cf.pd_b = a.cf.pd_n;
+          a.cf.pd_s = cJ.pd_f;
+          a.cf.pd_e = lb_n;
+        }
+        if (cJ.cf.lb7[cJ.cf.lb7.length-1] !== today &&  tDay === 1) {
+          a.cf.lb7 = cJ.cf.lb7.concat(today);
+          a.cf.rn7 = cJ.cf.rn7.concat(a.cf.rn_n);
+          a.cf.rt7 = cJ.cf.rt7.concat(a.cf.rt_n);
+          a.cf.vw7 = cJ.cf.vw7.concat(a.cf.vw_n);
+          a.cf.sb7 = cJ.cf.sb7.concat(a.cf.sb_n);
+          a.cf.vc7 = cJ.cf.vc7.concat(a.cf.vc_n)
+        } else {
+          a.cf.lb7 = cJ.cf.lb7.slice(0,-1).concat(today);
+          a.cf.rn7 = (a.cf.rn_n < cJ.cf.rn7) ? cJ.cf.rn7.slice(0,-1).concat(a.cf.rn_n): cJ.cf.rn7;
+          a.cf.rt7 = cJ.cf.rt7.slice(0,-1).concat(a.cf.rt_n);
+          a.cf.vw7 = cJ.cf.vw7.slice(0,-1).concat(a.cf.vw_n);
+          a.cf.sb7 = cJ.cf.sb7.slice(0,-1).concat(a.cf.sb_n);
+          a.cf.vc7 = cJ.cf.vc7.slice(0,-1).concat(a.cf.vc_n)
+        }
+        if (cJ.cf.lb12[cJ.cf.lb12.length-1] !== today &&  tDate === 1) {
+          a.cf.lb12 = cJ.cf.lb12.concat(today);
+          a.cf.rn12 = cJ.cf.rn12.concat(a.cf.rn_n);
+          a.cf.rt12 = cJ.cf.rt12.concat(a.cf.rt_n);
+          a.cf.vw12 = cJ.cf.vw12.concat(a.cf.vw_n);
+          a.cf.sb12 = cJ.cf.sb12.concat(a.cf.sb_n);
+          a.cf.vc12 = cJ.cf.vc12.concat(a.cf.vc_n)
+        } else {
+          a.cf.lb12 = cJ.cf.lb12.slice(0,-1).concat(today);
+          a.cf.rn12 = (a.cf.rn_n < cJ.cf.rn12) ? cJ.cf.rn12.slice(0,-1).concat(a.cf.rn_n): cJ.cf.rn12;
+          a.cf.rt12 = cJ.cf.rt12.slice(0,-1).concat(a.cf.rt_n);
+          a.cf.vw12 = cJ.cf.vw12.slice(0,-1).concat(a.cf.vw_n);
+          a.cf.sb12 = cJ.cf.sb12.slice(0,-1).concat(a.cf.sb_n);
+          a.cf.vc12 = cJ.cf.vc12.slice(0,-1).concat(a.cf.vc_n)
+        }
+        return a
+      case 'N':
+        vJ = vData.slice(New[i][3], New[i][4]).sort(function(a,b){ return ((a.cf.rn_n > b.cf.rn_n) ?  1: -1) });
+        rt = vJ.reduce((sum, x) => sum + ratio[x.cf.rn_n], 0);
+        yJ = yData.filter(x => x.id === New[i][0])[0];
+        video = vJ.map(x => x.id);
+
+        a = {
+          date: Utilities.formatDate(new Date(yJ.snippet.publishedAt), 'JST', 'yyyy-MM-dd HH:mm:ss'),
+          slug: 'c-'+yJ.statistics.viewCount,
+          status: 'publish',
+          title: cTitle(yJ.snippet.title),
+          excerpt: cExcerpt(),
+          featured_media: 0,
+          categories: 8,
+          tags: [Number(vJ[0].cf.rn_n)+100, Number(vJ[0].cf.rn_n)+200],
+          cf: {
+            name: yJ.snippet.title,
+            desc: yJ.snippet.description,
+            link: 'https://youtube.com/channel/'+yJ.id,
+            thmb: yJ.snippet.thumbnails.medium.url,
+            yt: yJ.id,
+            video: video,
+            rn_b: vJ[0].cf.rn_n,
+            rn_d: lb_n,
+            pd_b: 0,
+            pd_s: lb_n,
+            pd_e: lb_n,
+            lb_n: lb_n,
+            lb24: [lb_n],
+            lb7: [today],
+            lb12: [today],
+            pd_n: 0,
+            pd_f: lb_n,
+            pd_l: lb_n,
+            rn_n: vJ[0].cf.rn_n,
+            rn24: [vJ[0].cf.rn_n],
+            rn7: [vJ[0].cf.rn_n],
+            rn12: [vJ[0].cf.rn_n],
+            rt_n: rt,
+            rt24: [rt],
+            rt7: [rt],
+            rt12: [rt],
+            vw_n: yJ.statistics.viewCount,
+            vw24: [yJ.statistics.viewCount],
+            vw7: [yJ.statistics.viewCount],
+            vw12: [yJ.statistics.viewCount],
+            sb_n: yJ.statistics.subscriberCount,
+            sb24: [yJ.statistics.subscriberCount],
+            sb7: [yJ.statistics.subscriberCount],
+            sb12: [yJ.statistics.subscriberCount],
+            vc_n: yJ.statistics.videoCount,
+            vc24: [yJ.statistics.videoCount],
+            vc7: [yJ.statistics.videoCount],
+            vc12: [yJ.statistics.videoCount]
+          }
+        }
+        a.content = a.excerpt;
+        return a
     }
-    const i = cData.findIndex(x => x[2] === Data[j].cf.channel);
   }
 
   do { //ランクイン動画WP取得&ソート
-    let err = {};
+    err = {};
     try {
       const cNum = cNo.length;
-      for (let i=1; i<=cNum; i++) {
+      for (let i=0; i<cNum; i++) {
         const url = vURL + filtering + i;
         const videos = wpView(url);
         vData = vData.concat(('data' in videos) ? []: videos);
@@ -773,8 +517,8 @@ function doSummarize() {
     }
   } while (!'message' in err);
 
-  do { //List更新、WP既存チャンネル情報取得
-    let err = {};
+  do { //List更新、YTチャンネル情報取得
+    err = {};
 
     List = getData(cSheet).map(function(x){
       if (typeof(x[1]) === 'number') {x[1] = 'R'}
@@ -791,7 +535,7 @@ function doSummarize() {
       let i = 0;
       while (i<vL) {
         let c = 0;
-        let channels = '';
+        let yID = [];
         while (c++<50 && i<vL) {
           let cID = vData[i].cf.channel;
           let f = true;
@@ -806,35 +550,40 @@ function doSummarize() {
             else { f = false }
           }
           e = i + 1;
-          channels += cID;
+          yID.push(cID);
           updateList(cID);
+          i++;
         }
-        cData.concat(getChannel(channels).items);
+        yData = yData.concat(getChannel(yID.join()).items);
       }
       Drop = List.filter(x => x[1] === 'R');
+      sL = Still.length;
+      nL = New.length;
+      dL = Drop.length;
+      console.log('List更新\nStill : ' + sL + '\nNew : ' + nL + '\nDrop : ' + dL);
     } catch (e) {
       console.log('List更新、WP既存チャンネル情報取得\n' + e.message);
       err = e;
     }
   } while (!'message' in err);
 
-  do { //スプレッドシート更新
-    let err = {};
+  do { //WP既存チャンネル情報取得
+    err = {};
     try {
-      writeData(cSheet, List);
-      console.log('Still : ' + Still.length + '\nNew : ' + New.length + '\nDrop : ' + Drop.length);
+      cData = [];
+      wpChannel();
+      console.log('Still : ' + sL + '\ncData : ' + cData.length);
     } catch (e) {
-      console.log('スプレッドシート更新\n' + e.message);
+      console.log('WP既存チャンネル情報取得\n' + e.message);
       err = e;
     }
   } while (!'message' in err);
 
   do { //Arg : Still
-    let err = {};
-    const sL = Still.length;
+    err = {};
     try {
-      for (let i=1; i<=sL; i++) {
-        cArguments('S', i);
+      for (let i=0; i<sL; i++) {
+        Still[i][2] = JSON.stringify(cArguments('S', i));
       }
       console.log('Still : ' + sL);
     } catch (e) {
@@ -843,12 +592,46 @@ function doSummarize() {
     }
   } while (!'message' in err);
 
-  do { //Arg : New
-    let err = {};
-    const nL = New.length;
+  do { //Arg : Still SS
+    if (!sL) { break }
+    err = {};
+    const sheet = [
+      cFile.getSheetByName('1'),
+      cFile.getSheetByName('2'),
+      cFile.getSheetByName('3'),
+      cFile.getSheetByName('4'),
+      cFile.getSheetByName('5'),
+      cFile.getSheetByName('6'),
+    ]
     try {
-      for (let i=1; i<=nL; i++) {
-        cArguments('N', i);
+      s = 0;
+      e = 200;
+      let dat = [];
+      for (let i=0; i<6; i++) {
+        if (s+200-1<sL) {
+          dat = Still.slice(s,e).map(x => [x[0], x[2]]);
+          writeData(sheet[i], dat);
+          s = e;
+          e += 200;
+        }
+        else {
+          dat = Still.slice(s).map(x => [x[0], x[2]]);
+          writeData(sheet[i], dat);
+          console.log('Still SS: シート' + (i+1));
+          break
+        }
+      }
+    } catch (e) {
+      console.log('Still SS\n' + e.message);
+      err = e;
+    }
+  } while (!'message' in err);
+
+  do { //Arg : New Arg
+    err = {};
+    try {
+      for (let i=0; i<nL; i++) {
+        New[i][2] = cArguments('N', i);
       }
       console.log('New : ' + nL);
     } catch (e) {
@@ -857,28 +640,29 @@ function doSummarize() {
     }
   } while (!'message' in err);
 
-
-  for (let i=0; i<cNum; i++) {
-    let d = [];
-    let f = true;
-    for (let j=0; j<50; j++) {
-        d[j] = '';//Src と Data で共通するChannelデータからArg作る
-
-      if (j+1<cNum) {break}
+  do { //Arg : New Post
+    if (!nL) { break }
+    err = {};
+    try {
+      for (let i=0; i<nL; i++) {
+        List[New[i][1]][3] = wpEmbed(cURL, New[i][2]).id;
+      }
+      console.log('New Post : ' + nL);
+    } catch (e) {
+      console.log('New Post : \n' + e.message);
+      err = e;
     }
-    if (!f) {break}
-  }
-  row = List.findIndex(x => x[2] === Data[j].cf.channel);
-  cArg.push(cSetArg(Data.slice(j-v+1,j+1)));
+  } while (!'message' in err);
 
-
-  }
-
-  let vSheets = fileID;
-  vSheets = vSheets.map(x => (x)? SpreadsheetApp.openById(x): x);
-  vSheets = vSheets.map(x => (x)? x.getSheetByName('wV'): x);
-
-
-function doChannel() {
+  do { //スプレッドシート更新
+    err = {};
+    try {
+      writeData(cSheet, List);
+      console.log('スプレッドシート更新\nStill : ' + sL + '\nNew : ' + nL + '\nDrop : ' + dL);
+    } catch (e) {
+      console.log('スプレッドシート更新\n' + e.message);
+      err = e;
+    }
+  } while (!'message' in err);
 
 }

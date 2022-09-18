@@ -7,28 +7,16 @@ const pURL = sURL + '/wp-json/wp/v2/pages/';
 const rURL = sURL + '/wp-json/wp/v2/categories/';
 const tURL = sURL + '/wp-json/wp/v2/tags/';
 
-const apiKey = 'AIzaSyCMgNyHWJRWDrOZO9EWnL0LP0H_HJ-0gCM';
 const authUser = 'syo-zid';
 const authPass = 'lpwN R9pX bviV fliz CZIo wV8W';
 
 //■■■■ ファイルID ■■■■
 const cNo = [1,2,10,15,17,20,22,23,24,25,26,28];
-const fID = [,
+const fID = ['1WsUl5TYWxcE4ltAisWPja9fkqb5hd48uvAeT-r5HrQ4',
   ,,,,,,,,,,
   ,,,,,,,,, '1RfQm5kCOdYX4cnjYXcfMPNB4KE0Z17tF32v9PHnBUak',
   ,,,,,,,,,
 ];
-
-const vFile = SpreadsheetApp.openById(fID[vCat]);
-const cFile = SpreadsheetApp.openById('1WsUl5TYWxcE4ltAisWPja9fkqb5hd48uvAeT-r5HrQ4');
-const tFile = SpreadsheetApp.openById('1CqRNxJNTJttnqv5cYnkNoo-6DW_7RDlpLyaGXDz7CC8');
-
-const vSheet = vFile.getSheetByName('wV');
-const cSheet = cFile.getSheetByName('wC');
-const rSheet = vFile.getSheetByName('wR');
-const tSheet = tFile.getSheetByName('wT');
-const fSheet = vFile.getSheetByName('F');
-
 
 const date = new Date(Utilities.formatDate(new Date(), 'JST', 'yyyy-MM-dd HH:mm'));
 const tHour = date.getHours();
@@ -36,134 +24,56 @@ let ts = date.getTime() - (1000 * 60 * 60);
 ts = new Date(ts);
 const bHour = ts.getHours();
 
-let List = [];
-let Data = [];
-let cArg = [];
-let step = 0;
-let eFlag = true;
+function rFunction(vCat) {
 
-function rFunction() {
-
+  //フラグ取得
+  const vFile = SpreadsheetApp.openById(fID[vCat]);
+  const vSheet = vFile.getSheetByName('wV');
   const done = vSheet.getRange('A1').getValue();
+
   switch (done) {
 
     case tHour: return console.log('実施済み')
 
-    case bHour: //■■■■ doVideo ■■■■
-      try {
-        setFlag('f'+vCat);
-        eFlag = false;
-        doVideo();
-      } catch(e) {
-        console.log('【Video】エラー内容：'+e.message+'\nステップ：'+step);
-        if (!eFlag) { doVideo() }
-        if (eFlag && step) { console.log('【Video-連続】エラー内容：'+e.message+'\nステップ：'+step) }
-      } finally {
-        deleteFlag('f'+vCat);
-      }
-
-    case 'R': //■■■■ doReset ■■■■
-      try {
-        setFlag('f'+vCat);
-        step = 0;
-        eFlag = false;
-        doReset(vSheet);
-      } catch(e) {
-        if (!eFlag) { doReset(vSheet) }
-        console.log('【Reset】エラー内容：'+e.message+'\n行：'+step);
-        if (eFlag && step) { console.log('【Reset-連続】エラー内容：'+e.message+'\n行：'+step) }
-      } finally {
-        deleteFlag('f'+vCat);
-      }
-
-    case 'F': //■■■■ doFlash ■■■■
-      try {
-        setFlag('f'+vCat);
-        doFlash();
-        setFlag('todo');
-      } catch(e) {
-        console.log('【Flash】エラー内容：'+e.message);
-      } finally {
-        deleteFlag('f'+vCat);
-      }
-      return;
-
-    case 'S': //■■■■ doSummarize ■■■■
-
-    case 'C': //■■■■ doChannel ■■■■
-
-      //■■■■ updateChannel ■■■■
-
-
-      //■■■■ updateVideo ■■■■
-
-      //■■■■ createResult ■■■■
+    case bHour: //■■■■ fVideo ■■■■
+      try { setFlag(vCat, 'doing') }
+      catch(e) { return console.log('実施中') }
+      fVideo(vCat);
+      deleteFlag(vCat, 'doing');
+      return console.log('実行完了 : fVideo')
   }
-
-  return console.log('エラー：switch')
 }
 
-//■■■■ 単発編集 ■■■■
-  function editCategories() {
+//■■■■ SS関数 ■■■■
+function getData(sheet) {
 
-    let tData = getData(tSheet);
-    tData = tData.filter(x => x[1]==='C')
-    const len = tData.length;
+  const row = sheet.getLastRow();
+  const col = sheet.getLastColumn();
+  const src = sheet.getRange(1, 1, row, col).getValues();
+  return src
+}
 
-    for (let i=0; i<len; i++) {
-      const url = rURL + tData[i][2];
-      let arg = {
-        slug: tData[i][0],
-        name: tData[i][5],
-        description: tData[i][6],
-        cf: { child: tData[i][4].split(',')}
-      };
-      if (tData[i][3] !== ''){ arg.parent = tData[i][3] }
-      wpEdit(url, arg)
-    }
-  }
+function writeData(sheet, src) {
 
-  function editTags() {
+  sheet.getRange(1, 1, src.length, src[0].length).setValues(src);
+}
 
-    let tData = getData(tSheet);
-    tData = tData.filter(x => x[1]==='T')
-    const len = tData.length;
+function setFlag(vCat, flag) {
+  const vFile = SpreadsheetApp.openById(fID[vCat]);
+  const vSheet = vFile.getSheetByName('wV');
+  vFile.insertSheet(flag);
+}
 
-    for (let i=0; i<len; i++) {
-      const url = tURL + tData[i][2];
-      let arg = {
-        slug: tData[i][0],
-        name: tData[i][5],
-        description: tData[i][6],
-      };
-      wpEdit(url, arg)
-    }
-  }
+function deleteFlag(vCat, flag) {
+  const vFile = SpreadsheetApp.openById(fID[vCat]);
+  const vSheet = vFile.getSheetByName('wV');
+  vFile.deleteSheet(vFile.getSheetByName(flag));
+}
 
-  function deleteData() {
-    const sheet = vSheet;
-    const url = vURL;
+function deleteRows(sheet, src) {
 
-    let src = getData(sheet);
-    let id = [];
-
-    src = src.filter(function(x){
-      if (x[1]==='X') {
-        id.push(x[3])
-        return false;
-      }
-      else { return true }
-    })
-    const len = id.length
-    if (!len) { return }
-
-    sheet.clearContents();
-    writeData(sheet, src);
-
-    for (let i=0; i<len; i++) {
-      wpDelete(url+id[i]);
-    }
-  }
+  sheet.getRange(1, 1, src.length, src[0].length).setValues(src);
+}
 
 //■■■■ WP関数 ■■■■
 function wpView(url) {
@@ -232,41 +142,131 @@ function wpDelete(url) {
   return resJson
 }
 
-//■■■■ SS関数 ■■■■
-function getData(sheet) {
+function fOther() {
 
-  const row = sheet.getLastRow();
-  const col = sheet.getLastColumn();
-  const src = sheet.getRange(1, 1, row, col).getValues();
-  return src
+  //■■■■ 変数 ■■■■
+  const tFile = SpreadsheetApp.openById('1CqRNxJNTJttnqv5cYnkNoo-6DW_7RDlpLyaGXDz7CC8');
+  const tSheet = tFile.getSheetByName('wT');
+
+  //editCategories();
+  //editTags()
+
+  //const vFile = SpreadsheetApp.openById(fID[vCat]);
+  //const vSheet = vFile.getSheetByName('wV');
+  //const cFile = SpreadsheetApp.openById('1WsUl5TYWxcE4ltAisWPja9fkqb5hd48uvAeT-r5HrQ4');
+  //const cSheet = cFile.getSheetByName('wC');;
+  //deleteData(sheet, url);
+
+  function editCategories() {
+
+    let tData = getData(tSheet);
+    tData = tData.filter(x => x[1]==='C')
+    const len = tData.length;
+
+    for (let i=0; i<len; i++) {
+      const url = rURL + tData[i][2];
+      let arg = {
+        slug: tData[i][0],
+        name: tData[i][5],
+        description: tData[i][6],
+        cf: { child: tData[i][4].split(',')}
+      };
+      if (tData[i][3] !== ''){ arg.parent = tData[i][3] }
+      wpEdit(url, arg)
+    }
+  }
+
+  function editTags() {
+
+    let tData = getData(tSheet);
+    tData = tData.filter(x => x[1]==='T')
+    const len = tData.length;
+
+    for (let i=0; i<len; i++) {
+      const url = tURL + tData[i][2];
+      let arg = {
+        slug: tData[i][0],
+        name: tData[i][5],
+        description: tData[i][6],
+      };
+      wpEdit(url, arg)
+    }
+  }
+
+  function deleteData(sheet, url) {
+
+    let src = getData(sheet);
+    let id = [];
+
+    src = src.filter(function(x){
+      if (x[1]==='X') {
+        id.push(x[3])
+        return false;
+      }
+      else { return true }
+    })
+    const len = id.length
+    if (!len) { return }
+
+    sheet.clearContents();
+    writeData(sheet, src);
+
+    for (let i=0; i<len; i++) {
+      wpDelete(url+id[i]);
+    }
+  }
+
 }
 
-function writeData(sheet, src) {
+function fVideo(vCat) {
 
-  sheet.getRange(1, 1, src.length, src[0].length).setValues(src);
-}
+  //■■■■ 変数 ■■■■
+  const today = Utilities.formatDate(new Date(), 'Etc/GMT-4', 'yyyy-MM-dd');
+  const tDay = new Date(today).getDay();
+  const tDate = new Date(today).getDate();
 
-function setFlag(flag) { rFile.insertSheet(flag) }
+  const lb_n = Utilities.formatDate(new Date(), 'JST', 'yyyy-MM-dd HH:') + '00';
+  ts = new Date(lb_n).getTime() - (1000 * 60 * 60);
+  const lb_b = Utilities.formatDate(new Date(ts), 'JST', 'yyyy-MM-dd HH:') + '00';
 
-function deleteFlag(flag) { rFile.deleteSheet(rFile.getSheetByName(flag)) }
+  const ratio = [,
+    0.113,0.1,0.0995,0.099,0.0985,0.086,0.0855,0.085,0.0845,0.084,
+    0.0705,0.07,0.0695,0.069,0.0685,0.068,0.0675,0.067,0.0665,0.066,
+    0.0655,0.065,0.0645,0.0525,0.052,0.0515,0.051,0.0505,0.05,0.0495,
+    0.049,0.0485,0.048,0.0475,0.047,0.0465,0.046,0.0455,0.045,0.0445,
+    0.044,0.0435,0.043,0.0425,0.042,0.0415,0.041,0.0405,0.04,0.0395,
+    0.0345,0.034,0.0335,0.033,0.0325,0.032,0.0315,0.031,0.0305,0.03,
+    0.0295,0.029,0.0285,0.028,0.0275,0.027,0.0265,0.026,0.0255,0.025,
+    0.0245,0.024,0.0235,0.023,0.0225,0.022,0.0215,0.021,0.0205,0.02,
+    0.0195,0.019,0.0185,0.018,0.0175,0.017,0.0165,0.016,0.0155,0.015,
+    0.0145,0.014,0.0135,0.013,0.0125,0.012,0.0115,0.011,0.0105,0.01
+  ];
 
-function deleteRows(sheet, src) {
+  const cat = [,
+    '映画とアニメ','自動車と乗り物',,,,,,,,'音楽',
+    ,,,,'ペットと動物',,'スポーツ',,,'ゲーム',
+    ,'ブログ','お笑い','エンタメ','ニュースと政治','ハウツーとスタイル',,'科学と技術',
+  ];
 
-  sheet.getRange(1, 1, src.length, src[0].length).setValues(src);
-}
+  const vFile = SpreadsheetApp.openById(fID[vCat]);
+  const vSheet = vFile.getSheetByName('wV');
 
-//■■■■ YT関数 ■■■■
-function getPopular(nextPageToken) {
+  let List = [];
+  let vData = [];
+  let yData = [];
+  let New = 0;
+  let Still = 0;
+  let Drop = [];
+  let lL = 0;
+  let yL = 0;
+  let dL = 0;
+  let rank = 0;
+  let row = 0;
+  let start = 1;
+  let arg = {};
+  let err = {};
 
-  const part = 'snippet,contentDetails,statistics';
-  const vfields = 'items(id,snippet(title,description,publishedAt,thumbnails(medium(url)),tags,channelId,channelTitle),contentDetails(duration),statistics(viewCount,likeCount,commentCount)),nextPageToken';
-  const options = {chart: 'mostPopular', regionCode: 'jp', videoCategoryId: vCat, maxResults: 50, fields: vfields, pageToken: nextPageToken};
-
-  const resJson = YouTube.Videos.list(part, options);
-  return resJson
-}
-
-//■■■■ 文字列操作 ■■■■
+  //■■■■ 文字列操作 ■■■■
   function strFromArr(arr) {
     if (typeof(arr)) { str = arr.join() }
     else if (typeof(arr)==='undefined') { str = '' }
@@ -317,126 +317,37 @@ function getPopular(nextPageToken) {
     else { return String(Math.floor(num/1000)/10) }
   }
 
-function doVideo() {
-
-  //■■■■ 変数 ■■■■
-  if (!eFlag) { List = getData(vSheet) }
-  let rank = 0;
-  let row = 0;
-  let start = 1;
-
-  const today = Utilities.formatDate(new Date(), 'Etc/GMT-4', 'yyyy-MM-dd');
-  const tDay = new Date(today).getDay();
-  const tDate = new Date(today).getDate();
-
-  const lb_n = Utilities.formatDate(new Date(), 'JST', 'yyyy-MM-dd HH:') + '00';
-  ts = new Date(lb_n).getTime() - (1000 * 60 * 60);
-  const lb_b = Utilities.formatDate(new Date(ts), 'JST', 'yyyy-MM-dd HH:') + '00';
-
-  const ratio = [,
-    0.113,0.1,0.0995,0.099,0.0985,0.086,0.0855,0.085,0.0845,0.084,
-    0.0705,0.07,0.0695,0.069,0.0685,0.068,0.0675,0.067,0.0665,0.066,
-    0.0655,0.065,0.0645,0.0525,0.052,0.0515,0.051,0.0505,0.05,0.0495,
-    0.049,0.0485,0.048,0.0475,0.047,0.0465,0.046,0.0455,0.045,0.0445,
-    0.044,0.0435,0.043,0.0425,0.042,0.0415,0.041,0.0405,0.04,0.0395,
-    0.0345,0.034,0.0335,0.033,0.0325,0.032,0.0315,0.031,0.0305,0.03,
-    0.0295,0.029,0.0285,0.028,0.0275,0.027,0.0265,0.026,0.0255,0.025,
-    0.0245,0.024,0.0235,0.023,0.0225,0.022,0.0215,0.021,0.0205,0.02,
-    0.0195,0.019,0.0185,0.018,0.0175,0.017,0.0165,0.016,0.0155,0.015,
-    0.0145,0.014,0.0135,0.013,0.0125,0.012,0.0115,0.011,0.0105,0.01
-  ];
-
-  const cat = [,
-    '映画とアニメ','自動車と乗り物',,,,,,,,'音楽',
-    ,,,,'ペットと動物',,'スポーツ',,,'ゲーム',
-    ,'ブログ','お笑い','エンタメ','ニュースと政治','ハウツーとスタイル',,'科学と技術',
-  ]
-
-  //■■■■ BS ■■■■
-  function bsMin(col, target, from, to) {
-    while (from <= to) {
-      const middle = from + Math.floor((to - from) / 2);
-      if (List[middle][col] < target) {
-        from = middle + 1;
-      } else {
-        to = middle - 1;
-      }
-    }
-    return from;
-  }
-
-  function bsMax(col, target, from, to) {
-    while (from !== to) {
-      const middle = from + Math.ceil((to - from) / 2);
-      if (List[middle][col] > target) {
-        to = middle - 1;
-      } else {
-        from = middle;
-      }
-    }
-    if (List[from][col] === target) {
-      return from;
-    } else {
-      return 0;
-    }
-  }
-
-  function bsRange(col, target) {
-    const from = bsMin(col, target, 0, List.length - 1);
-    const to = bsMax(col, target, from, List.length - 1);
-    return { from: from, to: to };
-  }
-
-  //■■■■ convertTime ■■■■
-  function convertTime(duration) {
-
-    if (duration === '' || duration === 'P0D' || duration.slice(0,2) === 'P1') { return }
-    var reg = new RegExp('^PT([0-9]*H)?([0-9]*M)?([0-9]*S)?');
-    var regResult = duration.match(reg);
-
-    var hour = regResult[1];
-    var minutes = regResult[2];
-    var sec = regResult[3];
-
-    if(hour == undefined) {hour = '00';}
-    else {
-      hour = hour.split('H')[0];
-      if(hour.length == 1){hour = '0' + hour;}
-    }
-
-    if(minutes == undefined) {minutes = '00';}
-    else {
-      minutes = minutes.split('M')[0];
-      if(minutes.length == 1){minutes = '0' + minutes;}
-    }
-
-    if(sec == undefined) {sec = '00';}
-    else {
-      sec = sec.split('S')[0];
-      if(sec.length == 1){sec = '0' + sec;}
-    }
-
-    return hour + ":" + minutes + ":" + sec
-  }
-
-  function vReset() {
-    List = List.map(function(x){
-      if (typeof(x[1]) === 'number') {x[1] = 'R'}
-      return x
-    });
-    writeData(vSheet, List);
-  }
-
-  function vSetData(json) {
+  function vSetData(json) { //yData[ yID, yJ, rank, wID, channelID, ListRow ]
     json.items.forEach((j) => {
-      const src = [j.id, j, ++rank];
-      Data.push(src);
+      const src = [j.id, j, ++rank, , j.snippet.channelId, ];
+      yData.push(src);
     });
+  }
+
+  function updateList(i) {
+    row = (lL) ? bsMax(2, yData[i][0], start, lL): 0;
+    if (row) {
+      Still++;
+      List[row][0] = today;
+      List[row][1] = yData[i][2];
+      yData[i][3] = List[row][3];
+      yData[i][5] = row;
+    }
+    else {
+      New++;
+      row = bsMin(2, yData[i][0], start, lL++);
+      List.splice(row, 0, [today, yData[i][2], yData[i][0], , yData[i][4]]);
+      yData[i][3] = 0;
+      yData[i][5] = row;
+    }
+    start = (row<lL) ? row + 1: row;
   }
 
   function vArguments(i) {
-    const wpJ = (row) ? wpView(vURL+List[row][3]): {};
-    const ytJ = Data[i][1];
+
+    //■■■■ 変数 ■■■■
+    const wpJ = (row) ? vData.filter(x => x.cf.yt === yData[i][0])[0]: {};
+    const ytJ = yData[i][1];
 
     //■■■■ 各種項目 ■■■■
     function vTitle(str) {
@@ -448,11 +359,42 @@ function doVideo() {
     }
 
     function vExcerpt(i) {
-      return '【視聴数' + strView(ytJ.statistics.viewCount) + '万|' + cat[vCat] + '#' + Data[i][2] + '位】YouTube急上昇ランキングを集計！"' + ytJ.snippet.channelTitle + '"のバズり動画⇒' + ytJ.snippet.title
+      return '【視聴数' + strView(ytJ.statistics.viewCount) + '万|' + cat[vCat] + '#' + yData[i][2] + '位】YouTube急上昇ランキングを集計！"' + ytJ.snippet.channelTitle + '"のバズり動画⇒' + ytJ.snippet.title
+    }
+
+    function convertTime(duration) {
+
+      if (duration === '' || duration === 'P0D' || duration.slice(0,2) === 'P1') { return }
+      var reg = new RegExp('^PT([0-9]*H)?([0-9]*M)?([0-9]*S)?');
+      var regResult = duration.match(reg);
+
+      var hour = regResult[1];
+      var minutes = regResult[2];
+      var sec = regResult[3];
+
+      if(hour == undefined) {hour = '00';}
+      else {
+        hour = hour.split('H')[0];
+        if(hour.length == 1){hour = '0' + hour;}
+      }
+
+      if(minutes == undefined) {minutes = '00';}
+      else {
+        minutes = minutes.split('M')[0];
+        if(minutes.length == 1){minutes = '0' + minutes;}
+      }
+
+      if(sec == undefined) {sec = '00';}
+      else {
+        sec = sec.split('S')[0];
+        if(sec.length == 1){sec = '0' + sec;}
+      }
+
+      return hour + ":" + minutes + ":" + sec
     }
 
     let a = {};
-    if (row) {
+    if (yData[i][3]) {
       a = {
         slug: 'v-'+List[row][3],
 //        status: 'private',
@@ -464,12 +406,13 @@ function doVideo() {
           name: ytJ.snippet.title,
           desc: ytJ.snippet.description,
           thmb: ytJ.snippet.thumbnails.medium.url,
+          yt_t: ytJ.snippet.tags,
           lb_n: lb_n,
           lb24: wpJ.cf.lb24.concat(lb_n),
-          rn_n: Data[i][2],
-          rn24: wpJ.cf.rn24.concat(Data[i][2]),
-          rt_n: Number(wpJ.cf.rt_n) + ratio[Data[i][2]],
-          rt24: wpJ.cf.rt24.concat(Number(wpJ.cf.rt_n) + ratio[Data[i][2]]),
+          rn_n: yData[i][2],
+          rn24: wpJ.cf.rn24.concat(yData[i][2]),
+          rt_n: Number(wpJ.cf.rt_n) + ratio[yData[i][2]],
+          rt24: wpJ.cf.rt24.concat(Number(wpJ.cf.rt_n) + ratio[yData[i][2]]),
           vw_n: ytJ.statistics.viewCount,
           vw24: wpJ.cf.vw24.concat(ytJ.statistics.viewCount),
           lk_n: ytJ.statistics.likeCount,
@@ -493,7 +436,7 @@ function doVideo() {
         a.cf.pd_f = lb_n;
         a.cf.pd_l = lb_n;
       }
-      if (a.cf.pd_n >= a.cf.pd_b) {
+      if (Number(a.cf.pd_n) >= Number(a.cf.pd_b)) {
         a.cf.pd_b = a.cf.pd_n;
         a.cf.pd_s = wpJ.pd_f;
         a.cf.pd_e = lb_n;
@@ -532,13 +475,13 @@ function doVideo() {
       a = {
         date: Utilities.formatDate(new Date(ytJ.snippet.publishedAt), 'JST', 'yyyy-MM-dd HH:mm:ss'),
         slug: 'v-'+ytJ.statistics.viewCount,
-        status: 'private',
+        status: 'publish',
         title: vTitle(ytJ.snippet.channelTitle),
         content: vContent(i),
         excerpt: vExcerpt(i),
         featured_media: 0,
         categories: [vCat],
-        tags: [Data[i][2]+100, Data[i][2]+200],
+        tags: [yData[i][2]+100, yData[i][2]+200],
         cf: {
           name: ytJ.snippet.title,
           desc: ytJ.snippet.description,
@@ -547,7 +490,8 @@ function doVideo() {
           dur: convertTime(ytJ.contentDetails.duration),
           yt: ytJ.id,
           channel: ytJ.snippet.channelId,
-          rn_b: Data[i][2],
+          yt_t: ytJ.snippet.tags,
+          rn_b: yData[i][2],
           rn_d: lb_n,
           pd_b: 0,
           pd_s: lb_n,
@@ -559,14 +503,14 @@ function doVideo() {
           pd_n: 0,
           pd_f: lb_n,
           pd_l: lb_n,
-          rn_n: Data[i][2],
-          rn24: [Data[i][2]],
-          rn7: [Data[i][2]],
-          rn12: [Data[i][2]],
-          rt_n: ratio[Data[i][2]],
-          rt24: [ratio[Data[i][2]]],
-          rt7: [ratio[Data[i][2]]],
-          rt12: [ratio[Data[i][2]]],
+          rn_n: yData[i][2],
+          rn24: [yData[i][2]],
+          rn7: [yData[i][2]],
+          rn12: [yData[i][2]],
+          rt_n: ratio[yData[i][2]],
+          rt24: [ratio[yData[i][2]]],
+          rt7: [ratio[yData[i][2]]],
+          rt12: [ratio[yData[i][2]]],
           vw_n: ytJ.statistics.viewCount,
           vw24: [ytJ.statistics.viewCount],
           vw7: [ytJ.statistics.viewCount],
@@ -585,81 +529,20 @@ function doVideo() {
     return a
   }
 
-  function vUpdate(json) {
-    return [today, json.cf.rn_n, json.cf.yt, json.id, json.cf.channel]
+  function getPopular(nextPageToken) {
+
+    const part = 'snippet,contentDetails,statistics';
+    const vfields = 'items(id,snippet(title,description,publishedAt,thumbnails(medium(url)),tags,channelId,channelTitle),contentDetails(duration),statistics(viewCount,likeCount,commentCount)),nextPageToken';
+    const filter = '?part='+part+'&chart=mostPopular&regionCode=jp&maxResults=50&videoCategoryId='+vCat+'&fields='+vfields+'&key='+apiKey;
+    const token = (nextPageToken)? '&pageToken='+nextPageToken: '';
+
+    const url = 'https://youtube.googleapis.com/youtube/v3/videos' + filter + token;
+
+    const options = {"muteHttpExceptions" : true,};
+    const resJson = JSON.parse(UrlFetchApp.fetch(url, options).getContentText());
+
+    return resJson
   }
-
-  function vPost() {
-
-    for (let i=step; i<DataL; i++) {
-      row = (ListL) ? bsMax(2, Data[i][0], start, ListL): 0;
-      if (row) {
-        const url = vURL + List[row][3];
-        const vJson = wpEdit(url, vArguments(i));
-        List[row] = vUpdate(vJson);
-      }
-      else {
-        const url = vURL;
-        const vJson = wpEmbed(url, vArguments(i));
-        row = bsMin(2, Data[i][0], start, ListL++);
-        List.splice(row, 0, vUpdate(vJson));
-      }
-      start = (row<ListL) ? row + 1: row;
-      step++;
-      eFlag = false;
-    }
-  }
-
-  //■■■■ 処理開始 ■■■■
-  if (!eFlag) {
-    vReset();
-    const vJson1 = getPopular();
-    const vJson2 = (typeof(vJson1.nextPageToken)==='undefined') ? {}: getPopular(vJson1.nextPageToken);
-    vSetData(vJson1);
-    vSetData(vJson2);
-    Data = Data.sort((a, b) => (a > b)? 1: -1);
-  }
-
-  const DataL = Data.length;
-  let ListL = List.length - 1;
-
-  vPost(step);
-  writeData(vSheet, List);
-  vSheet.getRange('A1').setValue('R');
-}
-
-function doReset(sheet) {
-  List = getData(sheet);
-  const ListL = List.length;
-  const url = (sheet === vSheet)? vURL: cURL;
-
-  for (let i=step; i<ListL; i++) {
-    if (List[i][1]==='R') {
-      const tags = wpView(url+List[i][3]).tags.filter(x => x > 200);
-      const arg = { tags: tags };
-      wpEdit(url+List[i][3], arg);
-      List[i][1] = 'D';
-      step++;
-      eFlag = false;
-    }
-  }
-  writeData(sheet, List)
-  sheet.getRange('A1').setValue((sheet === vSheet)? 'F': tHour);
-}
-
-function doFlash() {
-  Data = getData(vSheet);
-  Data = Data.filter(x => typeof(x[1]) === 'number').sort((a, b) => (a[1] > b[1])? 1: -1).map(x => x[3]);
-  arg = { cf: {child: Data } }
-  wpEdit(oURL+vCat, arg);
-  vSheet.getRange('A1').setValue(tHour);
-}
-
-function doSummarize() {
-
-  //■■■■ 変数 ■■■■
-  const filtering = '?per_page=100&tags=101+102+103+104+105+106+107+108+109+110+111+112+113+114+115+116+117+118+119+120+121+122+123+124+125+126+127+128+129+130+131+132+133+134+135+136+137+138+139+140+141+142+143+144+145+146+147+148+149+150+151+152+153+154+155+156+157+158+159+160+161+162+163+164+165+166+167+168+169+170+171+172+173+174+175+176+177+178+179+180+181+182+183+184+185+186+187+188+189+190+191+192+193+194+195+196+197+198+199+200&page=';
-  let Src = [];
 
   //■■■■ BS ■■■■
   function bsMin(col, target, from, to) {
@@ -690,97 +573,141 @@ function doSummarize() {
     }
   }
 
-  function bsRange(col, target) {
-    const from = bsMin(col, target, 0, List.length - 1);
-    const to = bsMax(col, target, from, List.length - 1);
-    return { from: from, to: to };
-  }
+  do { //List更新、YT動画情報取得、WP動画情報取得
+    err = {};
 
-  //■■■■ YT関数 ■■■■
-  function getChannel(cID, nextPageToken) {
+    try {
+      List = getData(vSheet).map(function(x){
+        if (typeof(x[1]) === 'number') {x[1] = 'R'}
+        return x
+      });
+      lL = List.length - 1;
+      rank = 0;
+      row = 0;
+      start = 1;
+      Still = 0;
+      New = 0;
 
-    const part = 'snippet,statistics';
-    const cfields = 'items(id,snippet(title,description,publishedAt,thumbnails(medium(url)),customUrl),statistics(viewCount,subscriberCount,videoCount)),nextPageToken';
-    const options = {id: cID, fields: cfields, pageToken: nextPageToken};
+      yData = [];
+      const vJson1 = getPopular();
+      const vJson2 = (typeof(vJson1.nextPageToken)==='undefined') ? {}: getPopular(vJson1.nextPageToken);
+      vSetData(vJson1);
+      vSetData(vJson2);
+      yData = yData.sort((a, b) => (a > b)? 1: -1);
+      yL = yData.length;
 
-    const resJson = YouTube.Channels.list(part, options);
-    return resJson
-  }
-
-  function getActivities(cID, nextPageToken) {
-
-    const part = 'id,snippet'
-    const afields = 'items(id,snippet(title,description,publishedAt,thumbnails(medium(url))))';
-    const options = {channelId: cID, fields: afields, maxResults: 10, pageToken: nextPageToken};
-
-    const resJson = YouTube.Activities.list(part, options);
-    return resJson
-  }
-
-  function cReset() {
-    List = getData(cSheet);
-    List = List.map(function(x){
-      if (typeof(x[1]) === 'number') {x[1] = 'R'}
-      return x
-    });
-    writeData(cSheet, List);
-  }
-
-  cReset();
-
-  Data = [];
-  const cNum = cNo.length;
-
-  for (let i=1; i<=cNum; i++) {
-    const url = vURL + filtering + i;
-    const videos = wpView(url);
-    Data = Data.concat(('data' in videos) ? []: videos);
-  }
-  Data = Data.sort((a,b) => ((a.cf.channel > b.cf.channel) ?  1: -1) );
-  const DataL = Data.length;
-
-  let i = 0;
-  while (i<DataL) {
-    let c = 0;
-    let channels = '';
-    while (c<50 && i<DataL) {
-      c++;
-      channels += Data[i].cf.channel;
-      let f = true;
-      while (f) {
-        if (i+1<DataL) {
-          if (Data[i+1].cf.channel === Data[i].cf.channel) {
-            i++;
-          }
-          else { f = false }
+      let vID = [];
+      for (let i=0; i<yL; i++) {
+        updateList(i);
+        if (yData[i][3]) { vID.push(yData[i][3]) }
+        if (i===50-1 || i===yL-1) {
+          let url = vURL + '?per_page=100&include=' + vID.join('+');
+          if (vID.length) { vData = vData.concat(wpView(url)) }
+          vID = [];
         }
-        else { f = false }
       }
+      Drop = List.filter(x => x[1] === 'R');
+      dL = Drop.length;
+      lL = List.length;
+      for (let i=0; i<lL; i++) {
+        if (List[i][1] === 'R') { List[i][1] = 'D'}
+      }
+      console.log('Still : ' + Still + '\nNew : ' + New + '\nDrop : ' + dL);
+    } catch (e) {
+      console.log('List更新、YT動画情報取得、WP動画情報取得\n' + e.message);
+      err = e;
     }
-    Src.concat(getChannel(channels).items);
-  }
+  } while (!'message' in err);
 
-  for (let i=0; i<cNum; i++) {
-    let d = [];
-    let f = true;
-    for (let j=0; j<50; j++) {
-        d[j] = '';//Src と Data で共通するChannelデータからArg作る
-
-      if (j+1<cNum) {break}
+  do { //Arg
+    err = {};
+    try {
+      for (let i=0; i<yL; i++) { yData[i][4] = vArguments(i) }
+      console.log('Arg : ' + yL);
+    } catch (e) {
+      console.log('Arg\n' + e.message);
+      err = e;
     }
-    if (!f) {break}
-  }
-  row = List.findIndex(x => x[2] === Data[j].cf.channel);
-  cArg.push(cSetArg(Data.slice(j-v+1,j+1)));
+  } while (!'message' in err);
 
+  do { //Post
+    err = {};
+    Still = 0;
+    New = 0;
+    try {
+      for (let i=0; i<yL; i++) {
+        if (yData[i][3]) {
+          Still++;
+          wpEdit(vURL+yData[i][3], yData[i][4]);
+        }
+        else {
+          New++;
+          List[yData[i][5]][3] = wpEmbed(vURL, yData[i][4]).id;
+        }
+      }
+      console.log('Post : ' + yL + '\nStill : ' + Still + '\nNew : ' + New);
+    } catch (e) {
+      console.log('Post\n' + e.message);
+      err = e;
+    }
+  } while (!'message' in err);
 
-  }
+  do { //スプレッドシート更新
+    err = {};
+    try {
+      writeData(vSheet, List);
+      console.log('スプレッドシート更新完了');
+    } catch (e) {
+      console.log('スプレッドシート更新\n' + e.message);
+      err = e;
+    }
+  } while (!'message' in err);
 
-  let vSheets = fileID;
-  vSheets = vSheets.map(x => (x)? SpreadsheetApp.openById(x): x);
-  vSheets = vSheets.map(x => (x)? x.getSheetByName('wV'): x);
+  do { //Flash
+    err = {};
+    try {
+      List = List.filter(x => typeof(x[1]) === 'number').sort((a, b) => (a[1] > b[1])? 1: -1).map(x => x[3]);
+      arg = { cf: {child: List } }
+      wpEdit(oURL+vCat, arg);
+      console.log('Flash完了');
+    } catch (e) {
+      console.log('Flash\n' + e.message);
+      err = e;
+    }
+  } while (!'message' in err);
 
+  do { //Reset
+    err = {};
+    try {
+      if (dL) {
+        const url = vURL + '?per_page=100&include=' + Drop.map(x => x[3]).join('+');
+        vData = wpView(url+List[i][3]);
+        for (let i=0; i<dL; i++) {
+          arg = { tags: vData[i].tags.filter(x => x > 200) }
+          wpEdit(vURL+Drop[i][3], arg);
+        }
+      }
+      console.log('Reset完了 : ' + dL);
+    } catch (e) {
+      console.log('Reset\n' + e.message);
+      err = e;
+    }
+  } while (!'message' in err);
 
-function doChannel() {
+  do { //SetFlag
+    err = {};
+    try {
+      vSheet.getRange('A1').setValue(tHour);
+      const cFile = SpreadsheetApp.openById(fID[0]);
+      const fSheet = cFile.getSheetByName('F');
+      const dat = getData(fSheet);
+      row = dat.findIndex(x => x[0]===vCat) + 1;
+      fSheet.getRange(row, 2).setValue(tHour);
+      console.log('SetFlag完了 : ' + tHour);
+    } catch (e) {
+      console.log('SetFlag\n' + e.message);
+      err = e;
+    }
+  } while (!'message' in err);
 
 }
