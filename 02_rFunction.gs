@@ -25,19 +25,22 @@ const bHour = ts.getHours();
 function rFunction() {
 
   //フラグ取得
-  let done = getData(fSheet);
-  done = done[6][1];
+  const done = getData(fSheet);
+  let flag = true;
+  for (let i=1; i<13; i++) {
+    if (done[i][1]===tHour) { done[i][1] = 'Done' }
+    else { flag = false }
+  }
+  switch (flag) {
 
-  switch (done) {
+    case false: return console.log('実施済み')
 
-    case 'Done': return console.log('実施済み')
-
-    case tHour: //■■■■ fSummarize ■■■■
+    case true: //■■■■ fSummarize ■■■■
       try { setFlag('doing') }
       catch(e) { return console.log('実施中') }
       fSummarize();
       deleteFlag('doing');
-      fSheet.getRange('B7').setValue('Done');
+      writeData(fSheet, done);
       return console.log('実行完了 : fSummarize')
   }
 }
@@ -132,17 +135,6 @@ function deleteRows(sheet, src) {
   sheet.getRange(1, 1, src.length, src[0].length).setValues(src);
 }
 
-//■■■■ YT関数 ■■■■
-function getPopular(nextPageToken) {
-
-  const part = 'snippet,contentDetails,statistics';
-  const vfields = 'items(id,snippet(title,description,publishedAt,thumbnails(medium(url)),tags,channelId,channelTitle),contentDetails(duration),statistics(viewCount,likeCount,commentCount)),nextPageToken';
-  const options = {chart: 'mostPopular', regionCode: 'jp', videoCategoryId: vCat, maxResults: 50, fields: vfields, pageToken: nextPageToken};
-
-  const resJson = YouTube.Videos.list(part, options);
-  return resJson
-}
-
 //■■■■ 文字列操作 ■■■■
   function strFromArr(arr) {
     if (typeof(arr)) { str = arr.join() }
@@ -209,6 +201,7 @@ function fSummarize() {
   let cL = 0;
   let sL = 0;
   let nL = 0;
+  let dL = 0;
   let row = 0;
   let start = 1;
   let s = 0;
@@ -273,30 +266,18 @@ function fSummarize() {
     }
   }
 
-  function bsRange(col, target) {
-    const from = bsMin(col, target, 0, List.length - 1);
-    const to = bsMax(col, target, from, List.length - 1);
-    return { from: from, to: to };
-  }
-
   //■■■■ YT関数 ■■■■
-  function getChannel(cID, nextPageToken) {
+  function getChannel(id) {
 
-    const part = 'id,snippet,statistics';
-    const cfields = 'items(id,snippet(title,description,publishedAt,thumbnails(medium(url)),customUrl),statistics(viewCount,subscriberCount,videoCount)),nextPageToken';
-    const options = {id: cID, fields: cfields, pageToken: nextPageToken};
+    const part = 'snippet,statistics';
+    const cfields = 'items(id,snippet(title,description,publishedAt,thumbnails(medium(url)),customUrl),statistics(viewCount,subscriberCount,videoCount))';
+    const filter = '?part='+part+'&id='+id+'&maxResults=50&fields='+cfields+'&key='+apiKey;
 
-    const resJson = YouTube.Channels.list(part, options);
-    return resJson
-  }
+    const url = 'https://youtube.googleapis.com/youtube/v3/channels' + filter;
 
-  function getActivities(cID, nextPageToken) {
+    const options = {"muteHttpExceptions" : true,};
+    const resJson = JSON.parse(UrlFetchApp.fetch(url, options).getContentText());
 
-    const part = 'id,snippet'
-    const afields = 'items(id,snippet(title,description,publishedAt,thumbnails(medium(url))))';
-    const options = {channelId: cID, fields: afields, maxResults: 10, pageToken: nextPageToken};
-
-    const resJson = YouTube.Activities.list(part, options);
     return resJson
   }
 
@@ -307,7 +288,7 @@ function fSummarize() {
     let s = 0;
     let e = 0;
     while (s < wL) {
-      e = (s+50-1 < wL)? s+50: wL;
+      e = (s+100-1 < wL)? s+100: wL;
       url = cURL + '?per_page=100&include=' + wID.slice(s,e).join('+');
       cData = cData.concat(wpView(url));
       s = e;
@@ -356,11 +337,17 @@ function fSummarize() {
       case 'S':
         vJ = vData.slice(Still[i][3], Still[i][4]).sort(function(a,b){ return ((a.cf.rn_n > b.cf.rn_n) ?  1: -1) });
         rt = vJ.reduce((sum, x) => sum + ratio[x.cf.rn_n], 0);
-        video = vJ.map(x => x.id);
+        vd_n = vJ.map(x => x.id);
+        vd_m = vJ.map(x => x.id);
+        vd_y = vJ.map(x => x.id);
+        vd_t = vJ.map(x => x.id);
 
         yJ = yData.filter(x => x.id === Still[i][0])[0];
         cJ = cData.filter(x => x.id === Still[i][1])[0];
-        video = Array.from(new Set(video.concat(cJ.video)));
+        vd_n = Array.from(new Set(vd_n.concat(cJ.cf.vd_n)));
+        vd_m = Array.from(new Set(vd_m.concat(cJ.cf.vd_m)));
+        vd_y = Array.from(new Set(vd_y.concat(cJ.cf.vd_y)));
+        vd_t = Array.from(new Set(vd_t.concat(cJ.cf.vd_t)));
         a = {
           slug: 'c-'+cJ.id,
   //        status: 'private',
@@ -390,9 +377,9 @@ function fSummarize() {
         if (Number(a.cf.rn_n) <= Number(cJ.cf.rn_b)) {
           a.cf.rn_b = a.cf.rn_n;
           a.cf.rn_d = lb_n;
-          a.tags = cJ.tags.filter(x => x > 300).concat(a.cf.rn_n+100, a.cf.rn_n+200);
+          a.tags = cJ.tags.filter(x => Number(x) > 300).concat(Number(a.cf.rn_n)+100, Number(a.cf.rn_n)+200);
         } else {
-          a.tags = cJ.tags.filter(x => x > 200).concat(a.cf.rn_n+100);
+          a.tags = cJ.tags.filter(x => Number(x) > 200).concat(Number(a.cf.rn_n)+100);
         }
         if (cJ.cf.pd_l === lb_b) {
           a.cf.pd_n = Number(cJ.cf.pd_n) + 1;
@@ -402,12 +389,12 @@ function fSummarize() {
           a.cf.pd_f = lb_n;
           a.cf.pd_l = lb_n;
         }
-        if (a.cf.pd_n >= a.cf.pd_b) {
+        if (Number(a.cf.pd_n) >= Number(cJ.cf.pd_b)) {
           a.cf.pd_b = a.cf.pd_n;
-          a.cf.pd_s = cJ.pd_f;
+          a.cf.pd_s = cJ.cf.pd_f;
           a.cf.pd_e = lb_n;
         }
-        if (cJ.cf.lb7[cJ.cf.lb7.length-1] !== today &&  tDay === 1) {
+        if (cJ.cf.lb7[cJ.cf.lb7.length-1] !== today && tDay === 1) {
           a.cf.lb7 = cJ.cf.lb7.concat(today);
           a.cf.rn7 = cJ.cf.rn7.concat(a.cf.rn_n);
           a.cf.rt7 = cJ.cf.rt7.concat(a.cf.rt_n);
@@ -422,7 +409,7 @@ function fSummarize() {
           a.cf.sb7 = cJ.cf.sb7.slice(0,-1).concat(a.cf.sb_n);
           a.cf.vc7 = cJ.cf.vc7.slice(0,-1).concat(a.cf.vc_n)
         }
-        if (cJ.cf.lb12[cJ.cf.lb12.length-1] !== today &&  tDate === 1) {
+        if (cJ.cf.lb12[cJ.cf.lb12.length-1] !== today && (tDate === 1 || tDate === 16)) {
           a.cf.lb12 = cJ.cf.lb12.concat(today);
           a.cf.rn12 = cJ.cf.rn12.concat(a.cf.rn_n);
           a.cf.rt12 = cJ.cf.rt12.concat(a.cf.rt_n);
@@ -442,7 +429,10 @@ function fSummarize() {
         vJ = vData.slice(New[i][3], New[i][4]).sort(function(a,b){ return ((a.cf.rn_n > b.cf.rn_n) ?  1: -1) });
         rt = vJ.reduce((sum, x) => sum + ratio[x.cf.rn_n], 0);
         yJ = yData.filter(x => x.id === New[i][0])[0];
-        video = vJ.map(x => x.id);
+        vd_n = vJ.map(x => x.id);
+        vd_m = vJ.map(x => x.id);
+        vd_y = vJ.map(x => x.id);
+        vd_t = vJ.map(x => x.id);
 
         a = {
           date: Utilities.formatDate(new Date(yJ.snippet.publishedAt), 'JST', 'yyyy-MM-dd HH:mm:ss'),
@@ -609,13 +599,13 @@ function fSummarize() {
       let dat = [];
       for (let i=0; i<6; i++) {
         if (s+200-1<sL) {
-          dat = Still.slice(s,e).map(x => [x[0], x[2]]);
+          dat = Still.slice(s,e).map(x => [x[1], x[2]]);
           writeData(sheet[i], dat);
           s = e;
           e += 200;
         }
         else {
-          dat = Still.slice(s).map(x => [x[0], x[2]]);
+          dat = Still.slice(s).map(x => [x[1], x[2]]);
           writeData(sheet[i], dat);
           console.log('Still SS: シート' + (i+1));
           break
@@ -650,6 +640,44 @@ function fSummarize() {
       console.log('New Post : ' + nL);
     } catch (e) {
       console.log('New Post : \n' + e.message);
+      err = e;
+    }
+  } while (!'message' in err);
+
+  do { //Reset
+    err = {};
+    try {
+      if (dL) {
+        s = 0;
+        e = 100;
+        let dat = [];
+        let url = '';
+        while (s<dL) {
+          if (s+100-1<dL) {
+            url = cURL + '?per_page=100&include=' + Drop.slice(s,e).map(x => x[3]).join('+');
+            s = e;
+            e += 100;
+          } else {
+            url = cURL + '?per_page=100&include=' + Drop.slice(s).map(x => x[3]).join('+');
+            s = e;
+          }
+          dat = dat.concat(wpView(url));
+        }
+        for (let i=0; i<dL; i++) {
+          arg = {
+            tags: dat[i].tags.filter(x => x > 200),
+            cf: { vd_n: [] }
+          }
+          wpEdit(vURL+Drop[i][3], arg);
+        }
+        List = List.map(function(x) {
+          if (x[1] === 'R') { x[1] = 'D'}
+          return x
+        });
+      }
+      console.log('Reset完了 : ' + dL);
+    } catch (e) {
+      console.log('Reset\n' + e.message);
       err = e;
     }
   } while (!'message' in err);
