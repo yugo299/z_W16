@@ -3,6 +3,9 @@
   --c2: #333;
   --c3: #aaa;
   --c4: #666;
+  --c5: #ffc;
+  --c6: #fc0;
+  --c7: #f90;
 
   --w4: 400px;
   --w3: 300px;
@@ -106,6 +109,15 @@ main {
   display: flex;
   flex-direction: row;
   justify-content: space-evenly;
+}
+.c-top a {
+  color: var(--c5);
+}
+.c-top a:visited {
+  color: var(--c6);
+}
+.c-top a:hover {
+  color: var(--c7);
 }
 div.thmb {
   border-style: solid;
