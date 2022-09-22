@@ -21,6 +21,7 @@ const tHour = date.getHours();
 let ts = date.getTime() - (1000 * 60 * 60);
 ts = new Date(ts);
 const bHour = ts.getHours();
+const tMinute = ts.getMinutes();
 
 function rFunction() {
 
@@ -37,7 +38,10 @@ function rFunction() {
 
     case true: //■■■■ fSummarize ■■■■
       try { setFlag('doing') }
-      catch(e) { return console.log('実施中') }
+      catch(e) {
+        if (tMinute > 20) { deleteFlag(vCat, 'doing') }
+        return console.log('実施中')
+      }
       fSummarize();
       deleteFlag('doing');
       writeData(fSheet, done);
@@ -358,7 +362,10 @@ function fSummarize() {
             name: yJ.snippet.title,
             desc: yJ.snippet.description,
             thmb: yJ.snippet.thumbnails.medium.url,
-            video: video,
+            vd_n: vd_n,
+            vd_m: vd_m,
+            vd_y: vd_y,
+            vd_t: vd_t,
             lb_n: lb_n,
             lb24: cJ.cf.lb24.concat(lb_n),
             rn_n: vJ[0].cf.rn_n,
@@ -373,7 +380,6 @@ function fSummarize() {
             vc24: cJ.cf.vc24.concat(yJ.statistics.videoCount),
           }
         }
-        a.content = a.excerpt;
         if (Number(a.cf.rn_n) <= Number(cJ.cf.rn_b)) {
           a.cf.rn_b = a.cf.rn_n;
           a.cf.rn_d = lb_n;
@@ -449,7 +455,10 @@ function fSummarize() {
             link: 'https://youtube.com/channel/'+yJ.id,
             thmb: yJ.snippet.thumbnails.medium.url,
             yt: yJ.id,
-            video: video,
+            vd_n: vd_n,
+            vd_m: vd_m,
+            vd_y: vd_y,
+            vd_t: vd_t,
             rn_b: vJ[0].cf.rn_n,
             rn_d: lb_n,
             pd_b: 0,
@@ -484,7 +493,6 @@ function fSummarize() {
             vc12: [yJ.statistics.videoCount]
           }
         }
-        a.content = a.excerpt;
         return a
     }
   }
@@ -498,7 +506,7 @@ function fSummarize() {
         const videos = wpView(url);
         vData = vData.concat(('data' in videos) ? []: videos);
       }
-      vData = vData.sort((a,b) => ((a.cf.channel > b.cf.channel) ?  1: -1) );
+      vData = vData.sort((a,b) => ((a.cf.ch_y > b.cf.ch_y) ?  1: -1) );
       vL = vData.length;
 
     } catch (e) {
@@ -527,12 +535,12 @@ function fSummarize() {
         let c = 0;
         let yID = [];
         while (c++<50 && i<vL) {
-          let cID = vData[i].cf.channel;
+          let cID = vData[i].cf.ch_y;
           let f = true;
           s = i;
           while (f) {
             if (i+1<vL) {
-              if (vData[i+1].cf.channel === cID) {
+              if (vData[i+1].cf.ch_y === cID) {
                 i++;
               }
               else { f = false }
@@ -666,7 +674,7 @@ function fSummarize() {
         for (let i=0; i<dL; i++) {
           arg = {
             tags: dat[i].tags.filter(x => x > 200),
-            cf: { vd_n: [] }
+            cf: { rn_n: '', vd_n: [] }
           }
           wpEdit(vURL+Drop[i][3], arg);
         }
@@ -685,6 +693,7 @@ function fSummarize() {
   do { //スプレッドシート更新
     err = {};
     try {
+      List = List.filter(x => x[3] !== '' );
       writeData(cSheet, List);
       console.log('スプレッドシート更新\nStill : ' + sL + '\nNew : ' + nL + '\nDrop : ' + dL);
     } catch (e) {

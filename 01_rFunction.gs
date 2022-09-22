@@ -23,6 +23,7 @@ const tHour = date.getHours();
 let ts = date.getTime() - (1000 * 60 * 60);
 ts = new Date(ts);
 const bHour = ts.getHours();
+const tMinute = ts.getMinutes();
 
 function rFunction(vCat) {
 
@@ -37,7 +38,10 @@ function rFunction(vCat) {
 
     case bHour: //■■■■ fVideo ■■■■
       try { setFlag(vCat, 'doing') }
-      catch(e) { return console.log('実施中') }
+      catch(e) {
+        if (tMinute > 20) { deleteFlag(vCat, 'doing') }
+        return console.log('実施中')
+      }
       fVideo(vCat);
       deleteFlag(vCat, 'doing');
       return console.log('実行完了 : fVideo')
@@ -364,7 +368,7 @@ function fVideo(vCat) {
 
     function convertTime(duration) {
 
-      if (duration === '' || duration === 'P0D' || duration.slice(0,2) === 'P1') { return }
+      if (duration === '' || duration.slice(0,2) !== 'PT') { return }
       var reg = new RegExp('^PT([0-9]*H)?([0-9]*M)?([0-9]*S)?');
       var regResult = duration.match(reg);
 
@@ -407,6 +411,8 @@ function fVideo(vCat) {
           desc: ytJ.snippet.description,
           thmb: ytJ.snippet.thumbnails.medium.url,
           yt_t: ytJ.snippet.tags,
+          ch_n: ytJ.snippet.channelTitle,
+          ch_y: ytJ.snippet.channelId,
           lb_n: lb_n,
           lb24: wpJ.cf.lb24.concat(lb_n),
           rn_n: yData[i][2],
@@ -486,11 +492,12 @@ function fVideo(vCat) {
         cf: {
           name: ytJ.snippet.title,
           desc: ytJ.snippet.description,
-          link: 'https://youtube.com/watch?v='+ytJ.id,
+          link: 'https://youtu.be/'+ytJ.id,
           thmb: ytJ.snippet.thumbnails.medium.url,
           dur: convertTime(ytJ.contentDetails.duration),
           yt: ytJ.id,
-          channel: ytJ.snippet.channelId,
+          ch_n: ytJ.snippet.channelTitle,
+          ch_y: ytJ.snippet.channelId,
           yt_t: ytJ.snippet.tags,
           rn_b: yData[i][2],
           rn_d: lb_n,
@@ -592,9 +599,9 @@ function fVideo(vCat) {
 
       yData = [];
       const vJson1 = getPopular();
-      const vJson2 = (typeof(vJson1.nextPageToken)==='undefined') ? {}: getPopular(vJson1.nextPageToken);
+      const vJson2 = (vJson1.nextPageToken===undefined) ? 0: getPopular(vJson1.nextPageToken);
       vSetData(vJson1);
-      vSetData(vJson2);
+      if (vJson2) { vSetData(vJson2) }
       yData = yData.sort((a, b) => (a > b)? 1: -1);
       yL = yData.length;
 
@@ -657,6 +664,7 @@ function fVideo(vCat) {
   do { //スプレッドシート更新
     err = {};
     try {
+      List = List.filter(x => x[3] !== '' );
       writeData(vSheet, List);
       console.log('スプレッドシート更新完了');
     } catch (e) {
@@ -687,7 +695,7 @@ function fVideo(vCat) {
         for (let i=0; i<dL; i++) {
           arg = {
             tags: vData[i].tags.filter(x => x > 200),
-            cf: { rn_n }
+            cf: { rn_n: '' }
           }
           wpEdit(vURL+Drop[i][3], arg);
         }

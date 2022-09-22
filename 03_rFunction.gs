@@ -12,6 +12,9 @@ const authPass = 'lpwN R9pX bviV fliz CZIo wV8W';
 
 const cFile = SpreadsheetApp.openById('1WsUl5TYWxcE4ltAisWPja9fkqb5hd48uvAeT-r5HrQ4');
 
+const date = new Date(Utilities.formatDate(new Date(), 'JST', 'yyyy-MM-dd HH:mm'));
+const tMinute = date.getMinutes();
+
 function rFunction(s) {
 
   //フラグ取得
@@ -22,7 +25,10 @@ function rFunction(s) {
   else if (!done) { return console.log('実施不要') }
   else { //■■■■ fChannel ■■■■
     try { setFlag('doing-'+s) }
-    catch(e) { return console.log('実施中') }
+    catch(e) {
+      if (tMinute > 20) { deleteFlag('doing-'+s) }
+      return console.log('実施中')
+    }
     fChannel(s);
     deleteFlag('doing-'+s);
     return console.log('実行完了 : fChannel')
@@ -108,6 +114,7 @@ function fChannel(s) {
     try {
       const sheet = cFile.getSheetByName(s);
       let List = getData(sheet);
+      List = List.filter(x => x[1] !== '' );
       const lL = List.length;
       for (let i=0; i<lL; i++) {
         let arg = JSON.parse(List[i][1]);

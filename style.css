@@ -1,5 +1,8 @@
 :root {
-  --c1: #e0e0e0;
+  --c1: #eee;
+  --c2: #333;
+  --c3: #aaa;
+  --c4: #666;
 
   --w4: 400px;
   --w3: 300px;
@@ -9,6 +12,10 @@
   --h0: 95px;
   --b5: 50px;
   --f1: 14px;
+
+  --p320: 320px;
+  --p180: 180px;
+  --p60: 60px;
 }
 .c1 {background: linear-gradient(-45deg, #2196f3, #3f51b5);}
 .c2 {background: linear-gradient(-45deg, #d6c500, #bd900b);}
@@ -21,20 +28,38 @@
 .t4 {color: #008048;}
 .t0 {color: #ff6347;}
 body {
+  width: 100vw;
   background-color: var(--c1);
   margin: 0;
-  color: white;
+  color: var(--c2);
   font-size: var(--f1);
+}
+section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+span {
+  height: 100%;
+  display: inline-flex;
+  align-items: center;
+  border-style: solid;
+  border-color: var(--c3);
+  border-width: 0 0 1px;
+  box-sizing: border-box;
 }
 header {
   display: flex;
   flex-direction: column;
   width: 100vw;
-  height: 35px;
   position: sticky;
   position: -webkit-sticky;/*Safari用ベンダープレフィックス*/
   top: 0;
   z-index: 10;
+}
+.col {
+  display: flex;
+  flex-direction: column;
 }
 nav {
   display: flex;
@@ -44,131 +69,109 @@ nav {
   height: 30px;
   background: linear-gradient(-10deg, #ff9700, 20%, #F3058C);
 }
+nav.home { height: var(--h1); }
 .fade {
   width: 100%;
   height: 5px;
   background: linear-gradient(#777777, 20%, transparent);
 }
-main {
+.main-memo {
+  width: 100%;
   padding: 6px;
   display: grid;
   justify-items: center;
   gap: 6px;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
 }
-.card {
-  box-sizing: border-box;
+main {
   width: 100%;
-  max-width: var(--w4);
-  min-width: var(--w3);
-  height: var(--h3);
-  border-radius: 5px;
-  box-shadow: rgba(14, 30, 37, 0.12) 0px 2px 4px 0px, rgba(14, 30, 37, 0.32) 0px 2px 16px 0px;
+  padding: 6px;
+  box-sizing: border-box;
+}
+.card {
   z-index: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
+  width: 100%;
+  max-width: 400px;
+  min-width: 300px;
+  height: 300px;
+  position: relative;
   overflow: hidden;
+  margin: 1rem;
 }
-.top {
+.c-top {
+  height: 180px;
+  position: relative;
+  overflow: hidden;
+  color: var(--c1);
   display: flex;
-  justify-content: space-between;
-  position: relative;
+  flex-direction: row;
+  justify-content: space-evenly;
 }
-.thmb {
-  position: relative;
+div.thmb {
+  border-style: solid;
+  border-width: 0 4px;
+  border-color: var(--c1);
+  overflow: hidden;
+  width: 80vw;
+  max-width: 320px;
+}
+img.thmb {
+  width: 320px;
+  height: 180px;
+}
+.side {
+  vertical-align: middle;
+  height: 60px;
+  line-height: 60px;
+  margin: 0 5px;
   text-align: center;
-  overflow: hidden;
-  width: var(--w4);
-  height: var(--h2);
-}
-.baw {
-  position: absolute;
-  width: var(--w4);
-  height: var(--h2);
-  top: 0;
-  left: 0;
-  filter: grayscale(100%) brightness(150%);
-  z-index: -3;
-  transition: 0.3s;
-}
-.mask {
-  position: absolute;
-  width: var(--w4);
-  height: var(--h2);
-  top: 0;
-  left: 0;
-  opacity: 0.3;
-  z-index: -2;
-  transition: 0.3s;
-}
-.rank {
-  position: absolute;
-  font-family: monospace;
-  font-weight: bold;
-  -webkit-text-stroke: 3px rgb(255, 255, 255);
-  -webkit-transform: rotate(-15deg);
-  transform: rotate(-15deg);
-  font-size: 100px;
-  letter-spacing: -6px;
-  text-indent: -10px;
-  text-align: left;
-  z-index: -1;
-  transition: 0.3s;
-}
-.thmb:hover .mask{
-  opacity: 0;
-  transition: 0.3s;
-}
-.thmb:hover .baw {
-  filter: none;
-  transition: 0.3s;
-  transform: scale(1.02,1.02);
-}
-.thmb:hover .rank {
-  -webkit-text-stroke: 3px rgb(255, 255, 255, 0);
-  opacity: 0;
-  transition: 0.3s;
 }
 .button {
+  z-index: 1;
   position: absolute;
-  right: 10px;
-  top: var(--h1);
-  height: var(--b5);
-  width: var(--b5);
-  border-radius: 50%;
-  border: 4px solid white;
-  text-align: center;
-  font-weight: bold;
-  font-size: 200%;
-  box-shadow: rgba(0, 0, 0, 0.16) 0px 3px 6px, rgba(0, 0, 0, 0.23) 0px 3px 6px;
+  width: 100%;
+  height: 60px;
 }
-i {
-  vertical-align: middle;
+.b-middle {
+  top: 60px;
+}
+.b-bottom {
+  top: 120px;
 }
 .info {
-  width: 98vw;
-  max-width: var(--w4);
-  min-width: var(--w3);
-  height: var(--h2);
+  z-index: 2;
+  width: 80vw;
+  max-width: 320px;
+  height: 180px;
   background-color: rgba(0, 0, 0, 0.8);
   position: absolute;
-  top: -104px;
-  right: -465px;
-  transition: 0.5s;
+  left: 50%;
+  transform: translateX(-50%);
   box-sizing: border-box;
   padding: 1rem;
   font-size: var(--f1);
   display: flex;
   flex-direction: column;
-  justify-content: space-around
+  justify-content: space-around;
 }
-.button:hover .info {
-  right: -14px;
+.i-top, .i-middle, .i-bottom {
+  top: 180px;
   transition: 0.5s;
 }
-.info:hover {
-  right: -14px;
+.i-top:hover, .i-middle:hover, .i-bottom:hover {
+  top: 0px;
+  transition: 0.5s;
+}
+.b-top:hover ~ .i-top {
+  top: 0px;
+  transition: 0.5s;
+}
+.b-middle:hover ~ .i-middle {
+  top: 0px;
+  transition: 0.5s;
+}
+.b-bottom:hover ~ .i-bottom {
+  top: 0px;
   transition: 0.5s;
 }
 .desc {
@@ -178,46 +181,40 @@ i {
   -webkit-line-clamp: 6;
   overflow: hidden;
 }
-.bottom {
-  display: flex;
-  height: var(--h0);
+.c-bottom {
+  z-index: 1;
+  height: 120px;
+  width: 100%;
+  position: absolute;
+  bottom: 0;
+  display: grid;
+  grid-template-areas: "E F A B J" "G H C D K" "I I I I I";
+  grid-template-columns: 2rem 2rem 2rem auto 1rem;
+  align-items: center;
   white-space: nowrap;
-  overflow-x: auto;
-  overflow-y: hidden;
-  gap: 0 20px;
-  padding-right: 10px;
+  box-sizing: border-box;
+  background-color: var(--c1);
 }
-.about {
+.sym { text-indent: 1rem }
+.channel.sym { grid-area: A }
+.channel.txt {
+  grid-area: B;
+  overflow-x: auto;
+}
+.video.sym { grid-area: C }
+.video.txt {
+  grid-area: D;
+  overflow-x: auto;
+}
+.rank.sym { grid-area: E }
+.rank.txt { grid-area: F }
+.ratio.sym { grid-area: G }
+.ratio.txt { grid-area: H }
+.c-link {
+  grid-area: I;
+  width: 100%;
   display: flex;
-  flex-direction: column;
-  justify-content: space-evenly;
-  text-align: left;
+  justify-content: space-around;
 }
-.view::before {
-  font-family: "Font Awesome 6 Free";
-  content: '\f144';
-  font-weight: 900;
-}
-.like::before {
-  font-family: "Font Awesome 6 Free";
-  content: '\f164';
-  font-weight: 900;
-}
-.comment::before {
-  font-family: "Font Awesome 6 Free";
-  content: '\f4ad';
-  font-weight: 900;
-}
-.overview {
-  overflow-x: auto;
-}
-.channel::before {
-  font-family: "Font Awesome 6 Free";
-  content: '\f3e0';
-  font-weight: 900;
-}
-.video::before {
-  font-family: "Font Awesome 6 Free";
-  content: '\f03d';
-  font-weight: 900;
-}
+.blank.top { grid-area: J }
+.blank.middle { grid-area: K }
