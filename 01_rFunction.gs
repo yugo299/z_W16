@@ -340,7 +340,7 @@ function fVideo(vCat) {
     else {
       New++;
       row = bsMin(2, yData[i][0], start, lL++);
-      List.splice(row, 0, [today, yData[i][2], yData[i][0], , yData[i][4]]);
+      List.splice(row, 0, [today, yData[i][2], yData[i][0], , yData[i][4], '']);
       yData[i][3] = 0;
       yData[i][5] = row;
     }
@@ -411,6 +411,7 @@ function fVideo(vCat) {
           desc: ytJ.snippet.description,
           thmb: ytJ.snippet.thumbnails.medium.url,
           yt_t: ytJ.snippet.tags,
+          ch_i: List[yData[i][5]][5],
           ch_n: ytJ.snippet.channelTitle,
           ch_y: ytJ.snippet.channelId,
           lb_n: lb_n,

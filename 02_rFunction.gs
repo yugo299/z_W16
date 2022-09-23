@@ -348,10 +348,10 @@ function fSummarize() {
 
         yJ = yData.filter(x => x.id === Still[i][0])[0];
         cJ = cData.filter(x => x.id === Still[i][1])[0];
-        vd_n = Array.from(new Set(vd_n.concat(cJ.cf.vd_n)));
-        vd_m = Array.from(new Set(vd_m.concat(cJ.cf.vd_m)));
-        vd_y = Array.from(new Set(vd_y.concat(cJ.cf.vd_y)));
-        vd_t = Array.from(new Set(vd_t.concat(cJ.cf.vd_t)));
+        vd_n = Array.from(new Set(vd_n.concat(cJ.cf.vd_n).map(x => Number(x))));
+        vd_m = Array.from(new Set(vd_m.concat(cJ.cf.vd_m).map(x => Number(x))));
+        vd_y = Array.from(new Set(vd_y.concat(cJ.cf.vd_y).map(x => Number(x))));
+        vd_t = Array.from(new Set(vd_t.concat(cJ.cf.vd_t).map(x => Number(x))));
         a = {
           slug: 'c-'+cJ.id,
   //        status: 'private',
@@ -676,7 +676,7 @@ function fSummarize() {
             tags: dat[i].tags.filter(x => x > 200),
             cf: { rn_n: '', vd_n: [] }
           }
-          wpEdit(vURL+Drop[i][3], arg);
+          wpEdit(cURL+Drop[i][3], arg);
         }
         List = List.map(function(x) {
           if (x[1] === 'R') { x[1] = 'D'}

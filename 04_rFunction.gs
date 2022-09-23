@@ -23,19 +23,6 @@ const tMinute = ts.getMinutes();
 //const vFile = SpreadsheetApp.openById(fID[vCat]);
 //const vSheet = vFile.getSheetByName('wV');
 
-function rFunction() {
-
-  //フラグ取得
-  const cFile = SpreadsheetApp.openById(fID[0]);
-  const cSheet = cFile.getSheetByName('wC');
-  const done = cSheet.getRange('A1').getValue();
-
-  if (tMinute>45 && tMinute<50) {
-    fChannelID(vCat);
-    return console.log('実行完了 : fVideo')
-  }
-}
-
 //■■■■ SS関数 ■■■■
 function getData(sheet) {
 
@@ -110,7 +97,8 @@ function fActivities() {
   let aL = 0;
   let err = {};
 
-  const filter = (tDay===2 || tDay===4 || tDay===6)? '?per_page=20&tags_exclude=60+63+65': '?per_page=20&tags_exclude=62+64+66';
+  //■■■■ 実施判定 ■■■■
+  if (tDay===1 || tMinute<20) { return console.log('実施不要：月曜日or時間帯') }
 
   function getActivities(cID) {
 
@@ -209,8 +197,15 @@ function fActivities() {
     return [[yData[i][0], arg]]
   }
 
-  //実施判定
-  if (tDay===1 || tMinute<20) { return console.log('実施不要：月曜日or時間帯') }
+  let filter = '?per_page=20&tags_exclude=';
+  switch (tDay) {
+    case 0: filter += '62+64+66+60'; break
+    case 2: filter += '60+63+65+62'; break
+    case 3: filter += '62+64+66+63'; break
+    case 4: filter += '60+63+65+64'; break
+    case 5: filter += '62+64+66+65'; break
+    case 6: filter += '60+63+65+66'; break
+  }
 
   do { //WPチャンネル情報取得
     err = {};
@@ -263,10 +258,82 @@ function fActivities() {
     err = {};
     try {
       for (let i=0; i<aL; i++) { wpEdit(cURL+aData[i][0], aData[i][1]) }
-      console.log('Post : ' + aL);
+      console.log('Post : ' + aL + '\n' + aData.map(x =>x[0]).join());
     } catch (e) {
       console.log('Post\n' + e.message);
       err = e;
     }
   } while (!'message' in err);
+}
+
+function fLink() {
+
+  //フラグ取得
+  const cFile = SpreadsheetApp.openById(fID[0]);
+  const fSheet = cFile.getSheetByName('F');
+  let done = getData(fSheet);
+  for (let i=1; i<13; i++) {
+    if (done[i][1]==='Done') { done[i][1] = 'Finish' }
+    else if (done[i][1]==='Finish') { return console.log('実行済み : fLink') }
+    else { return console.log('実行不要 : fLink') }
+  }
+
+  //■■■■ BS ■■■■
+  function bsMin(col, target, from, to) {
+    while (from <= to) {
+      const middle = from + Math.floor((to - from) / 2);
+      if (cList[middle][col] < target) {
+        from = middle + 1;
+      } else {
+        to = middle - 1;
+      }
+    }
+    return from;
+  }
+
+  function bsMax(col, target, from, to) {
+    while (from !== to) {
+      const middle = from + Math.ceil((to - from) / 2);
+      if (cList[middle][col] > target) {
+        to = middle - 1;
+      } else {
+        from = middle;
+      }
+    }
+    if (cList[from][col] === target) {
+      return from;
+    } else {
+      return 0;
+    }
+  }
+
+  //■■■■ 変数 ■■■■
+  let vList = Array(30);
+  const cSheet = cFile.getSheetByName('wC');
+  const cList = getData(cSheet);
+  const cL = cList.length;
+
+  function fEachSheet(i) {
+    const sheet = SpreadsheetApp.openById(fID[cNo[i]]).getSheetByName('wV');
+    const List = getData(sheet);
+    const lL = List.length;
+    for (let j=1; j<lL; j++) {
+      if (List[j][5] !== '') { continue }
+      row = bsMax(2, List[j][4], 1, cL-1);
+      if (row) { List[j][5] = cList[row][3] }
+      else { console.log('エラー : 該当なし\n動画 : '+List[j][3]+'\nチャンネル : '+List[j][4]) }
+    }
+    vList[cNo[i]] = List;
+  }
+
+  for (let i=0; i<cNo.length; i++) { fEachSheet(i) }
+
+  for (let i=0; i<cNo.length; i++) {
+    const sheet = SpreadsheetApp.openById(fID[cNo[i]]).getSheetByName('wV');
+    writeData(sheet, vList[cNo[i]]);
+    console.log('チャンネル投稿ID更新完了 : '+cNo[i]);
+  }
+
+  writeData(fSheet, done);
+  console.log('完了 : fLink')
 }
