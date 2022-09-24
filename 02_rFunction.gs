@@ -211,6 +211,8 @@ function fSummarize() {
   let s = 0;
   let e = 0;
   let err = {};
+  let k = 0;
+  let t = 0;
 
   const today = Utilities.formatDate(new Date(), 'Etc/GMT-4', 'yyyy-MM-dd');
   const tDay = new Date(today).getDay();
@@ -329,25 +331,29 @@ function fSummarize() {
       return 'YouTubeチャンネル[' + strSlice(yJ.snippet.title, 8) + ']の統計まとめ⤴'
     }
 
-    function cContent() {
-      return ''
-    }
-
     function cExcerpt() {
       return '【登録者数' + strView(yJ.statistics.subscriberCount) + '万人|' + cat[vJ[0].categories] + '#' + vJ[0].cf.rn_n + '位】YouTube急上昇ランキングを集計！"' + yJ.snippet.title + '"のバズり動画⇒' + vJ[0].cf.name
     }
 
+    function textToLink(str) {
+      const regexp_url = /(https?:\/\/[\w/:%#\$&\?\(\)~\.=\+\-]+)/g;
+      str = str.replace(regexp_url, '<a class="external" href="$1" target="_blank" rel="noreferrer"></a>');
+      return str
+    }
+
     switch (f) {
       case 'S':
+        cJ = cData.filter(x => x.id === Still[i][1])[0];
+        if (cJ.cf.lb_n === lb_n) { return a }
+
+        yJ = yData.filter(x => x.id === Still[i][0])[0];
         vJ = vData.slice(Still[i][3], Still[i][4]).sort(function(a,b){ return ((a.cf.rn_n > b.cf.rn_n) ?  1: -1) });
+
         rt = vJ.reduce((sum, x) => sum + ratio[x.cf.rn_n], 0);
         vd_n = vJ.map(x => x.id);
         vd_m = vJ.map(x => x.id);
         vd_y = vJ.map(x => x.id);
         vd_t = vJ.map(x => x.id);
-
-        yJ = yData.filter(x => x.id === Still[i][0])[0];
-        cJ = cData.filter(x => x.id === Still[i][1])[0];
         vd_n = Array.from(new Set(vd_n.concat(cJ.cf.vd_n).map(x => Number(x))));
         vd_m = Array.from(new Set(vd_m.concat(cJ.cf.vd_m).map(x => Number(x))));
         vd_y = Array.from(new Set(vd_y.concat(cJ.cf.vd_y).map(x => Number(x))));
@@ -360,7 +366,7 @@ function fSummarize() {
   //        featured_media: 0,
           cf: {
             name: yJ.snippet.title,
-            desc: yJ.snippet.description,
+            desc: textToLink(yJ.snippet.description),
             thmb: yJ.snippet.thumbnails.medium.url,
             vd_n: vd_n,
             vd_m: vd_m,
@@ -451,7 +457,7 @@ function fSummarize() {
           tags: [Number(vJ[0].cf.rn_n)+100, Number(vJ[0].cf.rn_n)+200],
           cf: {
             name: yJ.snippet.title,
-            desc: yJ.snippet.description,
+            desc: textToLink(yJ.snippet.description),
             link: 'https://youtube.com/channel/'+yJ.id,
             thmb: yJ.snippet.thumbnails.medium.url,
             yt: yJ.id,
@@ -638,19 +644,27 @@ function fSummarize() {
     }
   } while (!'message' in err);
 
-  do { //Arg : New Post
-    if (!nL) { break }
+  function step_p() { //Post
+    if (!nL) { return }
     err = {};
     try {
-      for (let i=0; i<nL; i++) {
+      for (let i=k; i<nL; i++) {
         List[New[i][1]][3] = wpEmbed(cURL, New[i][2]).id;
+        k = i;
+        t = 0;
       }
       console.log('New Post : ' + nL);
     } catch (e) {
       console.log('New Post : \n' + e.message);
       err = e;
     }
-  } while (!'message' in err);
+    finally {
+      if('message' in err && ++t < 3){ step_p() }
+    }
+  }
+  k = 0;
+  t = 0;
+  step_p();
 
   do { //Reset
     err = {};

@@ -167,21 +167,27 @@ function fActivities() {
       return hour + ":" + minutes + ":" + sec
     }
 
+    function textToLink(str) {
+      const regexp_url = /(https?:\/\/[\w/:%#\$&\?\(\)~\.=\+\-]+)/g;
+      str = str.replace(regexp_url, '<a class="external" href="$1" target="_blank" rel="noreferrer"></a>');
+      return str
+    }
+
     if (yJson.items===undefined) { return [] }
 
     yJson.items.forEach((yJ) => {
       const a = {
         name: yJ.snippet.title,
         date: Utilities.formatDate(new Date(yJ.snippet.publishedAt), 'JST', 'yyyy-MM-dd HH:mm:ss'),
-        desc: yJ.snippet.description,
+        desc: textToLink(yJ.snippet.description),
         link: 'https://youtu.be/'+yJ.id,
         thmb: yJ.snippet.thumbnails.medium.url,
         dur: convertTime(yJ.contentDetails.duration),
         yt: yJ.id,
         yt_t: yJ.snippet.tags,
         ch_i: yData[i][0],
-        ch_n: yJ.snippet.channelId,
-        ch_y: yJ.snippet.channelTitle,
+        ch_y: yJ.snippet.channelId,
+        ch_n: yJ.snippet.channelTitle,
         vw_n: yJ.statistics.viewCount,
         lk_n: yJ.statistics.likeCount,
         cm_n: yJ.statistics.commentCount

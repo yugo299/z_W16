@@ -109,18 +109,27 @@ function deleteFlag(flag) {
 
 function fChannel(s) {
 
-  do { //wpEdit
+  //■■■■ 変数 ■■■■
+  let err = {};
+  let k = 0;
+  let t = 0;
+
+  function step_p() { //Post
     err = {};
     try {
       const sheet = cFile.getSheetByName(s);
       let List = getData(sheet);
-      List = List.filter(x => x[1] !== '' );
       const lL = List.length;
-      for (let i=0; i<lL; i++) {
-        let arg = JSON.parse(List[i][1]);
-        arg.tags = arg.tags.map(x => Number(x));
-        wpEdit(cURL+List[i][0], arg);
+      for (let i=k; i<lL; i++) {
+        if (List[i]!=='') {
+          let arg = JSON.parse(List[i][1]);
+          arg.tags = arg.tags.map(x => Number(x));
+          wpEdit(cURL+List[i][0], arg);
+        }
+        else { console.log('エラー : arg空欄') }
         List[i] = Array(2);
+        k = i;
+        t = 0;
       }
       List[0][0] = 'Done';
       writeData(sheet, List);
@@ -129,6 +138,12 @@ function fChannel(s) {
       console.log('wpEdit\n' + e.message);
       err = e;
     }
-  } while (!'message' in err);
+    finally {
+      if('message' in err && ++t < 3){ step_p() }
+    }
+  }
+  k = 0;
+  t = 0;
+  step_p();
 
 }
