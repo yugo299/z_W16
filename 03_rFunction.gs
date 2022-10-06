@@ -125,13 +125,13 @@ function fChannel(s) {
           let arg = JSON.parse(List[i][1]);
           arg.tags = arg.tags.map(x => Number(x));
           wpEdit(cURL+List[i][0], arg);
+          if (i===100) { console.log('実施中\nList.length = '+lL+'\ni = 100') }
         }
         else { console.log('エラー : arg空欄') }
         List[i] = Array(2);
         k = i;
         t = 0;
       }
-      List[0][0] = 'Done';
       writeData(sheet, List);
       console.log('wpEdit完了 : ' + lL);
     } catch (e) {

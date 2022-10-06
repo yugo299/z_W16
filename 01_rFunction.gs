@@ -211,9 +211,21 @@ function fVideo(vCat) {
   const tDay = new Date(today).getDay();
   const tDate = new Date(today).getDate();
 
+  ts = new Date();
+  ts.setDate(ts.getDate()+1);
+  const tomorrow = Utilities.formatDate(ts, 'Etc/GMT-4','yyyy-MM-dd');
+
   const lb_n = Utilities.formatDate(new Date(), 'JST', 'yyyy-MM-dd HH:') + '00';
   ts = new Date(lb_n).getTime() - (1000 * 60 * 60);
   const lb_b = Utilities.formatDate(new Date(ts), 'JST', 'yyyy-MM-dd HH:') + '00';
+
+  ts = Array(25);
+  for (let i=0; i<25; i++) {
+    if (i<6) { ts[i] = today + ' 0' + (i+4) + ':00' }
+    else if (i<20) { ts[i] = today + ' ' + (i+4) + ':00' }
+    else { ts[i] = tomorrow + ' 0' + (i-20) + ':00' }
+  }
+  const lb = ts;
 
   const ratio = [,
     0.113,0.1,0.0995,0.099,0.0985,0.086,0.0855,0.085,0.0845,0.084,
@@ -333,6 +345,8 @@ function fVideo(vCat) {
     //■■■■ 変数 ■■■■
     const wpJ = (row) ? vData.filter(x => x.cf.yt === yData[i][0])[0]: {};
     const ytJ = yData[i][1];
+    let arr = [];
+    ts = (tHour<5)? 5-tHour: 29-tHour;
 
     //■■■■ 各種項目 ■■■■
     function vTitle(str) {
@@ -379,14 +393,13 @@ function fVideo(vCat) {
     }
 
     function textToLink(str) {
-      const regexp_url = /(https?:\/\/[\w/:%#\$&\?\(\)~\.=\+\-]+)/g;
-      str = str.replace(regexp_url, '<a class="external" href="$1" target="_blank" rel="noreferrer"></a>');
+      const regexp_url = /(https?:\/\/[\w/:%#\$&\?\(\)~\.=\+\-\@]+)/g;
+      str = str.replace(regexp_url, '<a class="external" href="$1" target="_blank" rel="noreferrer" title="外部リンク"></a> ');
       return str
     }
 
     let a = {};
     if (yData[i][3]) {
-      if (wpJ.cf.lb_n === lb_n) { return a }
       a = {
         slug: 'v-'+List[row][3],
 //        status: 'private',
@@ -403,20 +416,13 @@ function fVideo(vCat) {
           ch_n: ytJ.snippet.channelTitle,
           ch_y: ytJ.snippet.channelId,
           lb_n: lb_n,
-          lb24: wpJ.cf.lb24.concat(lb_n),
           rn_n: yData[i][2],
-          rn24: wpJ.cf.rn24.concat(yData[i][2]),
           rt_n: Number(wpJ.cf.rt_n) + ratio[yData[i][2]],
-          rt24: wpJ.cf.rt24.concat(Number(wpJ.cf.rt_n) + ratio[yData[i][2]]),
           vw_n: ytJ.statistics.viewCount,
-          vw24: wpJ.cf.vw24.concat(ytJ.statistics.viewCount),
           lk_n: ytJ.statistics.likeCount,
-          lk24: wpJ.cf.lk24.concat(ytJ.statistics.likeCount),
           cm_n: ytJ.statistics.commentCount,
-          cm24: wpJ.cf.cm24.concat(ytJ.statistics.commentCount),
         }
       }
-      a.content = a.excerpt;
       if (a.cf.rn_n <= Number(wpJ.cf.rn_b)) {
         a.cf.rn_b = a.cf.rn_n;
         a.cf.rn_d = lb_n;
@@ -436,6 +442,37 @@ function fVideo(vCat) {
         a.cf.pd_b = a.cf.pd_n;
         a.cf.pd_s = wpJ.cf.pd_f;
         a.cf.pd_e = lb_n;
+      }
+      if (wpJ.cf.lb24[wpJ.cf.lb24.length-1] === lb[0] && tHour === 5) {
+        a.cf.lb24 = wpJ.cf.lb24.concat(lb.slice(1));
+        a.cf.rn24 = wpJ.cf.rn24.concat(a.cf.rn_n,Array(23));
+        a.cf.rt24 = wpJ.cf.rt24.concat(a.cf.rt_n,Array(23));
+        a.cf.vw24 = wpJ.cf.vw24.concat(a.cf.vw_n,Array(23));
+        a.cf.lk24 = wpJ.cf.lk24.concat(a.cf.lk_n,Array(23));
+        a.cf.cm24 = wpJ.cf.cm24.concat(a.cf.cm_n,Array(23))
+      } else if (wpJ.cf.lb24[wpJ.cf.lb24.length-1] === lb[24]) {
+        arr = wpJ.cf.rn24;
+        arr[wpJ.cf.rn24.length-ts] = a.cf.rn_n;
+        a.cf.rn24 = arr;
+        arr = wpJ.cf.rt24;
+        arr[wpJ.cf.rt24.length-ts] = a.cf.rt_n;
+        a.cf.rt24 = arr;
+        arr = wpJ.cf.vw24;
+        arr[wpJ.cf.vw24.length-ts] = a.cf.vw_n;
+        a.cf.vw24 = arr;
+        arr = wpJ.cf.lk24;
+        arr[wpJ.cf.lk24.length-ts] = a.cf.lk_n;
+        a.cf.lk24 = arr;
+        arr = wpJ.cf.cm24;
+        arr[wpJ.cf.cm24.length-ts] = a.cf.cm_n;
+        a.cf.cm24 = arr
+      } else {
+        a.cf.lb24 = wpJ.cf.lb24.concat(lb);
+        a.cf.rn24 = wpJ.cf.rn24.concat(Array(25-ts),a.cf.rn_n,Array(ts-1));
+        a.cf.rt24 = wpJ.cf.rt24.concat(Array(25-ts),a.cf.rt_n,Array(ts-1));
+        a.cf.vw24 = wpJ.cf.vw24.concat(Array(25-ts),a.cf.vw_n,Array(ts-1));
+        a.cf.lk24 = wpJ.cf.lk24.concat(Array(25-ts),a.cf.lk_n,Array(ts-1));
+        a.cf.cm24 = wpJ.cf.cm24.concat(Array(25-ts),a.cf.cm_n,Array(ts-1))
       }
       if (wpJ.cf.lb7[wpJ.cf.lb7.length-1] !== today && tDay === 1) {
         a.cf.lb7 = wpJ.cf.lb7.concat(today);
@@ -494,35 +531,34 @@ function fVideo(vCat) {
           pd_s: lb_n,
           pd_e: lb_n,
           lb_n: lb_n,
-          lb24: [lb_n],
+          lb24: lb,
           lb7: [today],
           lb12: [today],
           pd_n: 0,
           pd_f: lb_n,
           pd_l: lb_n,
           rn_n: yData[i][2],
-          rn24: [yData[i][2]],
+          rn24: [].concat(Array(25-ts),yData[i][2],Array(ts-1)),
           rn7: [yData[i][2]],
           rn12: [yData[i][2]],
           rt_n: ratio[yData[i][2]],
-          rt24: [ratio[yData[i][2]]],
+          rt24: [].concat(Array(25-ts),ratio[yData[i][2]],Array(ts-1)),
           rt7: [ratio[yData[i][2]]],
           rt12: [ratio[yData[i][2]]],
           vw_n: ytJ.statistics.viewCount,
-          vw24: [ytJ.statistics.viewCount],
+          vw24: [].concat(Array(25-ts),ytJ.statistics.viewCount,Array(ts-1)),
           vw7: [ytJ.statistics.viewCount],
           vw12: [ytJ.statistics.viewCount],
           lk_n: ytJ.statistics.likeCount,
-          lk24: [ytJ.statistics.likeCount],
+          lk24: [].concat(Array(25-ts),ytJ.statistics.likeCount,Array(ts-1)),
           lk7: [ytJ.statistics.likeCount],
           lk12: [ytJ.statistics.likeCount],
           cm_n: ytJ.statistics.commentCount,
-          cm24: [ytJ.statistics.commentCount],
+          cm24: [].concat(Array(25-ts),ytJ.statistics.commentCount,Array(ts-1)),
           cm7: [ytJ.statistics.commentCount],
           cm12: [ytJ.statistics.commentCount]
         }
       }
-      a.content = a.excerpt;
     }
     return a
   }

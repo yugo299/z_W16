@@ -168,8 +168,8 @@ function fActivities() {
     }
 
     function textToLink(str) {
-      const regexp_url = /(https?:\/\/[\w/:%#\$&\?\(\)~\.=\+\-]+)/g;
-      str = str.replace(regexp_url, '<a class="external" href="$1" target="_blank" rel="noreferrer"></a>');
+      const regexp_url = /(https?:\/\/[\w/:%#\$&\?\(\)~\.=\+\-\@]+)/g;
+      str = str.replace(regexp_url, '<a class="external" href="$1" target="_blank" rel="noreferrer"></a> ');
       return str
     }
 

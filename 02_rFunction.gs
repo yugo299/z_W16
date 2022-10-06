@@ -39,7 +39,7 @@ function rFunction() {
     case true: //■■■■ fSummarize ■■■■
       try { setFlag('doing') }
       catch(e) {
-        if (tMinute > 20) { deleteFlag(vCat, 'doing') }
+        if (tMinute > 20) { deleteFlag('doing') }
         return console.log('実施中')
       }
       fSummarize();
@@ -218,9 +218,23 @@ function fSummarize() {
   const tDay = new Date(today).getDay();
   const tDate = new Date(today).getDate();
 
+  ts = new Date();
+  ts.setDate(ts.getDate()+1);
+  const tomorrow = Utilities.formatDate(ts, 'Etc/GMT-4','yyyy-MM-dd');
+
   const lb_n = Utilities.formatDate(new Date(), 'JST', 'yyyy-MM-dd HH:') + '00';
   ts = new Date(lb_n).getTime() - (1000 * 60 * 60);
   const lb_b = Utilities.formatDate(new Date(ts), 'JST', 'yyyy-MM-dd HH:') + '00';
+
+  ts = Array(25);
+  for (let i=0; i<25; i++) {
+    if (i<6) { ts[i] = today + ' 0' + (i+4) + ':00' }
+    else if (i<20) { ts[i] = today + ' ' + (i+4) + ':00' }
+    else { ts[i] = tomorrow + ' 0' + (i-20) + ':00' }
+  }
+  const lb = ts;
+
+  ts = (tHour<5)? 5-tHour: 29-tHour;
 
   const ratio = [,
     0.113,0.1,0.0995,0.099,0.0985,0.086,0.0855,0.085,0.0845,0.084,
@@ -336,8 +350,8 @@ function fSummarize() {
     }
 
     function textToLink(str) {
-      const regexp_url = /(https?:\/\/[\w/:%#\$&\?\(\)~\.=\+\-]+)/g;
-      str = str.replace(regexp_url, '<a class="external" href="$1" target="_blank" rel="noreferrer"></a>');
+      const regexp_url = /(https?:\/\/[\w/:%#\$&\?\(\)~\.=\+\-\@]+)/g;
+      str = str.replace(regexp_url, '<a class="external" href="$1" target="_blank" rel="noreferrer"></a> ');
       return str
     }
 
@@ -375,15 +389,10 @@ function fSummarize() {
             lb_n: lb_n,
             lb24: cJ.cf.lb24.concat(lb_n),
             rn_n: vJ[0].cf.rn_n,
-            rn24: cJ.cf.rn24.concat(vJ[0].cf.rn_n),
             rt_n: Number(cJ.cf.rt_n) + rt,
-            rt24: cJ.cf.rt24.concat(Number(cJ.cf.rt_n) + rt),
             vw_n: yJ.statistics.viewCount,
-            vw24: cJ.cf.vw24.concat(yJ.statistics.viewCount),
             sb_n: yJ.statistics.subscriberCount,
-            sb24: cJ.cf.sb24.concat(yJ.statistics.subscriberCount),
             vc_n: yJ.statistics.videoCount,
-            vc24: cJ.cf.vc24.concat(yJ.statistics.videoCount),
           }
         }
         if (Number(a.cf.rn_n) <= Number(cJ.cf.rn_b)) {
@@ -405,6 +414,37 @@ function fSummarize() {
           a.cf.pd_b = a.cf.pd_n;
           a.cf.pd_s = cJ.cf.pd_f;
           a.cf.pd_e = lb_n;
+        }
+        if (cJ.cf.lb24[cJ.cf.lb24.length-1] === lb[0] && tHour === 5) {
+          a.cf.lb24 = wpJ.cf.lb24.concat(lb.slice(1));
+          a.cf.rn24 = wpJ.cf.rn24.concat(a.cf.rn_n,Array(23));
+          a.cf.rt24 = wpJ.cf.rt24.concat(a.cf.rt_n,Array(23));
+          a.cf.vw24 = wpJ.cf.vw24.concat(a.cf.vw_n,Array(23));
+          a.cf.sb24 = wpJ.cf.sb24.concat(a.cf.sb_n,Array(23));
+          a.cf.vc24 = wpJ.cf.vc24.concat(a.cf.vc_n,Array(23))
+        } else if (cJ.cf.lb24[cJ.cf.lb24.length-1] === lb[24]) {
+          arr = cJ.cf.rn24;
+          arr[cJ.cf.rn24.length-ts] = a.cf.rn_n;
+          a.cf.rn24 = arr;
+          arr = cJ.cf.rt24;
+          arr[cJ.cf.rt24.length-ts] = a.cf.rt_n;
+          a.cf.rt24 = arr;
+          arr = cJ.cf.vw24;
+          arr[cJ.cf.vw24.length-ts] = a.cf.vw_n;
+          a.cf.vw24 = arr;
+          arr = cJ.cf.sb24;
+          arr[cJ.cf.sb24.length-ts] = a.cf.sb_n;
+          a.cf.sb24 = arr;
+          arr = cJ.cf.vc24;
+          arr[cJ.cf.vc24.length-ts] = a.cf.vc_n;
+          a.cf.vc24 = arr
+        } else {
+          a.cf.lb24 = cJ.cf.lb24.concat(lb);
+          a.cf.rn24 = cJ.cf.rn24.concat(Array(25-ts),a.cf.rn_n,Array(ts-1));
+          a.cf.rt24 = cJ.cf.rt24.concat(Array(25-ts),a.cf.rt_n,Array(ts-1));
+          a.cf.vw24 = cJ.cf.vw24.concat(Array(25-ts),a.cf.vw_n,Array(ts-1));
+          a.cf.sb24 = cJ.cf.sb24.concat(Array(25-ts),a.cf.sb_n,Array(ts-1));
+          a.cf.vc24 = cJ.cf.vc24.concat(Array(25-ts),a.cf.vc_n,Array(ts-1))
         }
         if (cJ.cf.lb7[cJ.cf.lb7.length-1] !== today && tDay === 1) {
           a.cf.lb7 = cJ.cf.lb7.concat(today);
@@ -471,30 +511,30 @@ function fSummarize() {
             pd_s: lb_n,
             pd_e: lb_n,
             lb_n: lb_n,
-            lb24: [lb_n],
+            lb24: lb,
             lb7: [today],
             lb12: [today],
             pd_n: 0,
             pd_f: lb_n,
             pd_l: lb_n,
             rn_n: vJ[0].cf.rn_n,
-            rn24: [vJ[0].cf.rn_n],
+            rn24: [].concat(Array(25-ts),vJ[0].cf.rn_n,Array(ts-1)),
             rn7: [vJ[0].cf.rn_n],
             rn12: [vJ[0].cf.rn_n],
             rt_n: rt,
-            rt24: [rt],
+            rt24: [].concat(Array(25-ts),rt,Array(ts-1)),
             rt7: [rt],
             rt12: [rt],
             vw_n: yJ.statistics.viewCount,
-            vw24: [yJ.statistics.viewCount],
+            vw24: [].concat(Array(25-ts),yJ.statistics.viewCount,Array(ts-1)),
             vw7: [yJ.statistics.viewCount],
             vw12: [yJ.statistics.viewCount],
             sb_n: yJ.statistics.subscriberCount,
-            sb24: [yJ.statistics.subscriberCount],
+            sb24: [].concat(Array(25-ts),yJ.statistics.subscriberCount,Array(ts-1)),
             sb7: [yJ.statistics.subscriberCount],
             sb12: [yJ.statistics.subscriberCount],
             vc_n: yJ.statistics.videoCount,
-            vc24: [yJ.statistics.videoCount],
+            vc24: [].concat(Array(25-ts),yJ.statistics.videoCount,Array(ts-1)),
             vc7: [yJ.statistics.videoCount],
             vc12: [yJ.statistics.videoCount]
           }
