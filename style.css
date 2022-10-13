@@ -45,6 +45,7 @@ span {
 h3, h4, h5, h6 {
   margin: 0;
 }
+.h { font-size: 16px }
 a { color: var(--c5) }
 a:visited { color: var(--c6) }
 a:hover { color: var(--c7) }
