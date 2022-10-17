@@ -29,11 +29,12 @@ body {
   color: var(--c2);
   font-size: var(--f1);
 }
+article { width: 100% }
 section {
   width: 100%;
   max-width: 420px;
   min-width: 300px;
-  margin: 20px;
+  margin: 20px 0;
 }
 span {
   height: 100%;
@@ -109,18 +110,17 @@ main {
   padding: 6px;
   box-sizing: border-box;
 }
+table,td { border: 1px solid #333 }
 .navigation {
   order: 100;
 }
 .card {
   z-index: 0;
   width: 100%;
-  max-width: 400px;
-  min-width: 300px;
   height: 300px;
   position: relative;
   overflow: hidden;
-  margin: 1.5rem;
+  margin: 15px;
   content-visibility: auto;
   contain-intrinsic-size: 300px;
 }

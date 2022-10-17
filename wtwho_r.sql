@@ -1,17 +1,67 @@
+--■■■■ 使用先 ■■■■
+a_01 : 急上昇ランキング
+a_78 : 詳細-チャンネル
+a_79 : 詳細-動画
+a_80 : 一覧-動画
+a_88 : メタタグ-チャンネル
+a_89 : メタタグ-動画
+
 --■■■■ video_00（test） ■■■■
-ALTER VIEW channel_00 AS
-SELECT
-	vy.ch AS id,
-	vz.rc AS rc,
-	vz.id AS vd,
-	vz.cat AS cat,
-	cy.title AS title,
-	cz.rn AS rn
+ALTER VIEW video_00 AS
+SELECT * FROM
+( SELECT
+	count(*),
+	z.id AS id,
+	z.rc AS rc,
+	z.cat AS cat,
+	MAX(z.flag) AS flag,
+	MAX(y.ch) AS ch,
+	MAX(y.date) AS date,
+	MAX(y.dur) AS dur,
+	MAX(y.link) AS link,
+	MAX(y.vw) AS vw,
+	MAX(y.vw_h) AS vw_h,
+	MAX(y.vw_ah) AS vw_ah,
+	MAX(y.lk) AS lk,
+	MAX(y.lk_h) AS lk_h,
+	MAX(y.lk_ah) AS lk_ah,
+	MAX(y.cm) AS cm,
+	MAX(y.cm_h) AS cm_h,
+	MAX(y.cm_ah) AS cm_ah,
+	MIN(z.rn) AS rn,
+	MAX(z.rn_i) AS rn_i,
+	MIN(z.rn_b) AS rn_b,
+	MAX(z.rn_t) AS rn_t,
+	MAX(z.rn_h) AS rn_h,
+	SUM(NVL(z.rt, 0)) AS rt,
+	MAX(z.rt_h) AS rt_h,
+	MAX(z.rt_ah) AS rt_ah,
+	MAX(z.pd) AS pd,
+	MAX(z.pd_f) AS pd_f,
+	MAX(z.pd_l) AS pd_l,
+	MAX(z.pd_b) AS pd_b,
+	MAX(z.pd_s) AS pd_s,
+	MAX(z.pd_e) AS pd_e
 FROM
-	video_z AS vz
-	LEFT JOIN video_y AS vy ON vz.id = vy.id
-	LEFT JOIN channel_y AS cy ON vy.ch = cy.id
-	LEFT JOIN channel_z AS cz ON vy.ch = cz.id AND vz.rc = cz.rc
+	video_z AS z
+	LEFT JOIN video_y AS y ON z.id = y.id
+WHERE
+	ch = 'UCh990JFF8shUqSRhCvvztQg'
+GROUP BY id, rc, cat WITH ROLLUP
+) AS t
+ORDER BY id, rc, cat ASC;
+
+ALTER VIEW video_00 AS
+SELECT * FROM
+(SELECT
+	count(*),
+	z.rc AS rc,
+	z.cat AS cat,
+	SUM(NVL(z.rt, 0)) AS rt
+FROM
+	video_z AS z
+GROUP BY rc, cat WITH ROLLUP) AS t
+ORDER BY cat ASC;
 
 --■■■■ channel_00（test） ■■■■
 ALTER VIEW channel_90 AS
@@ -309,3 +359,184 @@ WHERE
 ORDER BY
 	z.rn ASC
 
+--■■■■ a_78（詳細-チャンネル） ■■■■
+ALTER VIEW a_78 AS
+SELECT
+	y.title AS c_t,
+	y.sb AS sb,
+	y.vw AS vw,
+	SUM(z.rt) AS rt,
+	y.des AS des,
+	y.img_s AS img_s,
+	y.id AS id,
+	z.rc AS rc,
+	vz.id AS vd,
+	vz.cat AS cat
+FROM video_z AS vz
+	LEFT JOIN video_y AS vy ON vz.id = vy.id
+	LEFT JOIN channel_y AS y ON vy.ch = y.id
+	LEFT JOIN channel_z AS z ON vy.ch = z.id
+	GROUP BY vd, rc WITH ROLLUP
+ORDER BY cat
+
+--■■■■ a_79（詳細-動画） ■■■■
+ALTER VIEW a_79 AS
+SELECT
+	y.title AS v_t,
+	y.vw AS vw,
+	z.rn AS rn,
+	z.rt AS rt,
+	z.cat AS cat,
+	z.rn_b AS rn_b,
+	y.des AS des,
+	y.img_m AS img_m,
+	z.id AS id,
+	z.rc AS rc,
+	y.ch AS ch
+FROM video_z AS z
+	LEFT JOIN video_y AS y ON z.id = y.id
+ORDER BY CASE WHEN rn IS NULL THEN 1 ELSE 0 END, rn
+
+
+--■■■■ a_80（一覧-動画） ■■■■
+ALTER VIEW a_89 AS
+SELECT
+	z.id AS id,
+	z.rc AS rc,
+	z.flag AS flag,
+	y.title AS v_t,
+	c.title AS c_t,
+	y.vw AS vw,
+	y.lk AS lk,
+	z.rn AS rn,
+	z.cat AS cat,
+	v.rn_b AS rn_b
+FROM video_z AS z
+	LEFT JOIN ( SELECT id, rc, MIN(rn_b) AS rn_b FROM video_z GROUP BY id, rc ) AS v ON v.id = z.id AND v.rc = z.rc
+	LEFT JOIN video_y AS y ON v.id = y.id
+	LEFT JOIN channel_y AS c ON y.ch = c.id
+ORDER BY CASE WHEN rn IS NULL THEN 1 ELSE 0 END, rn
+
+--■■■■ a_88（メタタグ-チャンネル） ■■■■
+ALTER VIEW a_88 AS
+SELECT
+	y.ch AS id,
+	z.rc AS rc,
+	z.cat AS cat,
+	v.id AS vd,
+	MIN(z.rn) AS rn
+(
+	SELECT y.ch AS id, z.id AS vd, z.rc AS rc, z.cat AS cat, MIN(z.rn) AS rn
+	FROM video_z AS z LEFT JOIN video_y AS y ON z.id = y.id
+	GROUP BY vd, rc WITH ROLLUP
+) AS v
+
+	( SELECT id, rc, MIN(rn_b) AS rn_b FROM video_z GROUP BY id, rc ) AS v ON v.id = z.id AND v.rc = z.rc
+
+	LEFT JOIN channel_y AS c ON y.ch = c.id
+ORDER BY CASE WHEN rn IS NULL THEN 1 ELSE 0 END, rn
+
+SELECT
+	z.id AS id,
+	z.rc AS rc,
+	z.flag AS flag,
+	y.title AS v_t,
+	c.title AS c_t,
+	y.vw AS vw,
+	y.lk AS lk,
+	z.rn AS rn,
+	z.cat AS cat,
+	v.rn_b AS rn_b
+
+
+--■■■■ a_89（メタタグ-動画） ■■■■
+ALTER VIEW a_89 AS
+SELECT
+	z.id AS id,
+	z.rc AS rc,
+	z.flag AS flag,
+	y.title AS v_t,
+	y.ch AS ch,
+	c.title AS c_t,
+	y.vw AS vw,
+	y.lk AS lk,
+	z.rn AS rn,
+	z.cat AS cat,
+	v.rn_b AS rn_b
+FROM video_z AS z
+	LEFT JOIN ( SELECT id, rc, MIN(rn_b) AS rn_b FROM video_z GROUP BY id, rc ) AS v ON v.id = z.id AND v.rc = z.rc
+	LEFT JOIN video_y AS y ON v.id = y.id
+	LEFT JOIN channel_y AS c ON y.ch = c.id
+ORDER BY CASE WHEN rn IS NULL THEN 1 ELSE 0 END, rn
+
+
+--■■■■ MEMO ■■■■
+
+LIMIT 10;
+
+
+ALTER VIEW video_00 AS
+SELECT * FROM
+(SELECT
+	count(*),
+	z.rc AS rc,
+	z.cat AS cat,
+	SUM(NVL(z.rt, 0)) AS rt
+FROM
+	video_z AS z
+GROUP BY rc, cat WITH ROLLUP) AS t
+ORDER BY cat ASC;
+
+ALTER VIEW a_88 AS
+SELECT * FROM
+( SELECT
+	count(*),
+	z.id AS id,
+	z.rc AS rc,
+	z.cat AS cat,
+	MAX(z.flag) AS flag,
+	MAX(y.ch) AS ch,
+	MAX(y.date) AS date,
+	MAX(y.dur) AS dur,
+	MAX(y.link) AS link,
+	MAX(y.vw) AS vw,
+	MAX(y.vw_h) AS vw_h,
+	MAX(y.vw_ah) AS vw_ah,
+	MAX(y.lk) AS lk,
+	MAX(y.lk_h) AS lk_h,
+	MAX(y.lk_ah) AS lk_ah,
+	MAX(y.cm) AS cm,
+	MAX(y.cm_h) AS cm_h,
+	MAX(y.cm_ah) AS cm_ah,
+	MIN(z.rn) AS rn,
+	MAX(z.rn_i) AS rn_i,
+	MIN(z.rn_b) AS rn_b,
+	MAX(z.rn_t) AS rn_t,
+	MAX(z.rn_h) AS rn_h,
+	SUM(NVL(z.rt, 0)) AS rt,
+	MAX(z.rt_h) AS rt_h,
+	MAX(z.rt_ah) AS rt_ah,
+	MAX(z.pd) AS pd,
+	MAX(z.pd_f) AS pd_f,
+	MAX(z.pd_l) AS pd_l,
+	MAX(z.pd_b) AS pd_b,
+	MAX(z.pd_s) AS pd_s,
+	MAX(z.pd_e) AS pd_e
+FROM
+	video_z AS z
+	LEFT JOIN video_y AS y ON z.id = y.id
+GROUP BY id, rc, cat WITH ROLLUP
+) AS t
+ORDER BY id, rc, cat ASC;
+
+ALTER VIEW video_00 AS
+SELECT * FROM
+(SELECT
+	count(*),
+	z.rc AS rc,
+	z.cat AS cat,
+	SUM(NVL(z.rt, 0)) AS rt
+FROM
+	video_z AS z
+GROUP BY rc, cat WITH ROLLUP) AS t
+ORDER BY cat ASC;

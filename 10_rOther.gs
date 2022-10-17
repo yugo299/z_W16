@@ -227,7 +227,7 @@ function editCategories() {
     wpEdit(url, arg)
   }
 }
-
+rt_ah
 function editTags() {
 
   let tData = ssData(tSheet);
@@ -243,4 +243,29 @@ function editTags() {
     };
     wpEdit(url, arg)
   }
+}
+
+function editPost() {
+
+  let pData = ssData(pSheet);
+  let wArg = [...Array(pData.length-1)].map(()=>({id:0}));
+  for (let i=0; i<pData.length-1; i++) {
+    for (let j=0; j<pData[0].length; j++) {
+      if (pData[0][j]==='date') {
+        wArg[i][pData[0][j]] = Utilities.formatDate(new Date(pData[i+1][j]),'JST','yyyy-MM-dd HH:mm:ss');
+      } else if (pData[0][j]==='meta') {
+        wArg[i][pData[0][j]] = [];
+      } else {wArg[i][pData[0][j]] = pData[i+1][j];}
+    }
+  }
+
+  let res = {message:{}};
+  for (let i=0; i<wArg.length; i++) {
+    const url = ((wArg[i]['type']==='post')? oURL: pURL) + wArg[i]['id'];
+    const r = wpEdit(url, wArg[i]);
+    res.message[wArg[i]['id']] = ('messsage' in r)? r.message: '200';
+    res[wArg[i]['id']] = r;
+  }
+  console.log(res.message);
+  return res
 }

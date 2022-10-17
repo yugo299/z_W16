@@ -129,18 +129,18 @@ function rHour(rc) {
   const bHour = ts.getHours();
 
   const today = Utilities.formatDate(new Date(), 'Etc/GMT-4', 'yyyy-MM-dd');
+  const tDate = new Date(today).getDate();
   const tDay = new Date(today).getDay();
   const tomottow = Utilities.formatDate(new Date(), 'JST', 'yyyy-MM-dd');
   const nDate = new Date(tomottow).getDate();
 
-  const tLabel = Utilities.formatDate(new Date(), 'JST', 'yyyy-MM-dd HH:') + '00';
+  const tLabel = Utilities.formatDate(new Date(), 'JST', 'yyyy-MM-dd HH:') + '00:00';
   ts = new Date(tLabel).getTime() - (1000 * 60 * 60);
-  const bLabel = Utilities.formatDate(new Date(ts), 'JST', 'yyyy-MM-dd HH:') + '00';
+  const bLabel = Utilities.formatDate(new Date(ts), 'JST', 'yyyy-MM-dd HH:mm:ss');
 
   data = [];
   let err = {};
   let t = 0;
-  let n = 0;
   let w = 0;
   let y = 0;
 
@@ -148,7 +148,8 @@ function rHour(rc) {
   let yC = [];  //YTのチャンネルデータ
 
   let wD = [];  //WPの既存の動画,チャンネルデータ
-  let wA = {};  //WPの動画,チャンネルPOSTデータ
+  let wY = {};  //WPの Y 動画,チャンネルPOSTデータ
+  let wZ = {};  //WPの Z 動画,チャンネルPOSTデータ
 
   let Total = [];
   let Still = [];
@@ -161,7 +162,7 @@ function rHour(rc) {
   let cat   = 0;
   let rn  = 0;
 
-  //■■■■ 文字列操作 ■■■■
+  //■■■■ 文字列,数値操作 ■■■■
   function convertTime(duration) {
 
     if (duration === '' || duration.slice(0,2) !== 'PT') { return }
@@ -206,8 +207,28 @@ function rHour(rc) {
 
   function strLen(str, len) {
     str = str.replace(/^(?:(undefined)?)\,/, '');
-    let arr = str.split(',').map(x=>Number(x));
+    let arr = str.split(',').map(x=>(x==='')? x: Number(x));
     return (arr.length<len)? str: arr.slice(arr.length-len).join()
+  }
+
+  function strSub(f, x, y, z) {
+    let j = 0;
+    x = x.split(',');
+    y = y.split(',');
+    z = z.split(',');
+    if (f==='D') { j = x.length-1-24 }
+    else if (f==='W') { j = x.length-1-7 }
+    else {col = 24} { j = x.length-1-tDate }
+
+    for (let i=j; i<x.length-1; i++) {
+      if (x[i]!=='') { j = i; break; }
+      if (i===x.length-1) { j = x.length-1 }
+    }
+    return [x[j], y[j], z[j]];
+  }
+
+  function numR(num) {
+    return Math.round(num * 10000) / 10000;
   }
 
   //■■■■ 関数 ■■■■
@@ -229,8 +250,8 @@ function rHour(rc) {
     const yJ = (f==='D')? todo[y]: yV[y];
 
     if (wJ && wJ.flag==tHour) {
-      wA.video_y.push( { id:yJ.id } );
-      wA.video_z.push( { id:yJ.id, rc:rc, cat: cat} );
+      wY.video_y.push( { id:yJ.id } );
+      wZ.video_z.push( { id:yJ.id, rc:rc, cat: cat} );
       return
     }
 
@@ -252,51 +273,54 @@ function rHour(rc) {
       cm: yJ.statistics.commentCount,
     }
     if (wJ) {
-      a.vw_h = strLen(wJ.vw_h +','+ yJ.statistics.viewCount, hLen),
-      a.lk_h = strLen(wJ.lk_h +','+ yJ.statistics.likeCount, hLen),
-      a.cm_h = strLen(wJ.cm_h +','+ yJ.statistics.commentCount, hLen),
-      a.lk_ah = yJ.statistics.likeCount - Number(wJ.lk),
-      a.vw_ah = yJ.statistics.viewCount - Number(wJ.vw),
-      a.cm_ah = yJ.statistics.commentCount - Number(wJ.cm)
+      a.vw_h = strLen(wJ.vw_h +','+ ((a.vw==null)? '': a.vw), hLen);
+      a.lk_h = strLen(wJ.lk_h +','+ ((a.lk==null)? '': a.lk), hLen);
+      a.cm_h = strLen(wJ.cm_h +','+ ((a.cm==null)? '': a.cm), hLen);
+      a.vw_ah = (a.vw==null || wJ.vw==null)? null: a.vw - Number(wJ.vw);
+      a.lk_ah = (a.lk==null || wJ.lk==null)? null: a.lk - Number(wJ.lk);
+      a.cm_ah = (a.cm==null || wJ.cm==null)? null: a.cm - Number(wJ.cm);
     } else {
-      a.vw_h = Array(hLen).join() + yJ.statistics.viewCount,
+      a.vw_h = Array(hLen).join() + ((a.vw==null)? '': a.vw);
       a.vw_d = Array(dLen).join();
       a.vw_w = Array(wLen).join();
       a.vw_m = Array(mLen).join();
-      a.lk_h = Array(hLen).join() + yJ.statistics.likeCount,
+      a.lk_h = Array(hLen).join() + ((a.lk==null)? '': a.lk);
       a.lk_d = Array(dLen).join();
       a.lk_w = Array(wLen).join();
       a.lk_m = Array(mLen).join();
-      a.cm_h = Array(hLen).join() + yJ.statistics.commentCount,
+      a.cm_h = Array(hLen).join() + ((a.cm==null)? '': a.cm);
       a.cm_d = Array(dLen).join();
       a.cm_w = Array(wLen).join();
       a.cm_m = Array(mLen).join();
     }
     if (tHour === 4) {
-      a.vw_d = strLen(wJ.vw_d +','+ yJ.statistics.viewCount, dLen);
-      a.lk_d = strLen(wJ.lk_d +','+ yJ.statistics.likeCount, dLen);
-      a.cm_d = strLen(wJ.cm_d +','+ yJ.statistics.commentCount, dLen);
-      a.vw_ad = (wJ.vw_d != null)? yJ.statistics.viewCount - strLast(wJ.vw_d): null;
-      a.lk_ad = (wJ.lk_d != null)? yJ.statistics.likeCount - strLast(wJ.lk_d): null;
-      a.cm_ad = (wJ.cm_d != null)? yJ.statistics.commentCount - strLast(wJ.cm_d): null
+      a.vw_d = strLen(wJ.vw_d +','+ ((a.vw==null)? '': a.vw), dLen);
+      a.lk_d = strLen(wJ.lk_d +','+ ((a.lk==null)? '': a.lk), dLen);
+      a.cm_d = strLen(wJ.cm_d +','+ ((a.cm==null)? '': a.cm), dLen);
+      const sub = strSub('D', a.vw_h, a.lk_h, a.cm_h);
+      a.vw_ad = (a.vw==null)? null: a.vw - sub[0];
+      a.lk_ad = (a.lk==null)? null: a.lk - sub[1];
+      a.cm_ad = (a.cm==null)? null: a.cm - sub[2];
     }
     if (tHour === 4 && tDay === 0) {
-      a.vw_w = strLen(wJ.vw_w +','+ yJ.statistics.viewCount, wLen);
-      a.lk_w = strLen(wJ.lk_w +','+ yJ.statistics.likeCount, wLen);
-      a.cm_w = strLen(wJ.cm_w +','+ yJ.statistics.commentCount, wLen);
-      a.vw_aw = (wJ.vw_w != null)? yJ.statistics.viewCount - strLast(wJ.vw_w): null;
-      a.lk_aw = (wJ.lk_w != null)? yJ.statistics.likeCount - strLast(wJ.lk_w): null;
-      a.cm_aw = (wJ.cm_w != null)? yJ.statistics.commentCount - strLast(wJ.cm_w): null
+      a.vw_w = strLen(wJ.vw_w +','+ ((a.vw==null)? '': a.vw), wLen);
+      a.lk_w = strLen(wJ.lk_w +','+ ((a.lk==null)? '': a.lk), wLen);
+      a.cm_w = strLen(wJ.cm_w +','+ ((a.cm==null)? '': a.cm), wLen);
+      const sub = strSub('W', a.vw_d, a.lk_d, a.cm_d);
+      a.vw_aw = (a.vw==null)? null: a.vw - sub[0];
+      a.lk_aw = (a.lk==null)? null: a.lk - sub[1];
+      a.cm_aw = (a.cm==null)? null: a.cm - sub[2];
     }
     if (tHour === 4 && nDate === 1) {
-      a.vw_m = strLen(wJ.vw_m +','+ yJ.statistics.viewCount, mLen);
-      a.lk_m = strLen(wJ.lk_m +','+ yJ.statistics.likeCount, mLen);
-      a.cm_m = strLen(wJ.cm_m +','+ yJ.statistics.commentCount, mLen);
-      a.vw_am = (wJ.vw_m != null)? yJ.statistics.viewCount - strLast(wJ.vw_m): null;
-      a.lk_am = (wJ.lk_m != null)? yJ.statistics.likeCount - strLast(wJ.lk_m): null;
-      a.cm_am = (wJ.cm_m != null)? yJ.statistics.commentCount - strLast(wJ.cm_m): null
+      a.vw_m = strLen(wJ.vw_m +','+ ((a.vw==null)? '': a.vw), mLen);
+      a.lk_m = strLen(wJ.lk_m +','+ ((a.lk==null)? '': a.lk), mLen);
+      a.cm_m = strLen(wJ.cm_m +','+ ((a.cm==null)? '': a.cm), mLen);
+      const sub = strSub('M', a.vw_d, a.lk_d, a.cm_d);
+      a.vw_am = (a.vw==null)? null: a.vw - sub[0];
+      a.lk_am = (a.lk==null)? null: a.lk - sub[1];
+      a.cm_am = (a.cm==null)? null: a.cm - sub[2];
     }
-    wA.video_y.push(a);
+    wY.video_y.push(a);
 
     //video_z
     a = {
@@ -305,12 +329,12 @@ function rHour(rc) {
       cat: cat,
       flag: (f==='D')? '24': tHour,
       rn: yJ.rn,
-      rt_ah: yJ.rt,
+      rt_ah: (yJ.rt==null)? null: yJ.rt,
       pd_l: tLabel,
     }
     if (wJ) {
-      a.rt = Number(wJ.rt) + yJ.rt;
-      a.rn_h = strLen(wJ.rn_h +','+ yJ.rn, hLen);
+      a.rt = (yJ.rt==null)? Number(wJ.rt): numR(Number(wJ.rt) + yJ.rt);
+      a.rn_h = strLen(wJ.rn_h +','+ ((yJ.rn==null)? '': yJ.rn), hLen);
       a.rt_h = strLen(wJ.rt_h +','+ a.rt, hLen);
       if (!(yJ.rn >= wJ.rn_b)) {
         a.rn_b = yJ.rn;
@@ -318,6 +342,10 @@ function rHour(rc) {
       }
       if (wJ.pd_l === bLabel) {
         a.pd = Number(wJ.pd) + 1;
+      }
+      else {
+        a.pd = 0;
+        a.pd_f = tLabel;
       }
       if (!(a.pd < Number(wJ.pd_b))) {
         a.pd_b = a.pd;
@@ -344,21 +372,24 @@ function rHour(rc) {
       a.pd_e = tLabel;
     }
     if (tHour === 4) {
+      const sub = strSub('D', a.rt_h, a.rt_h, a.rt_h);
       a.rn_d = strLen(wJ.rn_d +','+ a.rn, dLen);
       a.rt_d = strLen(wJ.rt_d +','+ a.rt, dLen);
-      a.rt_ad = (wJ.rt_d != null)? a.rt - strLast(wJ.rt_d): null;
+      a.rt_ad = (a.rt === sub)? null: numR(a.rt - sub[0]);
     }
     if (tHour === 4 && tDay === 0) {
+      const sub = strSub('W', a.rt_d, a.rt_d, a.rt_d);
       a.rn_w = strLen(wJ.rn_w +','+ a.rn, wLen);
       a.rt_w = strLen(wJ.rt_w +','+ a.rt, wLen);
-      a.rt_aw = (wJ.rt_w != null)? a.rt - strLast(wJ.rt_w): null;
+      a.rt_aw = (a.rt === sub)? null: numR(a.rt - sub[0]);
     }
     if (tHour === 4 && nDate === 1) {
+      const sub = strSub('M', a.rt_d, a.rt_d, a.rt_d);
       a.rn_m = strLen(wJ.rn_m +','+ a.rn, mLen);
       a.rt_m = strLen(wJ.rt_m +','+ a.rt, mLen);
-      a.rt_am = (wJ.rt_m != null)? a.rt - strLast(wJ.rt_m): null;
+      a.rt_am = (a.rt === sub)? null: numR(a.rt - sub[0]);
     }
-    wA.video_z.push(a);
+    wZ.video_z.push(a);
   }
 
   function cArguments(i) {
@@ -381,70 +412,76 @@ function rHour(rc) {
       vc: yJ.statistics.videoCount,
     }
     if (wJ.date) {
-      a.vw_h = strLen(wJ.vw_h +','+ yJ.statistics.viewCount, hLen),
-      a.sb_h = strLen(wJ.sb_h +','+ yJ.statistics.subscriberCount, hLen),
-      a.vc_h = strLen(wJ.vc_h +','+ yJ.statistics.videoCount, hLen),
-      a.sb_ah = yJ.statistics.subscriberCount - Number(wJ.sb),
-      a.vw_ah = yJ.statistics.viewCount - Number(wJ.vw),
-      a.vc_ah = yJ.statistics.videoCount - Number(wJ.vc)
+      a.vw_h = strLen(wJ.vw_h +','+ ((a.vw==null)? '': a.vw), hLen);
+      a.sb_h = strLen(wJ.sb_h +','+ ((a.sb==null)? '': a.sb), hLen);
+      a.vc_h = strLen(wJ.vc_h +','+ ((a.vc==null)? '': a.vc), hLen);
+      a.vw_ah = (a.vw==null || wJ.vw==null)? null: a.vw - Number(wJ.vw);
+      a.sb_ah = (a.sb==null || wJ.sb==null)? null: a.sb - Number(wJ.sb);
+      a.vc_ah = (a.vc==null || wJ.vc==null)? null: a.vc - Number(wJ.vc);
     } else {
-      a.vw_h = Array(hLen).join() + yJ.statistics.viewCount,
+      a.vw_h = Array(hLen).join() + ((a.vw==null)? '': a.vw);
       a.vw_d = Array(dLen).join();
       a.vw_w = Array(wLen).join();
       a.vw_m = Array(mLen).join();
-      a.sb_h = Array(hLen).join() + yJ.statistics.subscriberCount,
+      a.sb_h = Array(hLen).join() + ((a.sb==null)? '': a.sb);
       a.sb_d = Array(dLen).join();
       a.sb_w = Array(wLen).join();
       a.sb_m = Array(mLen).join();
-      a.vc_h = Array(hLen).join() + yJ.statistics.videoCount,
+      a.vc_h = Array(hLen).join() + ((a.vc==null)? '': a.vc);
       a.vc_d = Array(dLen).join();
       a.vc_w = Array(wLen).join();
       a.vc_m = Array(mLen).join();
     }
     if (tHour === 4) {
-      a.vw_d = strLen(wJ.vw_d +','+ yJ.statistics.viewCount, dLen);
-      a.sb_d = strLen(wJ.sb_d +','+ yJ.statistics.subscriberCount, dLen);
-      a.vc_d = strLen(wJ.vc_d +','+ yJ.statistics.videoCount, dLen);
-      a.vw_ad = (wJ.vw_d != null)? yJ.statistics.viewCount - strLast(wJ.vw_d): null;
-      a.sb_ad = (wJ.sb_d != null)? yJ.statistics.subscriberCount - strLast(wJ.sb_d): null;
-      a.vc_ad = (wJ.vc_d != null)? yJ.statistics.videoCount - strLast(wJ.vc_d): null
+      a.vw_d = strLen(wJ.vw_d +','+ ((a.vw==null)? '': a.vw), dLen);
+      a.sb_d = strLen(wJ.sb_d +','+ ((a.sb==null)? '': a.sb), dLen);
+      a.vc_d = strLen(wJ.vc_d +','+ ((a.vc==null)? '': a.vc), dLen);
+      const sub = strSub('D', a.vw_h, a.sb_h, a.vc_h);
+      a.vw_ad = (a.vw==null)? null: a.vw - sub[0];
+      a.sb_ad = (a.sb==null)? null: a.sb - sub[1];
+      a.vc_ad = (a.vc==null)? null: a.vc - sub[2];
     }
     if (tHour === 4 && tDay === 0) {
-      a.vw_w = strLen(wJ.vw_w +','+ yJ.statistics.viewCount, wLen);
-      a.sb_w = strLen(wJ.sb_w +','+ yJ.statistics.subscriberCount, wLen);
-      a.vc_w = strLen(wJ.vc_w +','+ yJ.statistics.videoCount, wLen);
-      a.vw_aw = (wJ.vw_w != null)? yJ.statistics.viewCount - strLast(wJ.vw_w): null;
-      a.sb_aw = (wJ.sb_w != null)? yJ.statistics.subscriberCount - strLast(wJ.sb_w): null;
-      a.vc_aw = (wJ.vc_w != null)? yJ.statistics.videoCount - strLast(wJ.vc_w): null
+      a.vw_w = strLen(wJ.vw_w +','+ ((a.vw==null)? '': a.vw), wLen);
+      a.sb_w = strLen(wJ.sb_w +','+ ((a.sb==null)? '': a.sb), wLen);
+      a.vc_w = strLen(wJ.vc_w +','+ ((a.vc==null)? '': a.vc), wLen);
+      const sub = strSub('W', a.vw_d, a.sb_d, a.vc_d);
+      a.vw_aw = (a.vw==null)? null: a.vw - sub[0];
+      a.sb_aw = (a.sb==null)? null: a.sb - sub[1];
+      a.vc_aw = (a.vc==null)? null: a.vc - sub[2];
     }
     if (tHour === 4 && nDate === 1) {
-      a.vw_m = strLen(wJ.vw_m +','+ yJ.statistics.viewCount, mLen);
-      a.sb_m = strLen(wJ.sb_m +','+ yJ.statistics.subscriberCount, mLen);
-      a.vc_m = strLen(wJ.vc_m +','+ yJ.statistics.videoCount, mLen);
-      a.vw_am = (wJ.vw_m != null)? yJ.statistics.viewCount - strLast(wJ.vw_m): null;
-      a.sb_am = (wJ.sb_m != null)? yJ.statistics.subscriberCount - strLast(wJ.sb_m): null;
-      a.vc_am = (wJ.vc_m != null)? yJ.statistics.videoCount - strLast(wJ.vc_m): null
+      a.vw_m = strLen(wJ.vw_m +','+ ((a.vw==null)? '': a.vw), mLen);
+      a.sb_m = strLen(wJ.sb_m +','+ ((a.sb==null)? '': a.sb), mLen);
+      a.vc_m = strLen(wJ.vc_m +','+ ((a.vc==null)? '': a.vc), mLen);
+      const sub = strSub('M', a.vw_d, a.sb_d, a.vc_d);
+      a.vw_am = (a.vw==null)? null: a.vw - sub[0];
+      a.sb_am = (a.sb==null)? null: a.sb - sub[0];
+      a.vc_am = (a.vc==null)? null: a.vc - sub[0];
     }
-    wA.channel_y.push(a);
+    wY.channel_y.push(a);
 
     //channel_z
+    rt = (wJ.rt_v==null)? null: numR(Number(wJ.rt_v));
     a = {
       id: yJ.id,
       rc: rc,
-      rt_ah: wJ.rt_v,
+      rt_ah: (wJ.rt_v==null)? null: rt,
       pd_l: tLabel
     }
     if (wJ.date) {
-      a.rt = Number(wJ.rt) + Number(wJ.rt_v);
-      a.rn_h = strLen(wJ.rn_h +','+ wJ.rn_v, hLen);
-      a.rt_h = strLen(wJ.rt_h +','+ wJ.rt_v, hLen);
-      a.rt_ah = yJ.rt;
+      a.rt = (rt==null)? Number(wJ.rt): numR(wJ.rt + rt);
+      a.rn_h = strLen(wJ.rn_h +','+ ((wJ.rn_v==null)? '': wJ.rn_v), hLen);
+      a.rt_h = strLen(wJ.rt_h +','+ a.rt, hLen);
       if (!(Number(wJ.rn_v) > Number(wJ.rn_b))) {
-        a.rn_b = wJ.rn_v;
+        a.rn_b = Number(wJ.rn_v);
         a.rn_t = tLabel;
       }
       if (wJ.pd_l === bLabel) {
         a.pd = Number(wJ.pd) + 1;
+      } else {
+        a.pd = 0;
+        a.pd_f = tLabel;
       }
       if (!(a.pd < Number(wJ.pd_b))) {
         a.pd_b = a.pd;
@@ -452,15 +489,15 @@ function rHour(rc) {
         a.pd_e = tLabel
       }
     } else {
-      a.rn   = wJ.rn_v;
-      a.rn_b = wJ.rn_v;
+      a.rn   = Number(wJ.rn_v);
+      a.rn_b = Number(wJ.rn_v);
       a.rn_t = tLabel;
       a.rn_h = Array(hLen).join() + wJ.rn_v;
       a.rn_d = Array(dLen).join();
       a.rn_w = Array(wLen).join();
       a.rn_m = Array(mLen).join();
       a.rt   = wJ.rt_v;
-      a.rt_h = Array(hLen).join() + wJ.rt_v;
+      a.rt_h = Array(hLen).join() + rt;
       a.rt_d = Array(dLen).join();
       a.rt_w = Array(wLen).join();
       a.rt_m = Array(mLen).join();
@@ -471,21 +508,24 @@ function rHour(rc) {
       a.pd_e = tLabel;
     }
     if (tHour === 4) {
+      const sub = strSub('D', a.rt_h, a.rt_h, a.rt_h);
       a.rn_d = strLen(wJ.rn_d +','+ a.rn, dLen);
       a.rt_d = strLen(wJ.rt_d +','+ a.rt, dLen);
-      a.rt_ad = (wJ.rt_d != null)? a.rt - strLast(wJ.rt_d): null;
+      a.rt_ad = (a.rt === sub)? null: numR(a.rt - sub[0]);
     }
     if (tHour === 4 && tDay === 0) {
+      const sub = strSub('W', a.rt_d, a.rt_d, a.rt_d);
       a.rn_w = strLen(wJ.rn_w +','+ a.rn, wLen);
       a.rt_w = strLen(wJ.rt_w +','+ a.rt, wLen);
-      a.rt_aw = (wJ.rt_w != null)? a.rt - strLast(wJ.rt_w): null;
+      a.rt_aw = (a.rt === sub)? null: numR(a.rt - sub[0]);
     }
     if (tHour === 4 && nDate === 1) {
+      const sub = strSub('M', a.rt_d, a.rt_d, a.rt_d);
       a.rn_m = strLen(wJ.rn_m +','+ a.rn, mLen);
       a.rt_m = strLen(wJ.rt_m +','+ a.rt, mLen);
-      a.rt_am = (wJ.rt_m != null)? a.rt - strLast(wJ.rt_m): null;
+      a.rt_am = (a.rt === sub)? null: numR(a.rt - sub[0]);
     }
-    wA.channel_z.push(a);
+    wZ.channel_z.push(a);
   }
 
   //■■■■ 実施判定２ ■■■■
@@ -505,7 +545,7 @@ function rHour(rc) {
         cat = cNo[i];
         let vJ = ytPopular();
         data = vJ.items;
-        if (vJ.nextPageToken===undefined) { data.concat(ytPopular(vJ.nextPageToken).items) }
+        if (vJ.nextPageToken !== undefined) { data = data.concat(ytPopular(vJ.nextPageToken).items) }
         vSetData();
       }
       data = [];
@@ -535,7 +575,8 @@ function rHour(rc) {
   function step_va() { //vArg
     err = {};
     try {
-      wA = {video_y:[], video_z:[]};
+      wY = {video_y:[]};
+      wZ = {video_z:[]};
       yC = {};
       Still = Array(30).fill(0);
       New = Array(30).fill(0);
@@ -547,19 +588,26 @@ function rHour(rc) {
       w = 0;
       y = 0;
       while (w < todo.length || y < yV.length) {
+        let f = 'D';
         cat = (w < todo.length)? Number(todo[w].cat): false;
 
-        if (!(w === todo.length) && !(todo[w].id > yV[y].id) && !(todo[w].id >= yV[y].id)) {
+        if (w < todo.length && y < yV.length) {
+          if (todo[w].id === yV[y].id) {
+            vArguments('S');
+            rn = true;
+            w++; y++;
+            Still[cat]++;
+            continue;
+          } else if (todo[w].id >= yV[y].id) { f = 'N' }
+          else if (cat > yV[y]) { f = 'N' }
+        } else if (w === todo.length) { f = 'N' }
+
+        if (f === 'D') {
           data.push(todo[w]);
           rn = false;
           w++;
           Drop[cat]++
-        } else if (!(w === todo.length) && !(y === yV.length) && todo[w].id === yV[y].id) {
-          vArguments('S');
-          rn = true;
-          w++; y++;
-          Still[cat]++
-        } else {
+        } else if (f === 'N') {
           cat = yV[y].cat;
           vArguments('N');
           rn = true;
@@ -568,7 +616,7 @@ function rHour(rc) {
         }
       }
 
-      done = [].concat(data);
+      done = data.length;
       todo = [];
       while (data.length) {
         let vID = data.splice(0,50).map(x => x.id);
@@ -578,13 +626,14 @@ function rHour(rc) {
       //Drop動画のArg作成
       y = -1;
       while (++y < todo.length) { vArguments('D') }
+      todo = [];
 
-      const ySum = wA.video_y.length;
-      const zSum = wA.video_z.length;
+      const ySum = wY.video_y.length;
+      const zSum = wZ.video_z.length;
       const sSum = Still.reduce((sum, x) => sum + x, 0);
       const nSum = New.reduce((sum, x) => sum + x, 0);
       const dSum = Drop.reduce((sum, x) => sum + x, 0);
-      console.log('vArg (video_y:video_z) : ' + ySum + ' = ' + zSum + '\nStill : ' + sSum + '\nNew : ' + nSum + '\nDrop : ' + dSum + ' = ' + done.length);
+      console.log('vArg (video_y:video_z) : ' + ySum + ' = ' + zSum + '\nStill : ' + sSum + '\nNew : ' + nSum + '\nDrop : ' + dSum + ' = ' + done);
 
     } catch (e) {
       console.log('vArg\n' + e.message);
@@ -604,8 +653,11 @@ function rHour(rc) {
   function step_vp() { //vPost
     err = {};
     try {
-      let res = wpAPI(vURL, wA);
-      console.log('vPost\nvideo_y : ' + res.y  + '\nvideo_z : ' + res.z);
+      yV = [];
+      wD = [];
+      let rY = wpAPI(vURL, wY);
+      let rZ = wpAPI(vURL, wZ);
+      console.log('vPost\nvideo_y : ' + rY.y  + '\nvideo_z : ' + rZ.z);
     } catch (e) {
       console.log('vPost\n' + e.message);
       err = e;
@@ -624,6 +676,8 @@ function rHour(rc) {
   function step_cg() { //チャンネル情報取得（WP,YT）
     err = {};
     try {
+      wY = {};
+      wZ = {};
       wD = wpAPI(cURL+'24/'+rc);
 
       data = [].concat(wD);
@@ -655,11 +709,12 @@ function rHour(rc) {
   function step_ca() { //cArg
     err = {};
     try {
-      wA = {channel_y:[], channel_z:[]};
+      wY = {channel_y:[]};
+      wZ = {channel_z:[]};
       for (let i=0; i<wD.length; i++) { cArguments(i); }
 
-      const ySum = wA.channel_y.length;
-      const zSum = wA.channel_z.length;
+      const ySum = wY.channel_y.length;
+      const zSum = wZ.channel_z.length;
       console.log('cArg (channel_y:channel_z) : ' + ySum + ' = ' + zSum);
 
     } catch (e) {
@@ -680,8 +735,10 @@ function rHour(rc) {
   function step_cp() { //cPost
     err = {};
     try {
-      let res = wpAPI(cURL, wA);
-      console.log('cPost\nchannel_y : ' + res.y  + '\nchannel_z : ' + res.z);
+      wD = [];
+      let rY = wpAPI(cURL, wY);
+      let rZ = wpAPI(cURL, wZ);
+      console.log('cPost\nchannel_y : ' + rY.y  + '\nchannel_z : ' + rZ.z);
     } catch (e) {
       console.log('cPost\n' + e.message);
       err = e;
