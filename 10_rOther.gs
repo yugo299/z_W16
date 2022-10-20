@@ -227,7 +227,7 @@ function editCategories() {
     wpEdit(url, arg)
   }
 }
-rt_ah
+
 function editTags() {
 
   let tData = ssData(tSheet);
@@ -255,6 +255,8 @@ function editPost() {
         wArg[i][pData[0][j]] = Utilities.formatDate(new Date(pData[i+1][j]),'JST','yyyy-MM-dd HH:mm:ss');
       } else if (pData[0][j]==='meta') {
         wArg[i][pData[0][j]] = [];
+      } else if (pData[0][j]==='categories' || pData[0][j]==='tags') {
+        wArg[i][pData[0][j]] = pData[i+1][j].split(',');
       } else {wArg[i][pData[0][j]] = pData[i+1][j];}
     }
   }
@@ -269,3 +271,91 @@ function editPost() {
   console.log(res.message);
   return res
 }
+
+/** ■■■■ テスト ■■■■ */
+function rPage() {
+
+  function pArguments(id, slug) {
+    a = {
+      ID: id,
+      post_author: 1,
+      post_date: date,
+      post_content: '',
+      post_title: id,
+      post_excerpt: '',
+      post_status: 'private',
+      comment_status: 'open',
+      ping_status: 'open',
+      post_name: slug,
+      post_parent: parent,
+      menu_order: Number((slug<70)? slug+100: slug),
+      post_type: 'page',
+    };
+    wA.zr_posts.push(a);
+  }
+
+  let y = new Date().getFullYear() - 2000;
+  const e = y + 2;
+  const date = '20' + e + '/10/10 00:00'
+
+  let ts = new Date('20' + y + '/12/31 12:00');
+  let m = 0;
+  let d = 0;
+  let w = 0;
+
+  let wA = {zr_posts:[]};
+
+  let slug = y + 1;
+  let id = Number(slug+'0000');
+  let parent = 4;
+  pArguments(id, slug);
+
+  while (y < e) {
+    ts.setDate(ts.getDate() + 1);
+    y = ts.getFullYear() - 2000;
+    if (y === e) { break; }
+
+    if (m < ts.getMonth()+1) {
+      w = 0;
+      m = ts.getMonth()+1;
+      slug = (m < 10)? ('0'+m): String(m);
+      id = Number(y+slug+'00');
+      parent = y+'0000';
+      pArguments(id, slug);
+      parent = id;
+    };
+    d = ts.getDate();
+
+    if (ts.getDay()===0) {
+      slug = String(7) + (++w);
+      id = Number(y + ((m<10)? ('0'+m): String(m)) + slug);
+      pArguments(id, slug);
+    }
+
+    slug = (d < 10)? ('0'+d): String(d);
+    id = Number(y + ((m<10)? ('0'+m): String(m)) + slug);
+    pArguments(id, slug);
+  }
+  console.log(wpAPI(vURL));
+}
+
+{
+  url = vURL + '25/' + rc;
+  wD = wpAPI(url);
+  wA = { Ranking: {}, Drop: {} };
+  let Drop = {video_z:[]}
+  let r = 0;
+   d = [0,0];
+  for (let i=0; i<cNo.length; i++) { wA.Ranking[cNo[i]] = []; wA.Drop[cNo[i]] = [];}
+  for (let i=0; i<wD.length; i++) { dArguments(i); }
+
+  console.log({r:r,d:d});
+
+//  const resD = wpAPI(vURL, Drop);
+//  const resR = wpAPI(pURL, Ranking);
+
+}
+/*
+if (wJ.flag==='24') { wA.Drop[a.cat].push(a); d[1]++; }
+else { wA.Ranking[a.cat].push(a); r++; }
+*/

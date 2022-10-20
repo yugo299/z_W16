@@ -11,6 +11,9 @@ function rHour(rc) {
     const sCol = rSheet.getLastColumn();
     return rSheet.getRange(1, 1, sRow, sCol).getValues();
   }
+  function ssWrite(sheet, src) {
+    sheet.getRange(1, 1, src.length, src[0].length).setValues(src);
+  }
   function ssStart(flag) { rFile.insertSheet(flag) }
   function ssEnd(flag) { rFile.deleteSheet(rFile.getSheetByName(flag)) }
 
@@ -151,6 +154,8 @@ function rHour(rc) {
   let wY = {};  //WPの Y 動画,チャンネルPOSTデータ
   let wZ = {};  //WPの Z 動画,チャンネルPOSTデータ
 
+  let SS = [];  //SSデバッグ用でデータ
+
   let Total = [];
   let Still = [];
   let New   = [];
@@ -195,8 +200,8 @@ function rHour(rc) {
   }
 
   function textToLink(str) {
-    const regexp_url = /(https?:\/\/[\w/:%#\$&\?\(\)~\.=\+\-\@]+)/g;
-    str = str.replace(regexp_url, '<a class="external" href="$1" target="_blank" rel="noreferrer" title="外部リンク"></a> ');
+    const regexp_url = /(htt)(ps|p)(:\/)([\w/:%#\$&\?\(\)~\.=\+\-\@ぁ-んァ-ヶ亜-熙Ａ-Ｚａ-ｚ]+)/g;
+    str = str.replace(regexp_url, '<a class="external" href="/link/$2$4" title="外部リンク"></a> ');
     return str
   }
 
@@ -218,7 +223,7 @@ function rHour(rc) {
     z = z.split(',');
     if (f==='D') { j = x.length-1-24 }
     else if (f==='W') { j = x.length-1-7 }
-    else {col = 24} { j = x.length-1-tDate }
+    else {f==='M'} { j = x.length-1-tDate }
 
     for (let i=j; i<x.length-1; i++) {
       if (x[i]!=='') { j = i; break; }
@@ -246,12 +251,13 @@ function rHour(rc) {
 
   function vArguments(f) {
 
-    const wJ = (f==='N')? false: todo[w];
+    const wJ = (f==='N')? false: data[w];
     const yJ = (f==='D')? todo[y]: yV[y];
 
     if (wJ && wJ.flag==tHour) {
-      wY.video_y.push( { id:yJ.id } );
-      wZ.video_z.push( { id:yJ.id, rc:rc, cat: cat} );
+      wY.video_y.unshift( { id:yJ.id } );
+      wZ.video_z.unshift( { id:yJ.id, rc:rc, cat: cat} );
+      console.log('実施済み判定\nid：'+yJ.id+'\ncat：'+cat);
       return
     }
 
@@ -273,6 +279,7 @@ function rHour(rc) {
       cm: yJ.statistics.commentCount,
     }
     if (wJ) {
+      done[0]++;
       a.vw_h = strLen(wJ.vw_h +','+ ((a.vw==null)? '': a.vw), hLen);
       a.lk_h = strLen(wJ.lk_h +','+ ((a.lk==null)? '': a.lk), hLen);
       a.cm_h = strLen(wJ.cm_h +','+ ((a.cm==null)? '': a.cm), hLen);
@@ -280,6 +287,7 @@ function rHour(rc) {
       a.lk_ah = (a.lk==null || wJ.lk==null)? null: a.lk - Number(wJ.lk);
       a.cm_ah = (a.cm==null || wJ.cm==null)? null: a.cm - Number(wJ.cm);
     } else {
+      done[1]++;
       a.vw_h = Array(hLen).join() + ((a.vw==null)? '': a.vw);
       a.vw_d = Array(dLen).join();
       a.vw_w = Array(wLen).join();
@@ -327,27 +335,41 @@ function rHour(rc) {
       id: yJ.id,
       rc: rc,
       cat: cat,
-      flag: (f==='D')? '24': tHour,
-      rn: yJ.rn,
-      rt_ah: (yJ.rt==null)? null: yJ.rt,
-      pd_l: tLabel,
+      flag: (f==='D')? 24: tHour,
+      rn: (f==='D')? null: yJ.rn,
+      rt_ah: (f==='D')? null: yJ.rt
     }
     if (wJ) {
+      a.rn_i = wJ.rn_i;
+      a.rn_b = wJ.rn_b;
+      a.rn_t = wJ.rn_t;
+      a.pd   = wJ.pd;
+      a.pd_f = wJ.pd_f;
+      a.pd_l = wJ.pd_l;
+      a.pd_b = wJ.pd_b;
+      a.pd_s = wJ.pd_s;
+      a.pd_e = wJ.pd_e;
       a.rt = (yJ.rt==null)? Number(wJ.rt): numR(Number(wJ.rt) + yJ.rt);
       a.rn_h = strLen(wJ.rn_h +','+ ((yJ.rn==null)? '': yJ.rn), hLen);
       a.rt_h = strLen(wJ.rt_h +','+ a.rt, hLen);
-      if (!(yJ.rn >= wJ.rn_b)) {
+      if (!(yJ.rn >= wJ.rn_b) && f==='S') {
         a.rn_b = yJ.rn;
         a.rn_t = tLabel;
       }
-      if (wJ.pd_l === bLabel) {
+      if (wJ.pd_l === bLabel && f==='S') {
         a.pd = Number(wJ.pd) + 1;
+        a.pd_l = tLabel;
       }
-      else {
+      else if (f==='S') {
         a.pd = 0;
         a.pd_f = tLabel;
       }
-      if (!(a.pd < Number(wJ.pd_b))) {
+      else {
+        a.pd = null;
+        a.pd_f = null;
+        a.pd_l = null;
+      }
+      if (!(a.pd < Number(wJ.pd_b)) && a.pd!==0) {
         a.pd_b = a.pd;
         a.pd_s = wJ.pd_f;
         a.pd_e = tLabel
@@ -367,6 +389,7 @@ function rHour(rc) {
       a.rt_m = Array(mLen).join();
       a.pd   = 0;
       a.pd_f = tLabel;
+      a.pd_l = tLabel;
       a.pd_b = 0;
       a.pd_s = tLabel;
       a.pd_e = tLabel;
@@ -390,6 +413,10 @@ function rHour(rc) {
       a.rt_am = (a.rt === sub)? null: numR(a.rt - sub[0]);
     }
     wZ.video_z.push(a);
+
+    SS.push([a.id, a.cat, a.rt, a.rn, a.rn_i, a.rn_b, a.rn_t, a.pd, a.pd_f, a.pd_l, a.pd_b, a.pd_s, a.pd_e]);
+
+    if (a.flag!==tHour && a.flag!==24) { console.log(a); }
   }
 
   function cArguments(i) {
@@ -473,17 +500,21 @@ function rHour(rc) {
       a.rt = (rt==null)? Number(wJ.rt): numR(wJ.rt + rt);
       a.rn_h = strLen(wJ.rn_h +','+ ((wJ.rn_v==null)? '': wJ.rn_v), hLen);
       a.rt_h = strLen(wJ.rt_h +','+ a.rt, hLen);
-      if (!(Number(wJ.rn_v) > Number(wJ.rn_b))) {
+      if (!(Number(wJ.rn_v) > Number(wJ.rn_b)) && rt) {
         a.rn_b = Number(wJ.rn_v);
         a.rn_t = tLabel;
       }
-      if (wJ.pd_l === bLabel) {
+      if (wJ.pd_l === bLabel && rt) {
         a.pd = Number(wJ.pd) + 1;
-      } else {
+      } else if (rt) {
         a.pd = 0;
         a.pd_f = tLabel;
+      } else {
+        a.pd = null;
+        a.pd_f = null;
+        a.pd_l = null;
       }
-      if (!(a.pd < Number(wJ.pd_b))) {
+      if (!(a.pd < Number(wJ.pd_b)) && a.pd!==0) {
         a.pd_b = a.pd;
         a.pd_s = wJ.pd_f;
         a.pd_e = tLabel
@@ -581,52 +612,67 @@ function rHour(rc) {
       Still = Array(30).fill(0);
       New = Array(30).fill(0);
       Drop = Array(30).fill(0);
+      SS = [].push(['id', 'cat', 'rt', 'rn', 'rn_i', 'rn_b', 'rn_t', 'pd', 'pd_f', 'pd_l', 'pd_b', 'pd_s', 'pd_e']);
 
       //ランクイン動画(Still,New)のArg作成
-      todo = wD;
-      data = [];
+      todo = [];
+      data = [].concat(wD);
       w = 0;
       y = 0;
-      while (w < todo.length || y < yV.length) {
-        let f = 'D';
-        cat = (w < todo.length)? Number(todo[w].cat): false;
+      done = [0,0];
+      while (w < wD.length || y < yV.length) {
+        let f = false;
+        if (w === wD.length) {f ='N';}
+        if (y === yV.length) {f ='D';}
+        if (!f && wD[w].id > yV[y].id) {f ='N';}
+        if (!f && wD[w].id < yV[y].id) {f ='D';}
+        if (!f && wD[w].id > yV[y].cat) {f ='N';}
+        if (!f && wD[w].id < yV[y].cat) {f ='D';}
+        if (!f && wD[w].id === yV[y].id && wD[w].cat === yV[y].cat) {f ='S';}
+        if (!f) {
+          console.log('判定漏れ\n' + wD[w].id +' : '+ yV[y].id +'\n'+ wD[w].cat +' : '+ yV[y].cat);
+          throw new Error('エラー');
+        }
 
-        if (w < todo.length && y < yV.length) {
-          if (todo[w].id === yV[y].id) {
-            vArguments('S');
-            rn = true;
-            w++; y++;
-            Still[cat]++;
-            continue;
-          } else if (todo[w].id >= yV[y].id) { f = 'N' }
-          else if (cat > yV[y]) { f = 'N' }
-        } else if (w === todo.length) { f = 'N' }
-
-        if (f === 'D') {
-          data.push(todo[w]);
-          rn = false;
-          w++;
-          Drop[cat]++
-        } else if (f === 'N') {
-          cat = yV[y].cat;
+        cat = yV[y].cat;
+        if (f ==='S') {
+          vArguments('S');
+          Still[cat]++;
+          w++; y++;
+        }
+        if (f === 'N') {
           vArguments('N');
           rn = true;
           y++;
           New[cat]++
         }
+        if (f === 'D') {
+          todo.push(wD[w]);
+          Drop[cat]++;
+          w++;
+        }
       }
+      console.log(done);
 
-      done = data.length;
-      todo = [];
-      while (data.length) {
-        let vID = data.splice(0,50).map(x => x.id);
-        todo = todo.concat(ytVideo(vID.join()).items);
+      data = [].concat(todo);
+      done = []
+      while (todo.length) {
+        let vID = todo.splice(0,50).map(x => x.id);
+        done = done.concat(ytVideo(vID.join()).items);
       }
+      todo = [].concat(done);
 
       //Drop動画のArg作成
-      y = -1;
-      while (++y < todo.length) { vArguments('D') }
+      done = [0,0];
+      w = 0;
+      y = 0;
+      while (w < todo.length) { vArguments('D'); w++; y++; }
+      data = [];
       todo = [];
+
+      const dSheet = rFile.getSheetByName('D')
+      ssWrite(dSheet, SS);
+      SS = [];
 
       const ySum = wY.video_y.length;
       const zSum = wZ.video_z.length;

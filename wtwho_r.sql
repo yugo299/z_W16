@@ -3,8 +3,7 @@ a_01 : 急上昇ランキング
 a_78 : 詳細-チャンネル
 a_79 : 詳細-動画
 a_80 : 一覧-動画
-a_88 : メタタグ-チャンネル
-a_89 : メタタグ-動画
+a_89 : メタタグ-動画/チャンネル
 
 --■■■■ video_00（test） ■■■■
 ALTER VIEW video_00 AS
@@ -178,6 +177,7 @@ SELECT
 	z.flag AS flag,
 	y.ch AS ch,
 	y.title AS title,
+	c.title AS c_t,
 	y.date AS date,
 	y.dur AS dur,
 	y.des AS des,
@@ -238,6 +238,7 @@ SELECT
 FROM
 	video_z AS z
 	LEFT JOIN video_y AS y ON z.id = y.id
+	LEFT JOIN channel_y AS c ON y.ch = c.id
 WHERE
 	z.flag <= 24;
 
@@ -417,47 +418,17 @@ FROM video_z AS z
 	LEFT JOIN channel_y AS c ON y.ch = c.id
 ORDER BY CASE WHEN rn IS NULL THEN 1 ELSE 0 END, rn
 
---■■■■ a_88（メタタグ-チャンネル） ■■■■
-ALTER VIEW a_88 AS
-SELECT
-	y.ch AS id,
-	z.rc AS rc,
-	z.cat AS cat,
-	v.id AS vd,
-	MIN(z.rn) AS rn
-(
-	SELECT y.ch AS id, z.id AS vd, z.rc AS rc, z.cat AS cat, MIN(z.rn) AS rn
-	FROM video_z AS z LEFT JOIN video_y AS y ON z.id = y.id
-	GROUP BY vd, rc WITH ROLLUP
-) AS v
-
-	( SELECT id, rc, MIN(rn_b) AS rn_b FROM video_z GROUP BY id, rc ) AS v ON v.id = z.id AND v.rc = z.rc
-
-	LEFT JOIN channel_y AS c ON y.ch = c.id
-ORDER BY CASE WHEN rn IS NULL THEN 1 ELSE 0 END, rn
-
-SELECT
-	z.id AS id,
-	z.rc AS rc,
-	z.flag AS flag,
-	y.title AS v_t,
-	c.title AS c_t,
-	y.vw AS vw,
-	y.lk AS lk,
-	z.rn AS rn,
-	z.cat AS cat,
-	v.rn_b AS rn_b
-
-
---■■■■ a_89（メタタグ-動画） ■■■■
+--■■■■ a_89（メタタグ-動画/チャンネル） ■■■■
 ALTER VIEW a_89 AS
 SELECT
-	z.id AS id,
+	z.id AS vd,
 	z.rc AS rc,
 	z.flag AS flag,
 	y.title AS v_t,
+	y.date AS v_d,
 	y.ch AS ch,
 	c.title AS c_t,
+	c.date AS c_d,
 	y.vw AS vw,
 	y.lk AS lk,
 	z.rn AS rn,
