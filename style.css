@@ -29,8 +29,7 @@ body {
   color: var(--c2);
   font-size: var(--f1);
 }
-article { width: 100% }
-section {
+article {
   width: 100%;
   max-width: 420px;
   min-width: 300px;

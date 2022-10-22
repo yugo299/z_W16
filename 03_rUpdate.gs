@@ -20,20 +20,20 @@ function rUpdate() {
 
   function msSubmit(list) {
 
-  let arguments = {siteUrl: 'https://ratio100.com', urlList: []}
-  list.forEach(l => arguments.urlList.push(l));
+    let arguments = {siteUrl: 'https://ratio100.com', urlList: []}
+    list.forEach(l => arguments.urlList.push(l));
 
-  const url = 'https://www.bing.com/webmaster/api.svc/json/SubmitUrlbatch?apikey=' + msKey;
-  const headers = {
-    'Content-Type': 'application/json',
+    const url = 'https://www.bing.com/webmaster/api.svc/json/SubmitUrlbatch?apikey=' + msKey;
+    const headers = {
+      'Content-Type': 'application/json',
+      };
+    const options = {
+      'method': 'POST',
+      'muteHttpExceptions': true,
+      'headers': headers,
+      'payload': JSON.stringify(arguments)
     };
-  const options = {
-    'method': 'POST',
-    'muteHttpExceptions': true,
-    'headers': headers,
-    'payload': JSON.stringify(arguments)
-  };
-  const sJson = JSON.parse(UrlFetchApp.fetch(url, options).getContentText());
+    const sJson = JSON.parse(UrlFetchApp.fetch(url, options).getContentText());
 
   return {list:arguments.urlList.length, res:sJson}
   }
@@ -52,30 +52,30 @@ function rUpdate() {
   const hour = date.getHours();
   const minutes = date.getMinutes();
 
-  if (minutes>40 && minutes<45) {
+  if (minutes>40 && minutes<45) { //Youtube,チャンネル,動画ページ更新
     const time = Utilities.formatDate(date,'JST','yyyy-MM-dd HH:') + '30:00';
     const arg = { post_date: time }
-    wpAPI(oURL+8, arg);
-    wpAPI(oURL+9, arg);
-    wpAPI(pURL+4, arg);
-    console.log('アップデート完了（ 4,8,9 ） : '+time);
+    console.log(wpAPI(pURL+4, arg));
+    console.log(wpAPI(oURL+8, arg));
+    console.log(wpAPI(oURL+9, arg));
+    console.log('アップデート完了 ( 4,8,9 ) : '+time);
   }
 
-  if (minutes>20 && minutes<25 && (hour%2===0)) {
+  if (minutes>20 && minutes<25 && (hour%2===0)) { //カテゴリ別ランキングページ更新
     const time = Utilities.formatDate(date,'JST','yyyy-MM-dd HH:') + '00:10';
     const arg = { post_date: time }
-    wpAPI(oURL+cNo[Math.round(hour/2)], arg);
-    console.log('アップデート完了（ '+Math.round(hour/2)+' ） : '+time);
+    console.log(wpAPI(oURL+cNo[Math.round(hour/2)], arg));
+    console.log('アップデート完了 ( '+Math.round(hour/2)+' ) : '+time);
   }
 
-  if (minutes>30 && minutes<35 && (hour===19)) {
+  if (minutes>30 && minutes<35 && (hour===19)) { //カテゴリ別ランキングページ更新
     const time = Utilities.formatDate(date,'JST','yyyy-MM-dd HH:') + '01:29';
     const arg = { post_date: time }
-    wpAPI(oURL+6, arg);
+    console.log(wpAPI(pURL+6, arg));
     console.log('アップデート完了（ 6 ） : '+time);
   }
 
-  if (minutes>50 && minutes<55 && (hour===4)) {
+  if (minutes>50 && minutes<55 && (hour===4)) { //Bing WebMaterTool API送信
     list = [];
     //msSubmit(list);
     console.log('Bing通知完了（ '+list.length+'件 ） : '+time);

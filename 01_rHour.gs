@@ -139,6 +139,12 @@ function rHour(rc) {
   const vURL = sURL + '/wp-json/ratio-zid/zid/video/';
   const cURL = sURL + '/wp-json/ratio-zid/zid/channel/';
   const oURL = sURL + '/wp-json/wp/v2/posts/';
+  const pURL = sURL + '/wp-json/wp/v2/pages/';
+
+  const tFile = SpreadsheetApp.openById('1lsmIYC2KOgEPgBDB6n9ADwWCyTH1dec1C_dmiZL7reQ');
+  const xSheet = tFile.getSheetByName('X');
+  const ySheet = tFile.getSheetByName('Y');
+  const zSheet = tFile.getSheetByName('Z');
 
   const authUser = 'syo-zid';
   const authPass = 'lpwN R9pX bviV fliz CZIo wV8W';
@@ -270,11 +276,74 @@ function rHour(rc) {
     const wJ = (f==='N')? false: data[w];
     const yJ = (f==='D')? todo[y]: yV[y];
 
+    //実施済み判定
     if (wJ && wJ.flag==tHour) {
       wY.video_y.unshift( { id:yJ.id } );
       wZ.video_z.unshift( { id:yJ.id, rc:rc, cat: cat} );
-      console.log('実施済み判定\nid：'+yJ.id+'\ncat：'+cat);
+      done[2]++;
       return
+    }
+
+    if (wJ.ban!=null) { //非公開化 or BAN
+      a = {
+        id: wJ.id,
+        img_m: wJ.img_m,
+        img_s: wJ.img_s,
+        vw: null,
+        lk: null,
+        cm: null,
+        vw_h: strLen(wJ.vw_h +','),
+        vw_d: strLen(wJ.vw_d +','),
+        vw_w: strLen(wJ.vw_w +','),
+        vw_m: strLen(wJ.vw_m +','),
+        lk_h: strLen(wJ.lk_h +','),
+        lk_d: strLen(wJ.lk_d +','),
+        lk_w: strLen(wJ.lk_w +','),
+        lk_m: strLen(wJ.lk_m +','),
+        cm_h: strLen(wJ.cm_h +','),
+        cm_d: strLen(wJ.cm_d +','),
+        cm_w: strLen(wJ.cm_w +','),
+        cm_m: strLen(wJ.cm_m +','),
+        vw_ah: null,
+        vw_ad: null,
+        vw_aw: null,
+        vw_am: null,
+        lk_ah: null,
+        lk_ad: null,
+        lk_aw: null,
+        lk_am: null,
+        cm_ah: null,
+        cm_ad: null,
+        cm_aw: null,
+        cm_am: null,
+      }
+      wY.video_y.push(a);
+      a = {
+        id: wJ.id,
+        rc: wJ.rc,
+        cat: wJ.cat,
+        rn: null,
+        rt: wJ.rt,
+        rn_b: wJ.rn_b,
+        rn_t: wJ.rn_t,
+        rn_h: strLen(wJ.rn_h +','),
+        rn_d: strLen(wJ.rn_d +','),
+        rn_w: strLen(wJ.rn_w +','),
+        rn_m: strLen(wJ.rn_m +','),
+        rt_h: strLen(wJ.rt_h +','),
+        rt_d: strLen(wJ.rt_d +','),
+        rt_w: strLen(wJ.rt_w +','),
+        rt_m: strLen(wJ.rt_m +','),
+        rt_ah: null,
+        rt_ad: null,
+        rt_aw: null,
+        rt_am: null,
+        pd  : null,
+        pd_f: null,
+        pd_l: null,
+      }
+      wZ.video_z.push(a);
+      return done[0]++;
     }
 
     let a = {};
@@ -435,12 +504,67 @@ function rHour(rc) {
     if (a.flag!==tHour && a.flag!==24) { console.log(a); }
   }
 
-  function cArguments(i) {
+  function cArguments(f) {
 
-    const wJ = wD[i];
-    const yJ = yC[i];
-
+    const wJ = wD[w];
+    const yJ = (f)? yC[y]: false;
     let a = {};
+
+    if (!f) { //非公開化 or BAN
+      a = {
+        id: wJ.id,
+        img_m: wJ.img_m,
+        img_s: wJ.img_s,
+        vw: null,
+        sb: null,
+        vc: null,
+        vw_h: strLen(wJ.vw_h +','),
+        vw_d: strLen(wJ.vw_d +','),
+        vw_w: strLen(wJ.vw_w +','),
+        vw_m: strLen(wJ.vw_m +','),
+        sb_h: strLen(wJ.sb_h +','),
+        sb_d: strLen(wJ.sb_d +','),
+        sb_w: strLen(wJ.sb_w +','),
+        sb_m: strLen(wJ.sb_m +','),
+        vc_h: strLen(wJ.vc_h +','),
+        vc_d: strLen(wJ.vc_d +','),
+        vc_w: strLen(wJ.vc_w +','),
+        vc_m: strLen(wJ.vc_m +','),
+        vw_ah: null,
+        vw_ad: null,
+        vw_aw: null,
+        vw_am: null,
+        sb_ah: null,
+        sb_ad: null,
+        sb_aw: null,
+        sb_am: null,
+        vc_ah: null,
+        vc_ad: null,
+        vc_aw: null,
+        vc_am: null,
+      }
+      wY.channel_y.push(a);
+      a = {
+        id: wJ.id,
+        rc: rc,
+        rn_b: wJ.rn_b,
+        rn_t: wJ.rn_t,
+        rn_h: strLen(wJ.rn_h +','),
+        rn_d: strLen(wJ.rn_d +','),
+        rn_w: strLen(wJ.rn_w +','),
+        rn_m: strLen(wJ.rn_m +','),
+        rt_h: strLen(wJ.rt_h +','),
+        rt_d: strLen(wJ.rt_d +','),
+        rt_w: strLen(wJ.rt_w +','),
+        rt_m: strLen(wJ.rt_m +','),
+        pd  : null,
+        pd_f: null,
+        pd_l: null,
+      }
+      wZ.channel_z.push(a);
+      return done[0]++
+    }
+
     //channel_y
     a = {
       id: yJ.id,
@@ -633,7 +757,7 @@ function rHour(rc) {
       //ランクイン動画タイプ別振り分け、[Still,New]のArg作成
       data = [].concat(wD);
       todo = [];
-      done = [0,0];
+      done = [0,0,0];
       w = 0;
       y = 0;
       while (w < wD.length || y < yV.length) {
@@ -669,33 +793,39 @@ function rHour(rc) {
           w++;
         }
       }
-      console.log(done);
+      console.log('D-1\n既存 : '+done[0]+'\n新規 : '+done[1]+'\n実施済み : '+done[2]);
 
       //Drop動画YT情報取得
       data = [].concat(todo);
       done = [];
-      console.log('D-1 : '+todo.length);
+      console.log('D-2 : '+todo.length);
       while (todo.length) {
         let vID = todo.splice(0,50).map(x => x.id);
         done = done.concat(ytVideo(vID.join()).items);
       }
-      todo = [].concat(done);
+      todo = [].concat(done).sort((a, b) => (a.id > b.id)? 1: -1);
 
       //Drop動画のArg作成
-      done = [0,0];
-      w = 0;
-      y = 0;
-      console.log('D-2 : '+todo.length);
-      while (w < todo.length) {
+      done = [0,0,0];
+      w = 0; y = 0;
+      while (w < data.length || y < todo.length) {
+        let f = false;
+        if (w === data.length) { throw new Error('vDrop : エラー (真偽判定ミスの可能性あり)'); }
+        if (y === todo.length) { console.log('非公開orBAN : '+data[w].id); f='B'; }
+        if (!f && data[w].id > todo[y].id) { throw new Error('vDrop : エラー (真偽判定ミスの可能性あり)'); }
+        if (!f && data[w].id < todo[y].id) { console.log('非公開orBAN : '+data[w].id); f='B'; }
+        if (!f && data[w].id===todo[y].id) { f ='D'; }
+        if (!f) { throw new Error('cArg エラー : 振り分け判定漏れ\n'+ data[w].id +' : '+ todo[y].id); }
+        if (f==='B') { data[w].ban = true; }
+        //SS.push([data[w].id, ((f==='S')? todo[y].id: '')]);
+
         cat = data[w].cat;
         if (!cat) {console.log('Drop動画のArg作成 : カテゴリ『0』エラー\nid : '+data[w].id)}
         vArguments('D');
-        w++; y++;
+        w++;
+        if (f==='D') { y++; }
       }
-      console.log('D-3 : '+done[0]);
-      data = [];
-      todo = [];
-      done = [];
+      //ssWrite(ySheet,SS);
 
       //デバッグ書き出し、集計
       let dSheet = rFile.getSheetByName('D');
@@ -755,20 +885,25 @@ function rHour(rc) {
       wY = {};
       wZ = {};
       wD = wpAPI(cURL+'24/'+rc);
-
       data = [].concat(wD);
       yC = [];
+      SS = [];
       while (data.length) {
         let vID = data.splice(0,50).map(x => x.id);
+        SS = SS.concat(vID);
         yC = yC.concat(ytChannel(vID.join()).items);
       }
+      yC = yC.sort((a, b) => (a.id > b.id)? 1: -1);
+
+      ssWrite(xSheet, [SS]);
+      SS = [];
 
       const wSum = wD.length;
       const ySum = yC.length;
       console.log('チャンネル情報取得（WP,YT）\nWP(channel_24) : ' + wSum + '\nYT : ' + ySum);
 
     } catch (e) {
-      console.log('cArg\n' + e.message);
+      console.log('チャンネル情報取得\n' + e.message);
       err = e;
     }
     finally {
@@ -779,7 +914,7 @@ function rHour(rc) {
   step_cg();
   if (t===3) {
     ssEnd('doing_'+rc);
-    return console.log('【途中終了】エラー回数超過\ncArg')
+    return console.log('【途中終了】エラー回数超過\ncチャンネル情報取得')
   }
 
   function step_ca() { //cArg
@@ -787,14 +922,33 @@ function rHour(rc) {
     try {
       wY = {channel_y:[]};
       wZ = {channel_z:[]};
-      done = [0,0];
-      for (let i=0; i<wD.length; i++) { cArguments(i); }
+      done = [0,0,0];
+      SS = [];
+
+      w = 0; y = 0;
+      while (w < wD.length || y < yC.length) {
+        let f = false;
+        if (w === wD.length) { throw new Error('cArg : エラー (真偽判定ミスの可能性あり)'); }
+        if (y === yC.length) { console.log('非公開orBAN : '+wD[w].id); f='B'; }
+        if (!f && wD[w].id > yC[y].id) { throw new Error('cArg : エラー (真偽判定ミスの可能性あり)'); }
+        if (!f && wD[w].id < yC[y].id) { console.log('非公開orBAN : '+wD[w].id); f='B'; }
+        if (!f && wD[w].id===yC[y].id) { f ='S'; }
+        if (!f) {
+          throw new Error('cArg エラー : 振り分け判定漏れ\n'+ wD[w].id +' : '+ yC[y].id);
+        }
+        SS.push([wD[w].id, ((f==='S')? yC[y].id: '')]);
+        cArguments(((f==='s')? true: false));
+        w++;
+        if (f==='S') { y++; }
+      }
+      ssWrite(ySheet,SS);
 
       const ySum = wY.channel_y.length;
       const zSum = wZ.channel_z.length;
-      console.log('cArg (channel_y:channel_z) : '+ySum+' = '+zSum+'\n'+(done[0]+done[1])+' ( Still : New = '+done[0]+' : '+done[1]+' )');
+      console.log('cArg (channel_y:channel_z) : '+ySum+' = '+zSum+'\n'+(done[0]+done[1]+done[2])+' ( Still : New : Done = '+done[0]+' : '+done[1]+' : '+done[2]+' )');
       done = [];
     } catch (e) {
+      ssWrite(ySheet,SS);
       console.log('cArg\n' + e.message);
       err = e;
     }
@@ -860,14 +1014,34 @@ function rHour(rc) {
   function step_re() { //日次ランキング結果アップデート
     err = {};
     try {
-      for (let i=0; i<cNo.length; i++) {
-        const update = Utilities.formatDate(new Date(), 'JST', 'M月d日H時');
-        const arg = {
-          title: '【速報】YouTube急上昇 '+cTitle[i]+'【'+update+'集計】',
+      const id = Utilities.formatDate(new Date(), 'Etc/GMT+14', 'yyMMdd')
+      data = wpAPI(pURL+id);
+      let arg = {};
+      const flag = Number(data.excerpt);
+      const h = (tHour+19) % 24;
+
+      if (tHour !== flag) {
+        if (tHour === 5) {
+          arg = {
+            ranking: {},
+            still: [...Array(24)].map(() => Array(cNo.length).fill(0)),
+            new  : [...Array(24)].map(() => Array(cNo.length).fill(0)),
+            drop : [...Array(24)].map(() => Array(cNo.length).fill(0))
+          };
+        } else { arg = JSON.parse(data.content.raw); }
+
+        for (let i=0; i<cNo.length; i++) {
+          arg.still[h][i] = Still[cNo[i]];
+          arg.new[h][i]   = New[cNo[i]];
+          arg.drop[h][i]  = Drop[cNo[i]];
         }
-        wpAPI(oURL+cNo[i], arg);
-      }
-      console.log('日次ランキング結果アップデート : '+tLabel);
+        arg.content = JSON.stringify(arg);
+        arg.excerpt = tHour;
+        console.log(wpAPI(pURL+id, arg));
+        console.log('日次ランキング結果アップデート : '+tLabel+'\nid : '+id);
+
+      } else { console.log('実施済み : 日次ランキング結果アップデート\nid : '+id) }
+
     } catch (e) {
       console.log('Flash\n' + e.message);
       err = e;

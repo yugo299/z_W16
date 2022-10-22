@@ -34,7 +34,7 @@ function rDay(rc) {
         flag: 30
       };
       Drop.video_z.push(a);
-      d[0]++;
+      d++;
     }
 
     let a = {
@@ -58,8 +58,8 @@ function rDay(rc) {
       pd: wJ.pd
     }
 
-    if (wJ.flag==='24') { wA.Drop[a.cat].push(a); d[1]++; }
-    else { wA.Ranking[a.cat].push(a); r++; }
+    Ranking[a.cat].push(a);
+    r++;
   }
 
   function strSub(f, str, label) {
@@ -96,50 +96,136 @@ function rDay(rc) {
   const authUser = 'syo-zid';
   const authPass = 'lpwN R9pX bviV fliz CZIo wV8W';
 
-  let time = new Date(Utilities.formatDate(new Date(), 'Etc/GMT-5', 'yyyy-MM-dd HH:mm'));
+  time = new Date(Utilities.formatDate(new Date(), 'Etc/GMT-5', 'yyyy-MM-dd HH:mm'));
   const date = time.getDate() - 1;
-  time = new Date(Utilities.formatDate(new Date(), 'GMT', 'yyyy-MM-dd'));
+  time = new Date(Utilities.formatDate(new Date(), 'Etc/GMT+14', 'yyyy-MM-dd'));
   const day = time.getDay()+60;
-  const id = String(time.getFullYear()-2000) + ((time.getMonth()+1<10)? ('0'+time.getMonth()+1): String(time.getMonth()+1)) + ((time.getDate()<10)? ('0'+time.getDate()): String(time.getDate()));
-  const today = Utilities.formatDate(new Date(), 'GMT', 'yyyy年M月d日');
+  const id = Utilities.formatDate(new Date(), 'Etc/GMT+14', 'yyMMdd');
+  const today = Utilities.formatDate(new Date(), 'Etc/GMT+14', 'yyyy年M月d日');
   const publish = Utilities.formatDate(new Date(), 'JST', 'yyyy-MM-dd') + ' 05:30:00';
-  const now = Utilities.formatDate(new Date(), 'JST', 'yyyy-MM-dd') + Utilities.formatDate(new Date(), 'JST', ' HH:mm:ss');
+  const now = Utilities.formatDate(new Date(), 'JST', 'yyyy-MM-dd') + 'T' + Utilities.formatDate(new Date(), 'JST', 'HH:mm:ss');
 
   time = Utilities.formatDate(new Date(),'JST','yyyy-MM-dd HH:') + '00:00';
   time = new Date(time).getTime();
   let url = vURL + '25/' + rc;
   const wD = wpAPI(url);
-  let wA = { Ranking: {}, Drop: {} };
+  let Ranking = {};
   let Drop = {video_z:[]}
   let r = 0;
-  let d = [0,0];
+  let d = 0;
+  let t = 0;
 
-  for (let i=0; i<cNo.length; i++) { wA.Ranking[cNo[i]] = []; wA.Drop[cNo[i]] = [];}
-  for (let i=0; i<wD.length; i++) { dArguments(i); }
+  function step_dr() { //dArguments
+    err = {};
+    try {
+      for (let i=0; i<cNo.length; i++) { Ranking[cNo[i]] = []; }
+      for (let i=0; i<wD.length; i++) { dArguments(i); }
+      console.log({ranking:r,drop:d});
+    } catch (e) {
+      console.log('dArguments\n' + e.message);
+      err = e;
+    }
+    finally {
+      if('message' in err && ++t < 3){ step_dr() }
+    }
+  }
+  t = 0;
+  step_dr();
+  if (t===3) {
+    return console.log('【途中終了】エラー回数超過\narg : dArguments')
+  }
 
-  console.log({r:r,d:d});
+  function step_dr() { //Dropアップデート
+    err = {};
+    try {
+      const resD = wpAPI(vURL, Drop);
+      console.log('Dropアップデート：' + resD);
+    } catch (e) {
+      console.log('Dropアップデート\n' + e.message);
+      err = e;
+    }
+    finally {
+      if('message' in err && ++t < 3){ step_dr() }
+    }
+  }
+  t = 0;
+  step_dr();
+  if (t===3) {
+    return console.log('【途中終了】エラー回数超過\narg : Dropアップデート')
+  }
 
-  const resD = wpAPI(vURL, Drop);
-  console.log('Dropアップデート：' + resD);
+  function step_ar() { //arg : デイリーランキング
+    err = {};
+    try {
+      data = wpAPI(pURL+id).content.raw;
+      data.ranking = Ranking;
+      const excerpt = 'デイリーランキング ' + today;
 
-  excerpt = 'デイリーランキング ' + today;
-  arg = {
-    date: publish,
-    status: (publish<now)? 'publish': 'future',
-    title: date+'日',
-    content: JSON.stringify(wA),
-    excerpt: excerpt,
-    //featured_media: 0,
-    comment_status: 'open',
-    ping_status: 'open',
-    sticky: false,
-    categories: [4],
-    tags: [70,73,74,78,79,52,57,day],
-  };
+      arg = {
+        date: publish,
+        status: (publish<now)? 'publish': 'future',
+        title: date+'日',
+        content: JSON.stringify(data),
+        excerpt: excerpt,
+        //featured_media: 0,
+        comment_status: 'open',
+        ping_status: 'open',
+        sticky: false,
+        categories: [4],
+        tags: [70,73,74,78,79,52,57,day],
+      };
 
-  const resR = wpAPI(pURL+id, arg);
-  console.log('デイリーランキング更新\n' + resR);
+      console.log('arg : デイリーランキング\n' + excerpt);
+    } catch (e) {
+      console.log('arg : デイリーランキング\n' + e.message);
+      err = e;
+    }
+    finally {
+      if('message' in err && ++t < 3){ step_ar() }
+    }
+  }
+  t = 0;
+  step_ar();
+  if (t===3) {
+    return console.log('【途中終了】エラー回数超過\narg : デイリーランキング')
+  }
 
-  fSheet.getRange(3, rCol[rc]).setValue(date);
-  //if (tHour===4) {fSheet.getRange(3, rCol[rc]).setValue('Go')};
+  function step_rn() { //デイリーランキング更新
+    err = {};
+    try {
+      const resR = wpAPI(pURL+id, arg);
+      console.log('デイリーランキング更新\n' + resR);
+    } catch (e) {
+      console.log('デイリーランキング更新\n' + e.message);
+      err = e;
+    }
+    finally {
+      if('message' in err && ++t < 3){ step_rn() }
+    }
+  }
+  t = 0;
+  step_rn();
+  if (t===3) {
+    return console.log('【途中終了】エラー回数超過\nデイリーランキング更新')
+  }
+
+  function step_e() { //終了処理
+    err = {};
+    try {
+      fSheet.getRange(3, rCol[rc]).setValue(date);
+      console.log('■■■■■■■■■■ 実行完了 : rDay ■■■■■■■■■■');
+    } catch (e) {
+      console.log('終了処理\n' + e.message);
+      err = e;
+    }
+    finally {
+      if('message' in err && ++t < 3){ step_e() }
+    }
+  }
+  t = 0;
+  step_e();
+  if (t===3) {
+    return console.log('【途中終了】エラー回数超過\n終了処理')
+  }
+
 }

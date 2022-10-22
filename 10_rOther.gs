@@ -2,6 +2,7 @@ function fOther() {
 
   //let a = {status:'future',date:'2022-10-20T16:00:00'}
   //let a = {video_y: {idddd:'QNqD-vWkea0'}}
+  //let id = 'UCzy1nQFnKpacpu1E3uRMMVw';
 
   let r = wpAPI(zURL);
   r.unshift(['id','rc','cat','flag','rn','num']);
@@ -11,6 +12,8 @@ function fOther() {
   //editTags()
   //rDate('jp');
   //rPage();
+
+  //r = ytChannel(id)
 
   //console.log(r);
 }
