@@ -1,6 +1,12 @@
 function rDay(rc) {
 
   /** ■■■■ 関数 ■■■■ */
+  function ssData() {
+    const sRow = fSheet.getLastRow();
+    const sCol = fSheet.getLastColumn();
+    return fSheet.getRange(1, 1, sRow, sCol).getValues();
+  }
+
   function wpAPI(url, arguments) {
 
     const headers = {
@@ -36,8 +42,8 @@ function rDay(rc) {
       rc: wJ.rc,
       cat: wJ.cat,
       ch: wJ.ch,
-      c_t: wJ.c_t,
-      v_t: wJ.v_t,
+      t_c: wJ.t_c,
+      t_v: wJ.t_v,
       img_s: wJ.img_s,
       vw: wJ.vw,
       vw_ad: strSub('D', wJ.vw_h, wJ.pd_l),
@@ -73,6 +79,14 @@ function rDay(rc) {
     return val
   }
 
+  /** ■■■■ 実行判定 ■■■■ */
+  const rFile = SpreadsheetApp.openById('1WsUl5TYWxcE4ltAisWPja9fkqb5hd48uvAeT-r5HrQ4');
+  const fSheet = rFile.getSheetByName('F');
+  const rCol = {jp:2};
+  let data = ssData();
+  let flag = data[2][rCol[rc]-1];
+  if (flag!=='Go') { return console.log('実施対象外') }
+
   /** ■■■■ 変数 ■■■■ */
   const cNo = [1,2,10,15,17,20,22,23,24,25,26,28];
   const sURL = 'https://ratio100.com';
@@ -82,12 +96,14 @@ function rDay(rc) {
   const authUser = 'syo-zid';
   const authPass = 'lpwN R9pX bviV fliz CZIo wV8W';
 
-  let time = new Date(Utilities.formatDate(new Date(), 'GMT', 'yyyy-MM-dd'));
-  const date = time.getDate();
+  let time = new Date(Utilities.formatDate(new Date(), 'Etc/GMT-5', 'yyyy-MM-dd HH:mm'));
+  const date = time.getDate() - 1;
+  time = new Date(Utilities.formatDate(new Date(), 'GMT', 'yyyy-MM-dd'));
   const day = time.getDay()+60;
   const id = String(time.getFullYear()-2000) + ((time.getMonth()+1<10)? ('0'+time.getMonth()+1): String(time.getMonth()+1)) + ((time.getDate()<10)? ('0'+time.getDate()): String(time.getDate()));
   const today = Utilities.formatDate(new Date(), 'GMT', 'yyyy年M月d日');
   const publish = Utilities.formatDate(new Date(), 'JST', 'yyyy-MM-dd') + ' 05:30:00';
+  const now = Utilities.formatDate(new Date(), 'JST', 'yyyy-MM-dd') + Utilities.formatDate(new Date(), 'JST', ' HH:mm:ss');
 
   time = Utilities.formatDate(new Date(),'JST','yyyy-MM-dd HH:') + '00:00';
   time = new Date(time).getTime();
@@ -103,12 +119,13 @@ function rDay(rc) {
 
   console.log({r:r,d:d});
 
-//  const resD = wpAPI(vURL, Drop);
-  excerpt = 'デイリーランキング '+ today;
+  const resD = wpAPI(vURL, Drop);
+  console.log('Dropアップデート：' + resD);
 
+  excerpt = 'デイリーランキング ' + today;
   arg = {
     date: publish,
-    status: 'future',
+    status: (publish<now)? 'publish': 'future',
     title: date+'日',
     content: JSON.stringify(wA),
     excerpt: excerpt,
@@ -121,5 +138,8 @@ function rDay(rc) {
   };
 
   const resR = wpAPI(pURL+id, arg);
-  console.log(resR);
+  console.log('デイリーランキング更新\n' + resR);
+
+  fSheet.getRange(3, rCol[rc]).setValue(date);
+  //if (tHour===4) {fSheet.getRange(3, rCol[rc]).setValue('Go')};
 }

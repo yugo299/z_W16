@@ -1,21 +1,32 @@
 function fOther() {
 
+  //let a = {status:'future',date:'2022-10-20T16:00:00'}
+  //let a = {video_y: {idddd:'QNqD-vWkea0'}}
+
+  let r = wpAPI(zURL);
+  r.unshift(['id','rc','cat','flag','rn','num']);
+  ssWrite(xSheet,r);
+  //msSubmit()
   //editCategories();
   //editTags()
+  //rDate('jp');
+  //rPage();
 
-  //const vFile = SpreadsheetApp.openById(fID[vCat]);
-  //const vSheet = vFile.getSheetByName('wV');
-  //const cFile = SpreadsheetApp.openById('1WsUl5TYWxcE4ltAisWPja9fkqb5hd48uvAeT-r5HrQ4');
-  //const cSheet = cFile.getSheetByName('wC');;
-  //deleteData(sheet, url);
+  //console.log(r);
 }
 
 //■■■■ 変数 ■■■■
 const apiKey = 'AIzaSyBWiGrLeScNunJ1mY5QBACE4zrYGwZpO1E';
+const msKey = 'cb4064ed957644f485ca6ebe1ec96ce5';
+const gglKey = '768432540662-e3ojid05lncv56houo6bvimmhhckq6ut.apps.googleusercontent.com';
 const rFile = SpreadsheetApp.openById('1WsUl5TYWxcE4ltAisWPja9fkqb5hd48uvAeT-r5HrQ4');
 const fSheet = rFile.getSheetByName('F');
 const tSheet = rFile.getSheetByName('T');
 const pSheet = rFile.getSheetByName('P');
+const tFile = SpreadsheetApp.openById('1lsmIYC2KOgEPgBDB6n9ADwWCyTH1dec1C_dmiZL7reQ');
+const xSheet = tFile.getSheetByName('X');
+const ySheet = tFile.getSheetByName('Y');
+const zSheet = tFile.getSheetByName('Z');
 
 const cNo = [1,2,10,15,17,20,22,23,24,25,26,28];
 const cName = [
@@ -40,6 +51,7 @@ const oURL = sURL + '/wp-json/wp/v2/posts/';
 const pURL = sURL + '/wp-json/wp/v2/pages/';
 const rURL = sURL + '/wp-json/wp/v2/categories/';
 const tURL = sURL + '/wp-json/wp/v2/tags/';
+const zURL = sURL + '/wp-json/ratio-zid/zzz/';
 
 const authUser = 'syo-zid';
 const authPass = 'lpwN R9pX bviV fliz CZIo wV8W';
@@ -208,8 +220,45 @@ function wpAPI(url, arguments) {
   return resJson
 }
 
-//■■■■ 編集用関数 ■■■■
+//■■■■ MS関数 ■■■■
+function msSubmit(list) {
 
+  const arguments = {siteUrl: sURL, urlList: list}
+  const url = 'https://www.bing.com/webmaster/api.svc/json/SubmitUrlbatch?apikey=' + msKey;
+  const headers = {
+    'Content-Type': 'application/json',
+    };
+  const options = {
+    'method': 'POST',
+    'muteHttpExceptions': true,
+    'headers': headers,
+    'payload': JSON.stringify(arguments)
+  };
+  const Json = JSON.parse(UrlFetchApp.fetch(url, options).getContentText());
+
+  return {list:arguments.urlList.length, res:Json}
+}
+
+//■■■■ GG関数 ■■■■
+function ggSubmit(list) {
+
+  const endpoint = 'https://indexing.googleapis.com/v3/urlNotifications:publish';
+  const headers = {'Content-Type': 'application/json'};
+
+  list.forEach(url => {
+    const arguments = {url: url, type: 'URL_UPDATED'}
+    const options = {
+      method: 'POST',
+      muteHttpExceptions: true,
+      headers: headers,
+      payload: JSON.stringify(arguments)
+    };
+    const Json = JSON.parse(UrlFetchApp.fetch(endpoint, options).getContentText());
+    console.log(Json);
+  })
+}
+
+//■■■■ 編集用関数 ■■■■
 function editCategories() {
 
   let tData = ssData(tSheet);
@@ -338,7 +387,7 @@ function rPage() {
   }
   console.log(wpAPI(vURL));
 }
-
+/*
 {
   url = vURL + '25/' + rc;
   wD = wpAPI(url);
@@ -355,7 +404,6 @@ function rPage() {
 //  const resR = wpAPI(pURL, Ranking);
 
 }
-/*
 if (wJ.flag==='24') { wA.Drop[a.cat].push(a); d[1]++; }
 else { wA.Ranking[a.cat].push(a); r++; }
 */
