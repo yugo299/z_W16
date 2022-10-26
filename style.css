@@ -1,3 +1,4 @@
+*,*::before,*::after{box-sizing:border-box}body,h1,h2,h3,h4,p,figure,blockquote,dl,dd{margin:0}ul[role="list"],ol[role="list"]{list-style:none}html:focus-within{scroll-behavior:smooth}body{min-height:100vh;text-rendering:optimizeSpeed;line-height:1.5}a:not([class]){text-decoration-skip-ink:auto}img,picture{max-width:100%;display:block}input,button,textarea,select{font:inherit}@media(prefers-reduced-motion:reduce){html:focus-within{scroll-behavior:auto}*,*::before,*::after{animation-duration:.01ms !important;animation-iteration-count:1 !important;transition-duration:.01ms !important;scroll-behavior:auto !important}}
 :root {
   --c1: #eee;
   --c2: #333;
@@ -17,6 +18,7 @@
 .c3 {background: linear-gradient(-15deg, #f3c, #606)}
 .c4 {background: linear-gradient(-15deg, #0c6, #360)}
 .c0 {background: linear-gradient(-15deg, #f96, #c30)}
+.c6 {background: var(--c6); color: var(--c1)}
 .t1 {color: #309}
 .t2 {color: #960}
 .t3 {color: #606}
@@ -29,23 +31,6 @@ body {
   color: var(--c2);
   font-size: var(--f1);
 }
-article {
-  width: 100%;
-  max-width: 420px;
-  min-width: 300px;
-  margin: 20px 0;
-}
-span {
-  height: 100%;
-  border-style: solid;
-  border-color: var(--c3);
-  border-width: 0 0 1px;
-  box-sizing: border-box;
-}
-h3, h4, h5, h6 {
-  margin: 0;
-}
-.h { font-size: 16px }
 a { color: var(--c5) }
 a:visited { color: var(--c6) }
 a:hover { color: var(--c7) }
@@ -60,202 +45,85 @@ a.side:hover { color: var(--c10) }
   content: '\f35d';
   font-weight: 900;
 }
-header {
-  z-index: 10;
-  display: flex;
-  flex-direction: column;
-  width: 100vw;
-  position: sticky;
-  position: -webkit-sticky;/*Safari用ベンダープレフィックス*/
-  top: 0;
-  color: var(--c1);
-}
-.col {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-.row {
-  display: flex;
-  flex-direction: row;
-  justify-content: space-evenly;
-}
-.h240 { height: 240px }
-.h60 { height: 60px }
-nav {
-  display: flex;
-  align-items: center;
-  justify-content: space-around;
-  width: 100%;
-  height: 30px;
-  background: linear-gradient(-10deg, #ff9700, 20%, #F3058C);
-}
-nav.home { height: var(--h1); }
-.fade {
-  width: 100%;
-  height: 5px;
-  background: linear-gradient(#777777, 20%, transparent);
-}
-.main-memo {
-  width: 100%;
-  padding: 6px;
-  display: grid;
-  justify-items: center;
-  gap: 6px;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-}
-main {
-  width: 100%;
-  padding: 6px;
-  box-sizing: border-box;
-}
-table,td { border: 1px solid #333 }
-.navigation {
-  order: 100;
-}
-.card {
-  z-index: 0;
-  width: 100%;
-  height: 300px;
-  position: relative;
-  overflow: hidden;
-  margin: 15px;
-  content-visibility: auto;
-  contain-intrinsic-size: 300px;
-}
-.c-top {
-  height: 300px;
-  position: relative;
-  overflow: hidden;
-  color: var(--c1);
-}
-div.thmb {
-  border-style: solid;
-  border-width: 0 4px;
-  border-color: var(--c1);
-  overflow: hidden;
-  width: 80vw;
-  max-width: 320px;
-}
-img.thmb {
-  width: 320px;
-  height: 180px;
-}
-div.thmb.ch {
-  margin: 0 70px;
-  max-width: 180px; }
-img.thmb.ch { width: 180px }
-.side.col{ height: 300px }
-i.side, a.side {
-  width: 100%;
-  height: 60px;
-  line-height: 60px;
-  margin: 0 5px;
-  box-sizing: border-box;
-  vertical-align: middle;
-  text-align: center;
-  border-top: 1px;
-  border-bottom: 1px solid var(--c1);
-}
-a.side:last-child {
-  border-bottom: 1px;
-}
-.button {
-  z-index: 1;
-  position: absolute;
-  width: 100%;
-  height: 60px;
-}
-.b-middle {
-  top: 60px;
-}
-.b-bottom {
-  top: 120px;
-}
-.info {
-  z-index: 2;
-  width: 80vw;
-  max-width: 320px;
-  height: 300px;
-  background-color: rgba(0, 0, 0, 0.8);
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-  box-sizing: border-box;
-  padding: 1rem;
-  font-size: var(--f1);
-  display: flex;
-  flex-direction: column;
-  justify-content: space-around;
-  overflow-x: auto;
-}
-.i-top, .i-middle, .i-bottom {
-  top: 300px;
-  transition: 0.5s;
-}
-.i-top:hover, .i-middle:hover, .i-bottom:hover {
-  top: 0px;
-  transition: 0.5s;
-}
-.b-top:hover ~ .i-top {
-  top: 0px;
-  transition: 0.5s;
-}
-.b-middle:hover ~ .i-middle {
-  top: 0px;
-  transition: 0.5s;
-}
-.b-bottom:hover ~ .i-bottom {
-  top: 0px;
-  transition: 0.5s;
-}
-.desc {
-  overflow: auto;
-}
-.c-bottom {
-  z-index: 1;
-  height: 120px;
-  width: 80vw;
-  max-width: 320px;
-  position: absolute;
-  bottom: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  -webkit-transform: translateX(-50%);
-  -ms-transform: translateX(-50%);
-  background-color: var(--c1);
-  border-style: solid;
-  border-width: 0 4px;
-  border-color: var(--c1);
-}
-.name, .trend {
-  width: 100%;
-  height: 60px;
-  padding: 0 0.5rem;
-}
-.trend { align-items: center }
-.name {
-  order: 2;
-  align-items: flex-start;
-  justify-content: space-evenly;
-}
-.ranking, .ratio {
-  width: 50%;
-  height: 80%;
-  line-height: 48px;
-}
-.ratio {
-  box-sizing: border-box;
-  border-left: 1px solid var(--c3);
-  text-indent: 1rem;
-}
-.video, .channel {
-  width: 100%;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  line-height: 20px;
-  font-size: 1em;
-}
-h4.channel { font-weight: normal }
-h3.video { order: 2 }
+.dm * {color: var(--c1)}
+
+html {overflow-x: hidden}
+main {margin-top: 15px}
+table {border-collapse: collapse; line-height: 30px}
+tr:nth-child(odd), blockquote {background: #ddd}
+ul, p {line-height: 30px}
+blockquote {padding: 15px}
+cite {padding: 0 15px}
+p:has(>cite) {width: 100%; text-align: right}
+h3, h4, h5, h6, ul {margin: 0}
+section>h1, section>h2, header>h1, header>h2 {margin: 15px; font-size: 16px;}
+section>nav {width: 100vw; height: 40px; background: #ddd; text-align: center; padding: 10px}
+header {z-index: 10; width: 100vw; position: sticky; position: -webkit-sticky; top: 0; box-shadow: rgba(0, 0, 0, 0.16) 0px 3px 6px, rgba(0, 0, 0, 0.23) 0px 3px 6px}
+
+section.video, section.channel, section.ranked, section.category, section.navigation {padding: 10px;}
+section.navigation {order: 100}
+article.featured-media {width: 1200px; height: 630px; font-family: 'Yusei Magic', sans-serif;}
+article.featured-media span {font-size: 60px}
+.featured-media>div {margin-top: 120px; margin-left: 160px;}
+
+.no {top: 5px; left:5px; padding: 5px}
+.vs {top: 5px; left:5px; width: 164px; max-width: 35%; height: 90px; overflow: hidden}
+.vs img{width: 164px; height: 123px; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); -webkit-transform: translate(-50%, -50%); -ms-transform: translate(-50%, -50%)}
+.vl {height: 180px}
+.vl img{width: 320px; height: 180px; position: absolute; left: 50%; transform: translate(-50%, 0); -webkit-transform: translate(-50%, 0); -ms-transform: translate(-50%, 0); border-style: solid; border-width: 0 5px; border-color: var(--c1)}
+.fade { width: 100%; height: 5px; background: linear-gradient(#777777, 20%, transparent)}
+
+.w {width: 95%; max-width: 600px; min-width: 300px}
+.w2 {width: 20%}
+.w6 {width: 60%}
+.w8 {width: 80%}
+.w10 {width: 100%}
+.h3 {height: 30px}
+.h4 {height: 40px}
+.h6 {height: 60px}
+.h9 {height: 90px}
+.h10 {height: 100px}
+.h43 {height: 430px}
+.hm40 {max-height: 400px}
+.m10 {margin: 10px 0}
+.m15 {margin: 15px 0}
+.mc {margin-left: auto; margin-right: auto}
+.p5 {padding: 5px}
+.p60 {padding: 60px}
+.p100 {padding: 100px}
+.f14 {font-size: 16px}
+.f16 {font-size: 16px}
+.f24 {font-size: 24px}
+.f36 {font-size: 36px}
+.f45 {font-size: 45px}
+
+.bw {border: 1px solid #fff}
+
+.i12 {width: 120px; height: 120px; object-fit: cover}
+
+.z2 {z-index: 2}
+.z3 {z-index: 3}
+.nn {display: none}
+.ox {overflow-x: auto}
+.oy {overflow-y: auto}
+.ln {list-style: none; padding: 0}
+
+.re {position: relative}
+.ab {position: absolute; left: 0px; top: 0px}
+.row {display: flex}
+.col {display: flex; flex-direction: column; align-items: center}
+.wr {flex-wrap: wrap}
+.fe {justify-content: flex-end}
+.fs {justify-content: flex-start}
+.se {justify-content: space-evenly}
+.sb {justify-content: space-between}
+.jc {justify-content: center}
+.ac {align-items: center}
+.fr {float: right}
+.tac {text-align: center}
+.tar {text-align: right}
+.wsp {white-space: pre-wrap}
+.bb {box-sizing: border-box}
+
+.lc {line-height: 30px; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 1; overflow: hidden}
+.lc.l2 {-webkit-line-clamp: 2}

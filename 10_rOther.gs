@@ -4,18 +4,24 @@ function fOther() {
   //let a = {video_y: {idddd:'QNqD-vWkea0'}}
   //let id = 'UCzy1nQFnKpacpu1E3uRMMVw';
 
-  let r = wpAPI(zURL);
-  r.unshift(['id','rc','cat','flag','rn','num']);
-  ssWrite(xSheet,r);
+  //let r = wpAPI(zURL);
+  //r.unshift(['id','rc','cat','flag','rn','num']);
+  //ssWrite(xSheet,r);
+
   //msSubmit()
   //editCategories();
   //editTags()
   //rDate('jp');
   //rPage();
+  //ytVideo();
+  //ytChannel();
+  //ytActivities();
+  //ytPopular();
+  r = wpScreenshot();
 
   //r = ytChannel(id)
 
-  //console.log(r);
+  console.log(r);
 }
 
 //■■■■ 変数 ■■■■
@@ -46,8 +52,24 @@ const cName = [
   'ハウツーとスタイル',
   '科学と技術'
 ];
+const cSlug = [
+  'movie-anime',
+  'car-bike-train',
+  'music',
+  'pets-animals',
+  'sports',
+  'game',
+  'blog',
+  'comedy',
+  'entame',
+  'news-politics',
+  'howto-style',
+  'science-tech'
+];
 
 const sURL = 'https://ratio100.com';
+const aURL = sURL + '/wp-json/ratio-zid/zid/a/';
+const iURL = sURL + '/wp-json/ratio-zid/zid/image';
 const vURL = sURL + '/wp-json/ratio-zid/zid/video/';
 const cURL = sURL + '/wp-json/ratio-zid/zid/channel/';
 const oURL = sURL + '/wp-json/wp/v2/posts/';
@@ -74,7 +96,7 @@ function ssStart(flag) { rFile.insertSheet(flag) }
 function ssEnd(flag) { rFile.deleteSheet(rFile.getSheetByName(flag)) }
 
 //■■■■ YT関数 ■■■■
-function ytPopular(nextPageToken) {
+function ytPopular(rc, cat, nextPageToken) {
 
   const part = 'snippet,contentDetails,statistics';
   const vfields = 'items(id,snippet(title,description,publishedAt,thumbnails(medium(url),default(url)),tags,channelId,channelTitle),contentDetails(duration),statistics(viewCount,likeCount,commentCount)),nextPageToken';
@@ -325,88 +347,34 @@ function editPost() {
 }
 
 /** ■■■■ テスト ■■■■ */
-function rPage() {
 
-  function pArguments(id, slug) {
-    a = {
-      ID: id,
-      post_author: 1,
-      post_date: date,
-      post_content: '',
-      post_title: id,
-      post_excerpt: '',
-      post_status: 'private',
-      comment_status: 'open',
-      ping_status: 'open',
-      post_name: slug,
-      post_parent: parent,
-      menu_order: Number((slug<70)? slug+100: slug),
-      post_type: 'page',
-    };
-    wA.zr_posts.push(a);
+function wpScreenshot() {
+
+  const ts = new Date();
+  const date = Utilities.formatDate(ts, 'JST', 'M月d日H:00');
+  const hour = ts.getHours();
+  let list = Array(cNo.length);
+  let arg = {};
+
+  for (let i=0; i<cNo.length; i++) {
+
+    const t1 = 'レシオ！';
+    const t2 = 'YouTube急上昇ランキング';
+    const t3 = 'カテゴリ：' + cName[i];
+    const t4 = '【速報】'+ date +'【集計】';
+    const t5 = '- ratio100.com -';
+
+    const wURL  = 'https://ratio100.com/featured-media/' + cNo[i] + '/' + t1 + '/' + t2 + '/' + t3 + '/' + t4 + '/' + t5;
+    const width  = 1200;
+    const height = 630;
+    const cURL = 'https://s.wordpress.com/mshots/v1/' + wURL + '?w=' + width + '&h=' + height;
+
+    UrlFetchApp.fetch(cURL);
+    Utilities.sleep(1000 * 10);
+    const image = UrlFetchApp.fetch(cURL).getBlob();
+    arg[cSlug[i] + '-' + hour + '.jpg'] = Utilities.base64Encode(image.getBytes());
+    console.log('name : ' + (cSlug[i] + '-' + hour + '.jpg') + '\nlength : ' + arg[cSlug[i] + '-' + hour + '.jpg'].length);
   }
 
-  let y = new Date().getFullYear() - 2000;
-  const e = y + 2;
-  const date = '20' + e + '/10/10 00:00'
-
-  let ts = new Date('20' + y + '/12/31 12:00');
-  let m = 0;
-  let d = 0;
-  let w = 0;
-
-  let wA = {zr_posts:[]};
-
-  let slug = y + 1;
-  let id = Number(slug+'0000');
-  let parent = 4;
-  pArguments(id, slug);
-
-  while (y < e) {
-    ts.setDate(ts.getDate() + 1);
-    y = ts.getFullYear() - 2000;
-    if (y === e) { break; }
-
-    if (m < ts.getMonth()+1) {
-      w = 0;
-      m = ts.getMonth()+1;
-      slug = (m < 10)? ('0'+m): String(m);
-      id = Number(y+slug+'00');
-      parent = y+'0000';
-      pArguments(id, slug);
-      parent = id;
-    };
-    d = ts.getDate();
-
-    if (ts.getDay()===0) {
-      slug = String(7) + (++w);
-      id = Number(y + ((m<10)? ('0'+m): String(m)) + slug);
-      pArguments(id, slug);
-    }
-
-    slug = (d < 10)? ('0'+d): String(d);
-    id = Number(y + ((m<10)? ('0'+m): String(m)) + slug);
-    pArguments(id, slug);
-  }
-  console.log(wpAPI(vURL));
+  return wpAPI(iURL, arg);
 }
-/*
-{
-  url = vURL + '25/' + rc;
-  wD = wpAPI(url);
-  wA = { Ranking: {}, Drop: {} };
-  let Drop = {video_z:[]}
-  let r = 0;
-   d = [0,0];
-  for (let i=0; i<cNo.length; i++) { wA.Ranking[cNo[i]] = []; wA.Drop[cNo[i]] = [];}
-  for (let i=0; i<wD.length; i++) { dArguments(i); }
-
-  console.log({r:r,d:d});
-
-//  const resD = wpAPI(vURL, Drop);
-//  const resR = wpAPI(pURL, Ranking);
-
-}
-if (wJ.flag==='24') { wA.Drop[a.cat].push(a); d[1]++; }
-else { wA.Ranking[a.cat].push(a); r++; }
-*/

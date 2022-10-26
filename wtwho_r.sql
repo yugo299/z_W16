@@ -194,9 +194,7 @@ SELECT
 	y.dur AS dur,
 	y.des AS des,
 	y.tags AS tags,
-	y.link AS link,
-	y.img_m AS img_m,
-	y.img_s AS img_s,
+	y.img AS img,
 	y.vw AS vw,
 	y.vw_h AS vw_h,
 	y.vw_d AS vw_d,
@@ -263,9 +261,8 @@ SELECT
 	y.title AS title,
 	y.date AS date,
 	y.des AS des,
-	y.link AS link,
-	y.img_m AS img_m,
-	y.img_s AS img_s,
+	y.handle AS handle,
+	y.img AS img,
 	y.vw AS vw,
 	y.vw_h AS vw_h,
 	y.vw_d AS vw_d,
@@ -432,10 +429,7 @@ SELECT
 	y.date AS date,
 	y.dur AS dur,
 	y.des AS des,
-	y.link AS l_v,
-	c.link AS l_c,
-	y.img_m AS img_m,
-	y.img_s AS img_s,
+	y.img AS img,
 	y.vw AS vw,
 	y.vw_ah AS vw_ah,
 	y.lk AS lk,
@@ -462,8 +456,7 @@ SELECT
 	y.vw AS vw,
 	c.rt AS rt,
 	y.des AS des,
-	y.img_m AS img_m,
-	y.img_s AS img_s,
+	y.img AS img,
 	z.id AS ch,
 	z.rc AS rc
 FROM channel_z AS z
@@ -486,14 +479,14 @@ SELECT
 	z.cat AS cat,
 	MIN(z.flag) AS flag,
 	y.title AS t_v,
+	y.des AS des,
 	y.ch AS ch,
 	c.title AS t_c,
 	MIN(z.rn) AS rn,
 	SUM(z.rt) AS rt,
 	y.vw AS vw,
 	y.lk AS lk,
-	y.img_m AS img_m,
-	y.img_m AS img_s
+	y.img AS img
 FROM (SELECT * FROM video_z ORDER BY rn DESC) AS z
 	LEFT JOIN video_y AS y ON z.id = y.id
 	LEFT JOIN channel_y AS c ON y.ch = c.id

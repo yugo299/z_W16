@@ -175,9 +175,6 @@ function rHour(rc) {
   let wY = {};  //WPの Y 動画,チャンネルPOSTデータ
   let wZ = {};  //WPの Z 動画,チャンネルPOSTデータ
 
-  let SS = [];  //SSデバッグ用でデータ
-  let SS2 = [];  //SSデバッグ用でデータ2
-
   let Total = [];
   let Still = [];
   let New   = [];
@@ -188,6 +185,8 @@ function rHour(rc) {
 
   let cat   = 0;
   let rn  = 0;
+
+  let Rank = [];
 
   //■■■■ 文字列,数値操作 ■■■■
   function convertTime(duration) {
@@ -222,8 +221,20 @@ function rHour(rc) {
   }
 
   function textToLink(str) {
-    const regexp_url = /(htt)(ps|p)(:\/)([\w/:%#\$&\?\(\)~\.=\+\-\@ぁ-んァ-ヶ亜-熙Ａ-Ｚａ-ｚ]+)/g;
-    str = str.replace(regexp_url, '<a class="external" href="/link/$2$4" title="外部リンク"></a> ');
+    const regexp = /(htt)(ps|p)(:\/)([\w/:%#\$&\?\(\)~\.=\+\-\@ぁ-んァ-ヶ亜-熙Ａ-Ｚａ-ｚ]+)/g;
+    str = str.replace(regexp, '<a class="external" href="/link/$2$4" title="外部リンク"></a> ');
+    return str
+  }
+
+  function imgVideo(str) {
+    const regexp = /(.*\/vi\/)([\w\_\-]+)(.*)/;
+    str = str.replace(regexp, '$2');
+    return str
+  }
+
+  function imgChannel(str) {
+    const regexp = /(.*\.com\/)([\w\/\_\-\_]+)(=s.*)/;
+    str = str.replace(regexp, '$2');
     return str
   }
 
@@ -254,6 +265,13 @@ function rHour(rc) {
     return [x[j], y[j], z[j]];
   }
 
+  function strHandle() {
+    if (!str) { return }
+    else if (str.slice(0,6) === '@user-') { return }
+    else if (str.slice(0,1) != '@') { return }
+    return str.slice(1)
+  }
+
   function numR(num) {
     return Math.round(num * 10000) / 10000;
   }
@@ -275,6 +293,9 @@ function rHour(rc) {
 
     const wJ = (f==='N')? false: data[w];
     const yJ = (f==='D')? todo[y]: yV[y];
+    let a = {};
+
+    if (f==='D' && yJ.rn!=null) {console.log({m:'エラー',id:{id:wJ.id,b:(wJ.id===yJ.id)},cat:{cat:wJ.cat,b:(wJ.cat===yJ.cat)},rn:yJ.rn})}
 
     //実施済み判定
     if (wJ && wJ.flag==tHour) {
@@ -322,6 +343,7 @@ function rHour(rc) {
         id: wJ.id,
         rc: wJ.rc,
         cat: wJ.cat,
+        flag: 24,
         rn: null,
         rt: wJ.rt,
         rn_b: wJ.rn_b,
@@ -346,7 +368,6 @@ function rHour(rc) {
       return done[0]++;
     }
 
-    let a = {};
     //video_y
     a = {
       id: yJ.id,
@@ -356,9 +377,7 @@ function rHour(rc) {
       dur: convertTime(yJ.contentDetails.duration),
       des: textToLink(yJ.snippet.description),
       tags: (yJ.snippet.tags)? yJ.snippet.tags.join(): '',
-      link: 'https://youtu.be/'+yJ.id,
-      img_m: yJ.snippet.thumbnails.medium.url,
-      img_s: yJ.snippet.thumbnails.default.url,
+      img: imgVideo(yJ.snippet.thumbnails.medium.url),
       vw: yJ.statistics.viewCount,
       lk: yJ.statistics.likeCount,
       cm: yJ.statistics.commentCount,
@@ -424,7 +443,6 @@ function rHour(rc) {
       rn: (f==='D')? null: yJ.rn,
       rt_ah: (f==='D')? null: yJ.rt
     }
-    if(a.rn) {SS2[a.rn][a.cat] += ((SS2[a.rn][a.cat]==undefined)? a.id: (','+a.id))}
     if (wJ) {
       a.rn_i = wJ.rn_i;
       a.rn_b = wJ.rn_b;
@@ -499,8 +517,7 @@ function rHour(rc) {
     }
     wZ.video_z.push(a);
 
-    SS.push([a.id, a.cat, a.flag, a.rt, a.rn, a.rn_i, a.rn_b, a.rn_t, a.pd, a.pd_f, a.pd_l, a.pd_b, a.pd_s, a.pd_e]);
-
+    if (f!=='D'){Rank[a.rn][a.cat] = a.id;}
     if (a.flag!==tHour && a.flag!==24) { console.log(a); }
   }
 
@@ -571,9 +588,8 @@ function rHour(rc) {
       title: yJ.snippet.title,
       date: Utilities.formatDate(new Date(yJ.snippet.publishedAt), 'JST', 'yyyy-MM-dd HH:mm:ss'),
       des: textToLink(yJ.snippet.description),
-      link: 'https://youtube.com/channel/'+yJ.id,
-      img_m: yJ.snippet.thumbnails.medium.url,
-      img_s: yJ.snippet.thumbnails.default.url,
+      img: imgChannel(yJ.snippet.thumbnails.medium.url),
+      handle: yJ.snippet.customUrl,
       vw: yJ.statistics.viewCount,
       sb: yJ.statistics.subscriberCount,
       vc: yJ.statistics.videoCount,
@@ -707,7 +723,10 @@ function rHour(rc) {
   function step_vg() { //動画情報取得（WP,YT）
     err = {};
     try {
-      wD = wpAPI(vURL+'24/'+rc);
+      wD = wpAPI(vURL+'24/'+rc).sort((a,b) => {
+        if (a.id === b.id) { return (a.cat > b.cat)? 1: -1 }
+        else { return (a.id > b.id)? 1: -1 }
+      })
       yV = [];
       Total = Array(30).fill(0);
       for (let i=0; i<cNo.length; i++) {
@@ -749,10 +768,6 @@ function rHour(rc) {
       Still = Array(30).fill(0);
       New = Array(30).fill(0);
       Drop = Array(30).fill(0);
-      SS = [['id', 'cat', 'flag', 'rt', 'rn', 'rn_i', 'rn_b', 'rn_t', 'pd', 'pd_f', 'pd_l', 'pd_b', 'pd_s', 'pd_e']];
-
-      SS2 = [...Array(100)].map(() => Array(30));
-      SS2.unshift([,1,2,,,,,,,,10,,,,,15,,17,,,20,,22,23,24,25,26,,28,'']);
 
       //ランクイン動画タイプ別振り分け、[Still,New]のArg作成
       data = [].concat(wD);
@@ -760,6 +775,8 @@ function rHour(rc) {
       done = [0,0,0];
       w = 0;
       y = 0;
+      Rank = [...Array(101)].map(()=>Array(30));
+      Rank[0] = [,1,2,,,,,,,,10,,,,,15,,17,,,20,,22,23,24,25,26,,28,''];
       while (w < wD.length || y < yV.length) {
         let f = false;
         if (w === wD.length) {f ='N';}
@@ -793,6 +810,7 @@ function rHour(rc) {
           w++;
         }
       }
+      ssWrite(xSheet,Rank);
       console.log('D-1\n既存 : '+done[0]+'\n新規 : '+done[1]+'\n実施済み : '+done[2]);
 
       //Drop動画YT情報取得
@@ -817,7 +835,6 @@ function rHour(rc) {
         if (!f && data[w].id===todo[y].id) { f ='D'; }
         if (!f) { throw new Error('cArg エラー : 振り分け判定漏れ\n'+ data[w].id +' : '+ todo[y].id); }
         if (f==='B') { data[w].ban = true; }
-        //SS.push([data[w].id, ((f==='S')? todo[y].id: '')]);
 
         cat = data[w].cat;
         if (!cat) {console.log('Drop動画のArg作成 : カテゴリ『0』エラー\nid : '+data[w].id)}
@@ -825,14 +842,7 @@ function rHour(rc) {
         w++;
         if (f==='D') { y++; }
       }
-      //ssWrite(ySheet,SS);
 
-      //デバッグ書き出し、集計
-      let dSheet = rFile.getSheetByName('D');
-      ssWrite(dSheet, SS);
-      dSheet = rFile.getSheetByName('D2');
-      ssWrite(dSheet, SS2);
-      SS = []; SS2 = [];
       const ySum = wY.video_y.length;
       const zSum = wZ.video_z.length;
       const sSum = Still.reduce((sum, x) => sum + x, 0);
@@ -861,6 +871,16 @@ function rHour(rc) {
     try {
       yV = [];
       wD = [];
+      Rank = [...Array(101)].map(()=>Array(30));
+      Rank[0] = [,1,2,,,,,,,,10,,,,,15,,17,,,20,,22,23,24,25,26,,28,''];
+      for (let i=0; i<wZ.video_z.length; i++) {
+        if (wZ.video_z[i].rn!=null) { Rank[wZ.video_z[i].rn][wZ.video_z[i].cat] = (Rank[wZ.video_z[i].rn][wZ.video_z[i].cat]=='')? ','+wZ.video_z[i].id: wZ.video_z[i].id;}
+        else {wD.push([wZ.video_z[i].id,wZ.video_z[i].cat])}
+      }
+      ssWrite(ySheet, Rank);
+      ssWrite(zSheet, wD);
+      Rank = [];
+      wD = [];
       let rY = wpAPI(vURL, wY);
       let rZ = wpAPI(vURL, wZ);
       console.log('vPost（処理結果）\nvideo_y : '+rY.y+' = '+(rY.t+rY.u+rY.f)+'（正常/変更なし/エラー：'+rY.t+' / '+rY.u+' / '+rY.f+'）\nvideo_z : '+rZ.z+' = '+(rZ.t+rZ.u+rZ.f)+'（正常/変更なし/エラー：'+rZ.t+' / '+rZ.u+' / '+rZ.f+'）');
@@ -884,19 +904,14 @@ function rHour(rc) {
     try {
       wY = {};
       wZ = {};
-      wD = wpAPI(cURL+'24/'+rc);
+      wD = wpAPI(cURL+'24/'+rc).sort((a, b) => (a.id > b.id)? 1: -1);;
       data = [].concat(wD);
       yC = [];
-      SS = [];
       while (data.length) {
         let vID = data.splice(0,50).map(x => x.id);
-        SS = SS.concat(vID);
         yC = yC.concat(ytChannel(vID.join()).items);
       }
       yC = yC.sort((a, b) => (a.id > b.id)? 1: -1);
-
-      ssWrite(xSheet, [SS]);
-      SS = [];
 
       const wSum = wD.length;
       const ySum = yC.length;
@@ -923,7 +938,6 @@ function rHour(rc) {
       wY = {channel_y:[]};
       wZ = {channel_z:[]};
       done = [0,0,0];
-      SS = [];
 
       w = 0; y = 0;
       while (w < wD.length || y < yC.length) {
@@ -936,19 +950,16 @@ function rHour(rc) {
         if (!f) {
           throw new Error('cArg エラー : 振り分け判定漏れ\n'+ wD[w].id +' : '+ yC[y].id);
         }
-        SS.push([wD[w].id, ((f==='S')? yC[y].id: '')]);
-        cArguments(((f==='s')? true: false));
+        cArguments(((f==='S')? true: false));
         w++;
         if (f==='S') { y++; }
       }
-      ssWrite(ySheet,SS);
 
       const ySum = wY.channel_y.length;
       const zSum = wZ.channel_z.length;
       console.log('cArg (channel_y:channel_z) : '+ySum+' = '+zSum+'\n'+(done[0]+done[1]+done[2])+' ( Still : New : Done = '+done[0]+' : '+done[1]+' : '+done[2]+' )');
       done = [];
     } catch (e) {
-      ssWrite(ySheet,SS);
       console.log('cArg\n' + e.message);
       err = e;
     }
@@ -992,6 +1003,7 @@ function rHour(rc) {
         const update = Utilities.formatDate(new Date(), 'JST', 'M月d日H時');
         const arg = {
           title: '【速報】YouTube急上昇 '+cTitle[i]+'【'+update+'集計】',
+          tags: [cNo[i],70,73,74,78,79,51,(tDay+60)]
         }
         wpAPI(oURL+cNo[i], arg);
       }
@@ -1021,19 +1033,19 @@ function rHour(rc) {
       const h = (tHour+19) % 24;
 
       if (tHour !== flag) {
-        if (tHour === 5) {
+        if (tHour === 5 || data.content.raw === '') {
           arg = {
             ranking: {},
-            still: [...Array(24)].map(() => Array(cNo.length).fill(0)),
-            new  : [...Array(24)].map(() => Array(cNo.length).fill(0)),
-            drop : [...Array(24)].map(() => Array(cNo.length).fill(0))
+            still: [...Array(cNo.length)].map(() => Array(24).fill(0)),
+            new  : [...Array(cNo.length)].map(() => Array(24).fill(0)),
+            drop : [...Array(cNo.length)].map(() => Array(24).fill(0))
           };
         } else { arg = JSON.parse(data.content.raw); }
 
         for (let i=0; i<cNo.length; i++) {
-          arg.still[h][i] = Still[cNo[i]];
-          arg.new[h][i]   = New[cNo[i]];
-          arg.drop[h][i]  = Drop[cNo[i]];
+          arg.still[i][h] = Still[cNo[i]];
+          arg.new[i][h]   = New[cNo[i]];
+          arg.drop[i][h]  = Drop[cNo[i]];
         }
         arg.content = JSON.stringify(arg);
         arg.excerpt = tHour;
