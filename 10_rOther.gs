@@ -12,12 +12,12 @@ function fOther() {
   //editCategories();
   //editTags()
   //rDate('jp');
-  //rPage();
   //ytVideo();
   //ytChannel();
   //ytActivities();
   //ytPopular();
-  r = wpScreenshot();
+  //wpScreenshot();
+  r = wpImage();
 
   //r = ytChannel(id)
 
@@ -370,11 +370,48 @@ function wpScreenshot() {
     const cURL = 'https://s.wordpress.com/mshots/v1/' + wURL + '?w=' + width + '&h=' + height;
 
     UrlFetchApp.fetch(cURL);
-    Utilities.sleep(1000 * 10);
-    const image = UrlFetchApp.fetch(cURL).getBlob();
-    arg[cSlug[i] + '-' + hour + '.jpg'] = Utilities.base64Encode(image.getBytes());
-    console.log('name : ' + (cSlug[i] + '-' + hour + '.jpg') + '\nlength : ' + arg[cSlug[i] + '-' + hour + '.jpg'].length);
+    list[i] = cURL;
   }
+  Utilities.sleep(1000 * 60);
 
+  for (let i=0; i<cNo.length; i++) {
+    const image = UrlFetchApp.fetch(list[i]).getBlob();
+    arg[cSlug[i] + '-' + hour + '.jpg'] = Utilities.base64Encode(image.getBytes());
+    console.log({name:(cSlug[i] + '-' + hour + '.jpg'), length:arg[cSlug[i] + '-' + hour + '.jpg'].length})
+  }
   return wpAPI(iURL, arg);
+}
+
+function wpImage() {
+  const date = '2022-10-25 00:00:00';
+  const x = 7;
+  let wA = {zr_posts:[]};
+
+  for (let i=0; i<cNo.length; i++) {
+
+    const id = (100*(x%11)) + cNo[i];
+    const slug = cSlug[i]+'-'+x;
+
+    a = {
+      ID: id,
+      post_author: 1,
+      post_date: date,
+      post_date_gmt: date,
+      post_content: 'レシオ！ - '+cName[i],
+      post_title: slug,
+      post_excerpt: 'レシオ！ - '+cName[i],
+      post_status: 'inherit',
+      comment_status: 'open',
+      ping_status: 'closed',
+      post_name: slug,
+      post_modified: date,
+      post_modified_gmt: date,
+      guid: 'https://ratio100.com/img/'+slug+'.jpg',
+      post_type: 'attachment',
+      post_mime_type: 'image/jpeg'
+    };
+    wA.zr_posts.push(a);
+
+  }
+  console.log(wpAPI(vURL, wA));
 }
