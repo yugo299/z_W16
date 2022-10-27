@@ -3,6 +3,7 @@ const cNo = [1,2,10,15,17,20,22,23,24,25,26,28];
 const sURL = 'https://ratio100.com';
 const pURL = sURL + '/wp-json/wp/v2/pages/';
 const aURL = sURL + '/wp-json/ratio-zid/zid/a/';
+const iURL = sURL + '/wp-json/ratio-zid/zid/image/';
 const vURL = sURL + '/wp-json/ratio-zid/zid/video/';
 const cURL = sURL + '/wp-json/ratio-zid/zid/channel/';
 const authUser = 'syo-zid';
@@ -13,6 +14,15 @@ const rFile = SpreadsheetApp.openById('1WsUl5TYWxcE4ltAisWPja9fkqb5hd48uvAeT-r5H
 const fSheet = rFile.getSheetByName('F');
 const rCol = {jp:1};
 let data = ssData();
+
+let wD = [];
+let Ranking = {};
+let Drop = {video_z:[]}
+let Channel = [];
+let Video = [];
+let r = 0;
+let d = 0;
+let t = 0;
 
 /** ■■■■ 関数 ■■■■ */
 function ssData() {
@@ -153,18 +163,15 @@ function wpResult(rc) {
   time = Utilities.formatDate(new Date(),'JST','yyyy-MM-dd HH:') + '00:00';
   time = new Date(time).getTime();
   let url = vURL + '25/' + rc;
-  const wD = wpAPI(url);
-  let Ranking = {};
-  let Drop = {video_z:[]}
-  let Channel = [];
-  let Video = [];
-  let r = 0;
-  let d = 0;
-  let t = 0;
 
   function step_da() { //dArguments
     err = {};
     try {
+      wD = wpAPI(url);
+      Ranking = {};
+      Drop = {video_z:[]};
+      r = 0;
+      d = 0;
       for (let i=0; i<cNo.length; i++) { Ranking[cNo[i]] = []; }
       for (let i=0; i<wD.length; i++) { dArguments(i); }
       for (let i in Ranking) { Ranking[i].sort((a, b) => (a.rt_ad < b.rt_ad)? 1: -1); }
@@ -205,7 +212,7 @@ function wpResult(rc) {
   function step_ar() { //arg : デイリーランキング
     err = {};
     try {
-      data = wpAPI(pURL+id).content.raw;
+      data = JSON.parse(wpAPI(pURL+id).content.raw);
       data.ranking = Ranking;
       const excerpt = 'デイリーランキング ' + today;
 
@@ -313,15 +320,18 @@ function wpResult(rc) {
 function wpFlash(rc) {
 
   /** ■■■■ 変数 ■■■■ */
+  const zone = {'11':':朝', '12':':昼', '13':':夕方', '14':':夜'};
+  const slug = {'11':'morning', '12':'afternoon', '13':'evening', '14':'night'};
   const time = new Date();
   let hour = time.getHours();
-  let zone = '';
   let id = 0;
-  if (hour===7) { zone = '朝'; id = 11; hour = '07';}
-  else if (hour===12) { zone = '昼'; id = 12; }
-  else if (hour===16) { zone = '夕'; id = 13; }
-  else if (hour===20) { zone = '夜'; id = 14; }
+  if (hour===7) { id = 11; }
+  else if (hour===12) { id = 12; }
+  else if (hour===16) { id = 13; }
+  else if (hour===20) { id = 14; }
   else { return console.log('実施対象外') }
+  const fm = 100 + id;
+  if (hour===7) { hour = '07';}
 
   const p1 = Utilities.formatDate(time, 'JST', 'yyyy-MM-dd') +'T'+hour+':00:10';
   const p2 = Utilities.formatDate(time, 'JST', 'yyyy-MM-dd') +'T'+hour+':30:00';
@@ -332,7 +342,7 @@ function wpFlash(rc) {
 
   /** ■■■■ 実施判定 ■■■■ */
   const flag = wpAPI(pURL+(id+20)).title;
-  if (flag === parent) { return console.log('実施済み : '+date+' '+zone)}
+  if (flag === parent) { return console.log('実施済み : '+date+' '+zone[id])}
 
   const wD = wpAPI(aURL+'11/'+rc);
   let Ranking = {};
@@ -348,14 +358,15 @@ function wpFlash(rc) {
         if (wD[i].rn > 20) { break; }
         const wJ = wD[i];
         const a = {
-          vd: wJ.vd,
-          rc: wJ.rc,
-          ch: wJ.ch,
-          t_v: wJ.t_v,
-          t_c: wJ.t_c,
-          vw: wJ.vw,
           rn: wJ.rn,
+          t_c: wJ.t_c,
+          t_v: wJ.t_v,
           rt: wJ.rt,
+          vw: wJ.vw,
+          lk: wJ.lk,
+          vd: wJ.vd,
+          ch: wJ.ch,
+          rc: wJ.rc,
           pd: wJ.pd
         }
         Ranking[wD[i].cat].push(a);
@@ -365,17 +376,17 @@ function wpFlash(rc) {
         }
       }
 
-      prefix = 'YouTube急上昇ランキング動画まとめ【'+date+zone+'】各カテゴリでランキング1位にランクインしたチャンネルはこちら［';
+      prefix = 'YouTube急上昇ランキング動画まとめ【'+date+zone[id]+'】各カテゴリでランキング1位にランクインしたチャンネルはこちら［';
       suffix = '］『レシオ！』ではYouTube急上昇ランキングをリアルタイム集計、1時間ごとに最新情報をお届け。';
       Excerpt = prefix + Array.from(new Set(Excerpt)).join() + suffix;
 
       const arg = {
         date: p1,
         status: 'publish',
-        title: '【速報】YouTube急上昇ランキングまとめ【'+date+zone+'】',
+        title: '【速報】YouTube急上昇ランキングまとめ【'+date+zone[id]+'】',
         content: JSON.stringify(Ranking),
         excerpt: Excerpt,
-        //featured_media: 0,
+        featured_media: fm,
         comment_status: 'open',
         ping_status: 'open',
         sticky: false,
@@ -409,10 +420,10 @@ function wpFlash(rc) {
       const arg = {
         date: p2,
         status: (p2<now)? 'publish': 'future',
-        title: parent,
+        title: parent + '【' + zone + '】',
         content: '',
         excerpt: '',
-        //featured_media: 0,
+        featured_media: fm,
         comment_status: 'open',
         ping_status: 'open',
         sticky: false,
@@ -436,6 +447,44 @@ function wpFlash(rc) {
   step_2();
   if (t===3) {
     return console.log('【途中終了】エラー回数超過\n速報（31～35）')
+  }
+
+  function step_fm() { //アイキャッチ画像
+    err = {};
+    try {
+      const t1 = 'レシオ！';
+      const t2 = 'YouTube急上昇ランキング';
+      const t4 = '【速報】'+ date + zone[id] +'【集計】';
+      const t5 = '- ratio100.com -';
+
+      const wURL  = 'https://ratio100.com/featured-media/' + 0 + '/' + t1 + '/' + t2 + '/' + t4 + '/' + t5;
+      const width  = 1200;
+      const height = 630;
+      const url = 'https://s.wordpress.com/mshots/v1/' + wURL + '?w=' + width + '&h=' + height;
+
+      UrlFetchApp.fetch(url);
+      Utilities.sleep(1000 * 60);
+
+      const image = UrlFetchApp.fetch(url).getBlob();
+      let arg = {};
+      arg[slug[id] + '-i.jpg'] = Utilities.base64Encode(image.getBytes());
+      console.log({name:(slug[i] + '-i.jpg'), length:arg[slug[id] + '-i.jpg'].length})
+
+      res = wpAPI(iURL, arg);
+      console.log(res);
+
+    } catch (e) {
+      console.log('アイキャッチ画像\n' + e.message);
+      err = e;
+    }
+    finally {
+      if('message' in err && ++t < 3){ step_fm() }
+    }
+  }
+  t = 0;
+  step_fm();
+  if (t===3) {
+    return console.log('【途中終了】エラー回数超過\nアイキャッチ画像')
   }
 
 }

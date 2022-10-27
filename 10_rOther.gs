@@ -245,6 +245,53 @@ function wpAPI(url, arguments) {
   return resJson
 }
 
+function wpImage() {
+  const x = 7;
+  let meta = null;
+  const dNo = [11,12,13,14];
+  const dName = ['朝','昼','夕方','夜'];
+  const dSlug = ['morning','afternoon','evening','night'];
+  const date = '2022-10-25 00:00:00';
+  const text = 'YouTube急上昇ランキング:';
+  let wA = {zr_posts:[],zr_postmeta:[]};
+  let a = {};
+
+  for (let i=0; i<dNo.length; i++) {
+
+    const id = (100*(x%11)) + dNo[i];
+    const slug = dSlug[i]+'-'+x;
+
+    a = {
+      ID: id,
+      post_author: 1,
+      post_date: date,
+      post_date_gmt: date,
+      post_content: 'レシオ！ - '+text+dName[i],
+      post_title: slug,
+      post_excerpt: 'レシオ！ - '+text+dName[i],
+      post_status: 'inherit',
+      comment_status: 'open',
+      ping_status: 'closed',
+      post_name: slug,
+      post_modified: date,
+      post_modified_gmt: date,
+      guid: 'https://ratio100.com/img/'+slug+'.jpg',
+      post_type: 'attachment',
+      post_mime_type: 'image/jpeg'
+    };
+    wA.zr_posts.push(a);
+
+    a = {
+      meta_id: meta++,
+      post_id: id,
+      meta_key: '_wp_attached_file',
+      meta_value: slug+'.jpg'
+    }
+    wA.zr_postmeta.push(a);
+  }
+  return wpAPI(vURL, wA);
+}
+
 //■■■■ MS関数 ■■■■
 function msSubmit(list) {
 
@@ -367,10 +414,10 @@ function wpScreenshot() {
     const wURL  = 'https://ratio100.com/featured-media/' + cNo[i] + '/' + t1 + '/' + t2 + '/' + t3 + '/' + t4 + '/' + t5;
     const width  = 1200;
     const height = 630;
-    const cURL = 'https://s.wordpress.com/mshots/v1/' + wURL + '?w=' + width + '&h=' + height;
+    const url = 'https://s.wordpress.com/mshots/v1/' + wURL + '?w=' + width + '&h=' + height;
 
-    UrlFetchApp.fetch(cURL);
-    list[i] = cURL;
+    UrlFetchApp.fetch(url);
+    list[i] = url;
   }
   Utilities.sleep(1000 * 60);
 
@@ -382,36 +429,3 @@ function wpScreenshot() {
   return wpAPI(iURL, arg);
 }
 
-function wpImage() {
-  const date = '2022-10-25 00:00:00';
-  const x = 7;
-  let wA = {zr_posts:[]};
-
-  for (let i=0; i<cNo.length; i++) {
-
-    const id = (100*(x%11)) + cNo[i];
-    const slug = cSlug[i]+'-'+x;
-
-    a = {
-      ID: id,
-      post_author: 1,
-      post_date: date,
-      post_date_gmt: date,
-      post_content: 'レシオ！ - '+cName[i],
-      post_title: slug,
-      post_excerpt: 'レシオ！ - '+cName[i],
-      post_status: 'inherit',
-      comment_status: 'open',
-      ping_status: 'closed',
-      post_name: slug,
-      post_modified: date,
-      post_modified_gmt: date,
-      guid: 'https://ratio100.com/img/'+slug+'.jpg',
-      post_type: 'attachment',
-      post_mime_type: 'image/jpeg'
-    };
-    wA.zr_posts.push(a);
-
-  }
-  console.log(wpAPI(vURL, wA));
-}

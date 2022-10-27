@@ -138,6 +138,7 @@ function rHour(rc) {
   const sURL = 'https://ratio100.com';
   const vURL = sURL + '/wp-json/ratio-zid/zid/video/';
   const cURL = sURL + '/wp-json/ratio-zid/zid/channel/';
+  const iURL = sURL + '/wp-json/ratio-zid/zid/image';
   const oURL = sURL + '/wp-json/wp/v2/posts/';
   const pURL = sURL + '/wp-json/wp/v2/pages/';
 
@@ -179,6 +180,9 @@ function rHour(rc) {
   let Still = [];
   let New   = [];
   let Drop  = [];
+
+  let Top  = [];  //カテゴリ別記事用トップ10チャンネルリスト
+  let Eye = [];  //カテゴリ別記事用アイキャッチ画像取得URLリスト
 
   let todo  = [];
   let done  = [];
@@ -285,6 +289,7 @@ function rHour(rc) {
       d.rn = ++rn;
       d.rt = ratio[rn];
       yV.push(d);
+      if (rn<=10) { Top[cat].push(d.snippet.channelTitle.replace(/(チャンネル|ちゃんねる|channel|Channel)/g, '')); }
     });
     Total[cat] = rn;
   }
@@ -720,6 +725,46 @@ function rHour(rc) {
     return console.log('実施中')
   }
 
+  function step_i1() { //アイキャッチ画像作成
+    err = {};
+    try {
+      const date = Utilities.formatDate(new Date(), 'JST', 'M月d日H:00');
+      Eye = Array(cNo.length);
+      let arg = {};
+
+      for (let i=0; i<cNo.length; i++) {
+
+        const t1 = 'レシオ！';
+        const t2 = 'YouTube急上昇ランキング';
+        const t3 = 'カテゴリ：' + cName[i];
+        const t4 = '【速報】'+ date +'【集計】';
+        const t5 = '- ratio100.com -';
+
+        const wURL  = 'https://ratio100.com/featured-media/' + cNo[i] + '/' + t1 + '/' + t2 + '/' + t3 + '/' + t4 + '/' + t5;
+        const width  = 1200;
+        const height = 630;
+        const url = 'https://s.wordpress.com/mshots/v1/' + wURL + '?w=' + width + '&h=' + height;
+
+        UrlFetchApp.fetch(url);
+        Eye[i] = url;
+      }
+      console.log('アイキャッチ画像作成中 : '+date);
+
+    } catch (e) {
+      console.log('アイキャッチ画像作成\n' + e.message);
+      err = e;
+    }
+    finally {
+      if('message' in err && ++t < 3){ step_i1() }
+    }
+  }
+  t = 0;
+  step_i1();
+  if (t===3) {
+    ssEnd('doing_'+rc);
+    return console.log('【途中終了】エラー回数超過\nアイキャッチ画像作成')
+  }
+
   function step_vg() { //動画情報取得（WP,YT）
     err = {};
     try {
@@ -729,6 +774,7 @@ function rHour(rc) {
       })
       yV = [];
       Total = Array(30).fill(0);
+      Top = [...Array(30)].map(() => Array(1));
       for (let i=0; i<cNo.length; i++) {
         cat = cNo[i];
         let vJ = ytPopular();
@@ -1001,8 +1047,15 @@ function rHour(rc) {
     try {
       for (let i=0; i<cNo.length; i++) {
         const update = Utilities.formatDate(new Date(), 'JST', 'M月d日H時');
+
+        const prefix = 'YouTube急上昇ランキング動画まとめ【'+cName[i]+':'+update+'】トップ10にランクインしたチャンネルはこちら［';
+        const suffix = '］『レシオ！』ではYouTube急上昇ランキングをリアルタイム集計、1時間ごとに最新情報をお届け。';
+        const excerpt = prefix + Top[cNo[i]].join() + suffix;
+
         const arg = {
           title: '【速報】YouTube急上昇 '+cTitle[i]+'【'+update+'集計】',
+          excerpt: excerpt,
+          featured_media: 100+cNo[i],
           tags: [cNo[i],70,73,74,78,79,51,(tDay+60)]
         }
         wpAPI(oURL+cNo[i], arg);
@@ -1028,24 +1081,23 @@ function rHour(rc) {
     try {
       const id = Utilities.formatDate(new Date(), 'Etc/GMT+14', 'yyMMdd')
       data = wpAPI(pURL+id);
-      let arg = {};
+      let arg = {ranking:{}, still:{}, new:{}, drop:{}};
       const flag = Number(data.excerpt);
       const h = (tHour+19) % 24;
 
       if (tHour !== flag) {
         if (tHour === 5 || data.content.raw === '') {
-          arg = {
-            ranking: {},
-            still: [...Array(cNo.length)].map(() => Array(24).fill(0)),
-            new  : [...Array(cNo.length)].map(() => Array(24).fill(0)),
-            drop : [...Array(cNo.length)].map(() => Array(24).fill(0))
-          };
+          for (let i in cNo) {
+            arg.still[i] = Array(24).fill(0);
+            arg.new[i] = Array(24).fill(0);
+            arg.drop[i] = Array(24).fill(0);
+          }
         } else { arg = JSON.parse(data.content.raw); }
 
-        for (let i=0; i<cNo.length; i++) {
-          arg.still[i][h] = Still[cNo[i]];
-          arg.new[i][h]   = New[cNo[i]];
-          arg.drop[i][h]  = Drop[cNo[i]];
+        for (let i in cNo) {
+          arg.still[i][h] = Still[i];
+          arg.new[i][h]   = New[i];
+          arg.drop[i][h]  = Drop[i];
         }
         arg.content = JSON.stringify(arg);
         arg.excerpt = tHour;
@@ -1067,6 +1119,30 @@ function rHour(rc) {
   if (t===3) {
     ssEnd('doing_'+rc);
     return console.log('【途中終了】エラー回数超過\n日次ランキング結果アップデート')
+  }
+
+  function step_i2() { //アイキャッチ画像アップデート
+    err = {};
+    try {
+      for (let i=0; i<cNo.length; i++) {
+        const image = UrlFetchApp.fetch(Eye[i]).getBlob();
+        arg[cSlug[i] + '-i.jpg'] = Utilities.base64Encode(image.getBytes());
+        console.log({name:(cSlug[i] + '-i.jpg'), length:arg[cSlug[i] + '-i.jpg'].length})
+      }
+      console.log(wpAPI(iURL, arg));
+    } catch (e) {
+      console.log('アイキャッチ画像アップデート\n' + e.message);
+      err = e;
+    }
+    finally {
+      if('message' in err && ++t < 3){ step_i2() }
+    }
+  }
+  t = 0;
+  step_i2();
+  if (t===3) {
+    ssEnd('doing_'+rc);
+    return console.log('【途中終了】エラー回数超過\nアイキャッチ画像アップデート')
   }
 
   function step_e() { //終了処理
