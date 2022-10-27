@@ -20,6 +20,7 @@ let Ranking = {};
 let Drop = {video_z:[]}
 let Channel = [];
 let Video = [];
+let Top = [];
 let r = 0;
 let d = 0;
 let t = 0;
@@ -80,23 +81,23 @@ function dArguments(i) {
   }
 
   let a = {
+    rt_ad: strSub('D', wJ.rt_h, wJ.pd_l),
+    t_c: wJ.t_c,
+    t_v: wJ.t_v,
+    rn: strMin(wJ.rn, wJ.rn_h),
+    vw_ad: strSub('D', wJ.vw_h, wJ.pd_l),
+    lk_ad: strSub('D', wJ.lk_h, wJ.pd_l),
     vd: wJ.id,
     rc: wJ.rc,
     cat: wJ.cat,
     ch: wJ.ch,
-    t_c: wJ.t_c,
-    t_v: wJ.t_v,
     img: wJ.img,
     vw: wJ.vw,
-    vw_ad: strSub('D', wJ.vw_h, wJ.pd_l),
     lk: wJ.vw,
-    lk_ad: strSub('D', wJ.lk_h, wJ.pd_l),
     cm: wJ.cm,
     cm_ad: strSub('D', wJ.cm_h, wJ.pd_l),
-    rn: strMin(wJ.rn, wJ.rn_h),
     rn_i: wJ.rn_i,
     rt: wJ.rt,
-    rt_ad: strSub('D', wJ.rt_h, wJ.pd_l),
     pd: wJ.pd
   }
 
@@ -169,12 +170,16 @@ function wpResult(rc) {
     try {
       wD = wpAPI(url);
       Ranking = {};
+      Top = [];
       Drop = {video_z:[]};
       r = 0;
       d = 0;
       for (let i=0; i<cNo.length; i++) { Ranking[cNo[i]] = []; }
       for (let i=0; i<wD.length; i++) { dArguments(i); }
-      for (let i in Ranking) { Ranking[i].sort((a, b) => (a.rt_ad < b.rt_ad)? 1: -1); }
+      for (let i in Ranking) {
+        Ranking[i].sort((a, b) => (a.rt_ad < b.rt_ad)? 1: -1);
+        Top.concat(Ranking[i][0].t_c.replace(/(チャンネル|ちゃんねる|channel|Channel)/g, ''));
+      }
       console.log({ranking:r,drop:d});
     } catch (e) {
       console.log('dArguments\n' + e.message);
@@ -214,7 +219,14 @@ function wpResult(rc) {
     try {
       data = JSON.parse(wpAPI(pURL+id).content.raw);
       data.ranking = Ranking;
-      const excerpt = 'デイリーランキング ' + today;
+
+      const prefix = 'YouTube急上昇ランキング デイリーまとめ【'+today+'】各カテゴリのレシオ1位のチャンネルはこちら［';
+      const suffix = '］『レシオ！』ではYouTube急上昇ランキングをリアルタイム集計、1時間ごとに最新情報をお届け。';
+
+      const excerpt = {
+        title: 'YouTube急上昇 レシオ！デイリーランキング ' + today,
+        des: prefix + Top.join() + suffix
+      };
 
       arg = {
         date: publish,
@@ -353,6 +365,7 @@ function wpFlash(rc) {
   function step_1() { //速報（11～15）
     err = {};
     try {
+      Excerpt = [];
       for (let i=0; i<cNo.length; i++) { Ranking[cNo[i]] = []; }
       for (let i=0; i<wD.length; i++) {
         if (wD[i].rn > 20) { break; }
@@ -372,12 +385,12 @@ function wpFlash(rc) {
         Ranking[wD[i].cat].push(a);
         if (a.rn === '1') {
           const channel = a.t_c.replace(/(チャンネル|ちゃんねる|channel|Channel)/g, '');
-          Excerpt.push(channel);
+          Excerpt.concat(channel);
         }
       }
 
-      prefix = 'YouTube急上昇ランキング動画まとめ【'+date+zone[id]+'】各カテゴリでランキング1位にランクインしたチャンネルはこちら［';
-      suffix = '］『レシオ！』ではYouTube急上昇ランキングをリアルタイム集計、1時間ごとに最新情報をお届け。';
+      const prefix = 'YouTube急上昇ランキング動画まとめ【'+date+zone[id]+'】各カテゴリでランキング1位にランクインしたチャンネルはこちら［';
+      const suffix = '］『レシオ！』ではYouTube急上昇ランキングをリアルタイム集計、1時間ごとに最新情報をお届け。';
       Excerpt = prefix + Array.from(new Set(Excerpt)).join() + suffix;
 
       const arg = {

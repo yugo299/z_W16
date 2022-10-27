@@ -129,6 +129,20 @@ function rHour(rc) {
     'ハウツーとスタイル',
     '科学と技術'
   ];
+  const cSlug = [
+    'movie-anime',
+    'car-bike-train',
+    'music',
+    'pets-animals',
+    'sports',
+    'game',
+    'blog',
+    'comedy',
+    'entame',
+    'news-politics',
+    'howto-style',
+    'science-tech'
+  ];
 
   const hLen = 72;
   const dLen = 35;
@@ -248,9 +262,9 @@ function rHour(rc) {
   }
 
   function strLen(str, len) {
-    str = str.replace(/^(?:(undefined)?)\,/, '');
+    str = Array(len).join() + str.replace(/(undefined|null|NULL|NaN)/g, '');
     let arr = str.split(',').map(x=>(x==='')? x: Number(x));
-    return (arr.length<len)? str: arr.slice(arr.length-len).join()
+    return arr.slice(arr.length-len).join()
   }
 
   function strSub(f, x, y, z) {
@@ -267,6 +281,22 @@ function rHour(rc) {
       if (i===x.length-1) { j = x.length-1 }
     }
     return [x[j], y[j], z[j]];
+  }
+
+  function strMin(f, str) {
+    let j = 0;
+    arr = str.split(',');
+    if (f==='D') { j = arr.length-1-24 }
+    else if (f==='W') { j = arr.length-1-7 }
+    else if (f==='M') { j = arr.length-1-date }
+
+    val = 101;
+    for (let i=j; i<arr.length-1; i++) {
+      if (arr[i]==='') { continue; }
+      else if (arr[i]<val) { val = arr[i] }
+    }
+    if (val === 101) { val = ''; }
+    return val
   }
 
   function strHandle() {
@@ -289,7 +319,7 @@ function rHour(rc) {
       d.rn = ++rn;
       d.rt = ratio[rn];
       yV.push(d);
-      if (rn<=10) { Top[cat].push(d.snippet.channelTitle.replace(/(チャンネル|ちゃんねる|channel|Channel)/g, '')); }
+      if (rn<=10) { Top[cat].concat(d.snippet.channelTitle.replace(/(チャンネル|ちゃんねる|channel|Channel)/g, '')); }
     });
     Total[cat] = rn;
   }
@@ -504,19 +534,19 @@ function rHour(rc) {
     }
     if (tHour === 4) {
       const sub = strSub('D', a.rt_h, a.rt_h, a.rt_h);
-      a.rn_d = strLen(wJ.rn_d +','+ a.rn, dLen);
+      a.rn_d = strLen(wJ.rn_d +','+ strMin('D', a.rn_h), dLen);
       a.rt_d = strLen(wJ.rt_d +','+ a.rt, dLen);
       a.rt_ad = (a.rt === sub)? null: numR(a.rt - sub[0]);
     }
     if (tHour === 4 && tDay === 0) {
       const sub = strSub('W', a.rt_d, a.rt_d, a.rt_d);
-      a.rn_w = strLen(wJ.rn_w +','+ a.rn, wLen);
+      a.rn_w = strLen(wJ.rn_w +','+ strMin('W', a.rn_d), wLen);
       a.rt_w = strLen(wJ.rt_w +','+ a.rt, wLen);
       a.rt_aw = (a.rt === sub)? null: numR(a.rt - sub[0]);
     }
     if (tHour === 4 && nDate === 1) {
       const sub = strSub('M', a.rt_d, a.rt_d, a.rt_d);
-      a.rn_m = strLen(wJ.rn_m +','+ a.rn, mLen);
+      a.rn_m = strLen(wJ.rn_m +','+ strMin('M', a.rn_d), mLen);
       a.rt_m = strLen(wJ.rt_m +','+ a.rt, mLen);
       a.rt_am = (a.rt === sub)? null: numR(a.rt - sub[0]);
     }
@@ -704,15 +734,15 @@ function rHour(rc) {
       done[1]++;
     }
     if (tHour === 4) {
-      a.rn_d = strLen(wJ.rn_d +','+ a.rn, dLen);
+      a.rn_d = strLen(wJ.rn_d +','+ strMin('D', a.rn_h), dLen);
       a.rt_d = strLen(wJ.rt_d +','+ a.rt, dLen);
     }
     if (tHour === 4 && tDay === 0) {
-      a.rn_w = strLen(wJ.rn_w +','+ a.rn, wLen);
+      a.rn_w = strLen(wJ.rn_w +','+ strMin('W', a.rn_d), wLen);
       a.rt_w = strLen(wJ.rt_w +','+ a.rt, wLen);
     }
     if (tHour === 4 && nDate === 1) {
-      a.rn_m = strLen(wJ.rn_m +','+ a.rn, mLen);
+      a.rn_m = strLen(wJ.rn_m +','+ strMin('M', a.rn_m), mLen);
       a.rt_m = strLen(wJ.rt_m +','+ a.rt, mLen);
     }
     wZ.channel_z.push(a);
@@ -875,7 +905,7 @@ function rHour(rc) {
       while (w < data.length || y < todo.length) {
         let f = false;
         if (w === data.length) { throw new Error('vDrop : エラー (真偽判定ミスの可能性あり)'); }
-        if (y === todo.length) { console.log('非公開orBAN : '+data[w].id); f='B'; }
+        if (y === todo.length) { f='B'; }
         if (!f && data[w].id > todo[y].id) { throw new Error('vDrop : エラー (真偽判定ミスの可能性あり)'); }
         if (!f && data[w].id < todo[y].id) { console.log('非公開orBAN : '+data[w].id); f='B'; }
         if (!f && data[w].id===todo[y].id) { f ='D'; }
@@ -989,7 +1019,7 @@ function rHour(rc) {
       while (w < wD.length || y < yC.length) {
         let f = false;
         if (w === wD.length) { throw new Error('cArg : エラー (真偽判定ミスの可能性あり)'); }
-        if (y === yC.length) { console.log('非公開orBAN : '+wD[w].id); f='B'; }
+        if (y === yC.length) { f='B'; }
         if (!f && wD[w].id > yC[y].id) { throw new Error('cArg : エラー (真偽判定ミスの可能性あり)'); }
         if (!f && wD[w].id < yC[y].id) { console.log('非公開orBAN : '+wD[w].id); f='B'; }
         if (!f && wD[w].id===yC[y].id) { f ='S'; }
@@ -1124,6 +1154,7 @@ function rHour(rc) {
   function step_i2() { //アイキャッチ画像アップデート
     err = {};
     try {
+      let arg = {};
       for (let i=0; i<cNo.length; i++) {
         const image = UrlFetchApp.fetch(Eye[i]).getBlob();
         arg[cSlug[i] + '-i.jpg'] = Utilities.base64Encode(image.getBytes());
