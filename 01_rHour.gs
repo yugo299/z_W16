@@ -1112,22 +1112,22 @@ function rHour(rc) {
       const id = Utilities.formatDate(new Date(), 'Etc/GMT+14', 'yyMMdd')
       data = wpAPI(pURL+id);
       let arg = {ranking:{}, still:{}, new:{}, drop:{}};
-      const flag = Number(data.excerpt);
+      const flag = Number(data.excerpt.raw);
       const h = (tHour+19) % 24;
 
       if (tHour !== flag) {
         if (tHour === 5 || data.content.raw === '') {
-          for (let i in cNo) {
-            arg.still[i] = Array(24).fill(0);
-            arg.new[i] = Array(24).fill(0);
-            arg.drop[i] = Array(24).fill(0);
+          for (let i=0; i<cNo.length; i++) {
+            arg.still[cNo[i]] = Array(24).fill(0);
+            arg.new[cNo[i]] = Array(24).fill(0);
+            arg.drop[cNo[i]] = Array(24).fill(0);
           }
         } else { arg = JSON.parse(data.content.raw); }
 
-        for (let i in cNo) {
-          arg.still[i][h] = Still[i];
-          arg.new[i][h]   = New[i];
-          arg.drop[i][h]  = Drop[i];
+        for (let i=0; i<cNo.length; i++) {
+          arg.still[cNo[i]][h] = Still[cNo[i]];
+          arg.new[cNo[i]][h]   = New[cNo[i]];
+          arg.drop[cNo[i]][h]  = Drop[cNo[i]];
         }
         arg.content = JSON.stringify(arg);
         arg.excerpt = tHour;

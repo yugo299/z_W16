@@ -12,7 +12,7 @@ const msKey = 'cb4064ed957644f485ca6ebe1ec96ce5';
 
 const rFile = SpreadsheetApp.openById('1WsUl5TYWxcE4ltAisWPja9fkqb5hd48uvAeT-r5HrQ4');
 const fSheet = rFile.getSheetByName('F');
-const rCol = {jp:1};
+const rCol = {jp:2};
 let data = ssData();
 
 let wD = [];
@@ -81,19 +81,17 @@ function dArguments(i) {
   }
 
   let a = {
-    rt_ad: strSub('D', wJ.rt_h, wJ.pd_l),
+    rt_ad: Math.round(strSub('D', wJ.rt_h, wJ.pd_l)*10000)/10000,
     t_c: wJ.t_c,
-    t_v: wJ.t_v,
-    rn: strMin(wJ.rn, wJ.rn_h),
+    t_v: wJ.title,
+    rn: strMin('D', wJ.rn_h),
     vw_ad: strSub('D', wJ.vw_h, wJ.pd_l),
     lk_ad: strSub('D', wJ.lk_h, wJ.pd_l),
     vd: wJ.id,
     rc: wJ.rc,
-    cat: wJ.cat,
     ch: wJ.ch,
-    img: wJ.img,
     vw: wJ.vw,
-    lk: wJ.vw,
+    lk: wJ.lk,
     cm: wJ.cm,
     cm_ad: strSub('D', wJ.cm_h, wJ.pd_l),
     rn_i: wJ.rn_i,
@@ -101,7 +99,7 @@ function dArguments(i) {
     pd: wJ.pd
   }
 
-  Ranking[a.cat].push(a);
+  Ranking[wJ.cat].push(a);
   r++;
 }
 
@@ -141,8 +139,8 @@ function strMin(f, str) {
 function rDay(rc) {
 
   /** ■■■■ 実行判定 ■■■■ */
-  const f1 = data[2][rCol[rc]];
-  const f2 = data[1][rCol[rc]];
+  const f1 = data[2][rCol[rc]-1];
+  const f2 = data[1][rCol[rc]-1];
 
   if (f1 ==='Go') { wpResult(rc); }
   else if (f2 ===7 || f2 ===12 || f2 ===16 || f2 ===20) { wpFlash(rc); }
@@ -163,12 +161,11 @@ function wpResult(rc) {
 
   time = Utilities.formatDate(new Date(),'JST','yyyy-MM-dd HH:') + '00:00';
   time = new Date(time).getTime();
-  let url = vURL + '25/' + rc;
 
   function step_da() { //dArguments
     err = {};
     try {
-      wD = wpAPI(url);
+      wD = wpAPI(vURL +'25/'+rc);
       Ranking = {};
       Top = [];
       Drop = {video_z:[]};
@@ -176,7 +173,7 @@ function wpResult(rc) {
       d = 0;
       for (let i=0; i<cNo.length; i++) { Ranking[cNo[i]] = []; }
       for (let i=0; i<wD.length; i++) { dArguments(i); }
-      for (let i in Ranking) {
+      for (let i=0; i<Ranking.length; i++) {
         Ranking[i].sort((a, b) => (a.rt_ad < b.rt_ad)? 1: -1);
         Top.concat(Ranking[i][0].t_c.replace(/(チャンネル|ちゃんねる|channel|Channel)/g, ''));
       }
@@ -281,16 +278,16 @@ function wpResult(rc) {
     try {
       Channel = [];
       Video = [];
-      for (let i in Ranking) {
+      for (let i=0; i<Ranking.length; i++) {
         for (let j=0; j<7; j++) {
           let url = 'https://ratio100.com/youtube/channel/' + Ranking[i][j].ch;
           Channel.push(url);
-          url = 'https://ratio100.com/youtube/video/' + Ranking[i][j].id;
+          url = 'https://ratio100.com/youtube/video/' + Ranking[i][j].vd;
           Video.push(url);
         }
       }
       msSubmit(Channel);
-      console.log('IndexNow送信\n' + list.join('\n'));
+      console.log('IndexNow送信');
       console.log(Channel.join('\n'));
       console.log('Google Indexing用');
       console.log(Video.join('\n'));
@@ -433,7 +430,7 @@ function wpFlash(rc) {
       const arg = {
         date: p2,
         status: (p2<now)? 'publish': 'future',
-        title: parent + '【' + zone + '】',
+        title: parent + '【' + zone[id] + '】',
         content: '',
         excerpt: '',
         featured_media: fm,
