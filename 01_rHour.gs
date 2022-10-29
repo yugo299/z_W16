@@ -907,8 +907,8 @@ function rHour(rc) {
         if (w === data.length) { throw new Error('vDrop : エラー (真偽判定ミスの可能性あり)'); }
         if (y === todo.length) { f='B'; }
         if (!f && data[w].id > todo[y].id) { throw new Error('vDrop : エラー (真偽判定ミスの可能性あり)'); }
-        if (!f && data[w].id < todo[y].id) { console.log('非公開orBAN : '+data[w].id); f='B'; }
-        if (!f && data[w].id===todo[y].id) { f ='D'; }
+        if (!f && data[w].id < todo[y].id) { f='B'; }
+        if (!f && data[w].id===todo[y].id) { f='D'; }
         if (!f) { throw new Error('cArg エラー : 振り分け判定漏れ\n'+ data[w].id +' : '+ todo[y].id); }
         if (f==='B') { data[w].ban = true; }
 
@@ -1021,8 +1021,8 @@ function rHour(rc) {
         if (w === wD.length) { throw new Error('cArg : エラー (真偽判定ミスの可能性あり)'); }
         if (y === yC.length) { f='B'; }
         if (!f && wD[w].id > yC[y].id) { throw new Error('cArg : エラー (真偽判定ミスの可能性あり)'); }
-        if (!f && wD[w].id < yC[y].id) { console.log('非公開orBAN : '+wD[w].id); f='B'; }
-        if (!f && wD[w].id===yC[y].id) { f ='S'; }
+        if (!f && wD[w].id < yC[y].id) { f='B'; }
+        if (!f && wD[w].id===yC[y].id) { f='S'; }
         if (!f) {
           throw new Error('cArg エラー : 振り分け判定漏れ\n'+ wD[w].id +' : '+ yC[y].id);
         }
@@ -1158,7 +1158,6 @@ function rHour(rc) {
       for (let i=0; i<cNo.length; i++) {
         const image = UrlFetchApp.fetch(Eye[i]).getBlob();
         arg[cSlug[i] + '-i.jpg'] = Utilities.base64Encode(image.getBytes());
-        console.log({name:(cSlug[i] + '-i.jpg'), length:arg[cSlug[i] + '-i.jpg'].length})
       }
       console.log(wpAPI(iURL, arg));
     } catch (e) {

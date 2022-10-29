@@ -347,8 +347,8 @@ FROM (
 	) AS vrt ON vrn.ch = vrt.ch AND vrn.rc = vrt.rc
 	LEFT JOIN channel_y AS y ON vrn.ch = y.id
 	LEFT JOIN channel_z AS z ON vrn.ch = z.id AND vrn.rc = z.rc
-WHERE vrn.flag <= 24
-ORDER BY z.id ASC
+WHERE flag <= 24
+ORDER BY id ASC
 
 --■■■■ a_01 : 動画-ランキング最高順位（現在） ■■■■
 ALTER VIEW a_01 AS
@@ -454,6 +454,7 @@ SELECT
 	y.title AS t_c,
 	y.sb AS sb,
 	y.vw AS vw,
+	y.vc AS vc,
 	c.rt AS rt,
 	y.des AS des,
 	y.img AS img,
@@ -486,6 +487,9 @@ SELECT
 	SUM(z.rt) AS rt,
 	y.vw AS vw,
 	y.lk AS lk,
+	y.cm AS cm,
+	y.date AS date,
+	y.dur AS dur,
 	y.img AS img
 FROM (SELECT * FROM video_z ORDER BY rn DESC) AS z
 	LEFT JOIN video_y AS y ON z.id = y.id

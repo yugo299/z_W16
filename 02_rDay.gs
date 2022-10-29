@@ -478,7 +478,7 @@ function wpFlash(rc) {
       const image = UrlFetchApp.fetch(url).getBlob();
       let arg = {};
       arg[slug[id] + '-i.jpg'] = Utilities.base64Encode(image.getBytes());
-      console.log({name:(slug[i] + '-i.jpg'), length:arg[slug[id] + '-i.jpg'].length})
+      console.log({name:(slug[id] + '-i.jpg'), length:arg[slug[id] + '-i.jpg'].length})
 
       res = wpAPI(iURL, arg);
       console.log(res);
