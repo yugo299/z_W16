@@ -45,7 +45,7 @@ section {width: 100%; max-width: 600px; min-width: 370px; margin-left: auto; mar
 .vlll img{width: 320px; height: 180px; position: absolute; left: 50%; transform: translate(-50%, 0); -webkit-transform: translate(-50%, 0); -ms-transform: translate(-50%, 0); border-style: solid; border-width: 0 5px; border-color: var(--c1)}
 
 .vs {text-align: center}
-.vs tbody tr {display: flex; justify-content: flex-end; flex-wrap: wrap; position: relative; padding: 5px}
+.vs tbody tr {display: flex; justify-content: flex-end; flex-wrap: wrap; position: relative; padding: 5px; content-visibility: auto; contain-intrinsic-size: 70px}
 .vs th {position: -webkit-sticky; position: sticky; top: 0; z-index: 1}
 .vs div:has(img) {width: 108px; height: 60px; margin: 5px 0; position: relative; overflow: hidden}
 .vs img {height: 81px; object-fit: cover; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); -webkit-transform: translate(-50%, -50%); -ms-transform: translate(-50%, -50%)}
@@ -72,68 +72,33 @@ section {width: 100%; max-width: 600px; min-width: 370px; margin-left: auto; mar
 .category ul {display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px}
 .zone ul {display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 10px}
 
-.w2 {width: 20%}
-.w6 {width: 60%}
-.w8 {width: 80%}
-.w10 {width: 100%}
-.w90 {width: 90px}
-.w100 {width: 100px}
-.h3 {height: 30px}
-.h4 {height: 40px}
-.h5 {height: 50px}
-.h6 {height: 60px}
-.h7 {height: 70px}
-.h9 {height: 90px}
-.h10 {height: 100px}
-.h43 {height: 430px}
+.w2 {width: 20%} .w6 {width: 60%} .w8 {width: 80%} .w10 {width: 100%}
+.w90 {width: 90px} .w100 {width: 100px}
+.h3 {height: 30px} .h4 {height: 40px} .h5 {height: 50px} .h6 {height: 60px} .h7 {height: 70px} .h9 {height: 90px} .h10 {height: 100px} .h43 {height: 430px}
 .hm40 {max-height: 400px}
 .g10 {gap: 0 10px}
-.m3 {margin: 3px 0}
-.m5 {margin: 5px 0}
-.m10 {margin: 10px 0}
-.m15 {margin: 15px 0}
+.m3 {margin: 3px 0} .m5 {margin: 5px 0} .m10 {margin: 10px 0} .m15 {margin: 15px 0}
 .mc {margin-left: auto; margin-right: auto}
-.p5 {padding: 5px}
-.p60 {padding: 60px}
-.p100 {padding: 100px}
-.p110 {padding-left: 110px}
-.f14 {font-size: 14px}
-.f16 {font-size: 16px}
-.f24 {font-size: 24px}
-.f36 {font-size: 36px}
-.f45 {font-size: 45px}
-.o1 {order: 1}
-.o2 {order: 2}
+.p5 {padding: 5px} .p60 {padding: 60px} .p100 {padding: 100px} .p110 {padding-left: 110px}
+.f14 {font-size: 14px} .f16 {font-size: 16px} .f24 {font-size: 24px} .f36 {font-size: 36px} .f45 {font-size: 45px}
+.o1 {order: 1} .o2 {order: 2}
 
 .bw {border: 1px solid #fff}
 
 .i9 {width: 96px; height: 96px; object-fit: cover}
 .i12 {width: 120px; height: 120px; object-fit: cover}
 
-.z2 {z-index: 2}
-.z3 {z-index: 3}
+.z2 {z-index: 2} .z3 {z-index: 3}
 .nn {display: none}
 .hd {visibility: hidden}
 .ox {overflow-x: auto}
 .oy {overflow-y: auto}
 .ln {list-style: none; padding: 0}
 
-.g-a {grid-area: a}
-.g-b {grid-area: b}
-.g-c {grid-area: c}
-.g-d {grid-area: d}
-.g-e {grid-area: e}
-.g-f {grid-area: f}
-.g-g {grid-area: g}
-.g-h {grid-area: h}
-.g-i {grid-area: i}
-.g-j {grid-area: j}
-.g-k {grid-area: k}
+.g-a {grid-area: a} .g-b {grid-area: b} .g-c {grid-area: c} .g-d {grid-area: d} .g-e {grid-area: e} .g-f {grid-area: f} .g-g {grid-area: g} .g-h {grid-area: h} .g-i {grid-area: i} .g-j {grid-area: j} .g-k {grid-area: k}
 
-.re {position: relative}
-.ab {position: absolute; left: 0px; top: 0px}
-.row {display: flex}
-.col {display: flex; flex-direction: column; align-items: center}
+.re {position: relative} .ab {position: absolute; left: 0px; top: 0px}
+.row {display: flex} .col {display: flex; flex-direction: column; align-items: center}
 .wr {flex-wrap: wrap}
 .fe {justify-content: flex-end}
 .fs {justify-content: flex-start}
@@ -146,6 +111,7 @@ section {width: 100%; max-width: 600px; min-width: 370px; margin-left: auto; mar
 .tal {text-align: left}
 .tar {text-align: right}
 .wsp {white-space: pre-wrap}
+.wsn {white-space: nowrap}
 .bb {box-sizing: border-box}
 
 .lc {line-height: 30px; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 1; overflow: hidden}

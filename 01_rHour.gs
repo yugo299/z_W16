@@ -238,9 +238,9 @@ function rHour(rc) {
     return hour + ":" + minutes + ":" + sec
   }
 
-  function textToLink(str) {
+  function textToLink(str, id) {
     const regexp = /(htt)(ps|p)(:\/)([\w/:%#\$&\?\(\)~\.=\+\-\@ぁ-んァ-ヶ亜-熙Ａ-Ｚａ-ｚ]+)/g;
-    str = str.replace(regexp, '<a class="external" href="/link/$2$4" title="外部リンク"></a> ');
+    str = str.replace(regexp, '<a class="external" href="/link/'+id+'/$2$4" title="外部リンク"></a> ');
     return str
   }
 
@@ -319,7 +319,7 @@ function rHour(rc) {
       d.rn = ++rn;
       d.rt = ratio[rn];
       yV.push(d);
-      if (rn<=10) { Top[cat].concat(d.snippet.channelTitle.replace(/(チャンネル|ちゃんねる|channel|Channel)/g, '')); }
+      if (rn<=10) { Top[cat] = Top[cat].concat(d.snippet.channelTitle.replace(/(チャンネル|ちゃんねる|channel|Channel)/g, '')); }
     });
     Total[cat] = rn;
   }
@@ -410,7 +410,7 @@ function rHour(rc) {
       title: yJ.snippet.title,
       date: Utilities.formatDate(new Date(yJ.snippet.publishedAt), 'JST', 'yyyy-MM-dd HH:mm:ss'),
       dur: convertTime(yJ.contentDetails.duration),
-      des: textToLink(yJ.snippet.description),
+      des: textToLink(yJ.snippet.description, yJ.id),
       tags: (yJ.snippet.tags)? yJ.snippet.tags.join(): '',
       img: imgVideo(yJ.snippet.thumbnails.medium.url),
       vw: yJ.statistics.viewCount,
@@ -622,7 +622,7 @@ function rHour(rc) {
       id: yJ.id,
       title: yJ.snippet.title,
       date: Utilities.formatDate(new Date(yJ.snippet.publishedAt), 'JST', 'yyyy-MM-dd HH:mm:ss'),
-      des: textToLink(yJ.snippet.description),
+      des: textToLink(yJ.snippet.description, yJ.id),
       img: imgChannel(yJ.snippet.thumbnails.medium.url),
       handle: yJ.snippet.customUrl,
       vw: yJ.statistics.viewCount,
@@ -804,7 +804,7 @@ function rHour(rc) {
       })
       yV = [];
       Total = Array(30).fill(0);
-      Top = [...Array(30)].map(() => Array(1));
+      Top = [...Array(30)].map(() => []);
       for (let i=0; i<cNo.length; i++) {
         cat = cNo[i];
         let vJ = ytPopular();
@@ -1109,7 +1109,7 @@ function rHour(rc) {
   function step_re() { //日次ランキング結果アップデート
     err = {};
     try {
-      const id = Utilities.formatDate(new Date(), 'Etc/GMT+14', 'yyMMdd')
+      const id = Utilities.formatDate(new Date(), 'Etc/GMT-4', 'yyMMdd')
       data = wpAPI(pURL+id);
       let arg = {ranking:{}, still:{}, new:{}, drop:{}};
       const flag = Number(data.excerpt.raw);

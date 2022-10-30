@@ -90,13 +90,13 @@ function dArguments(i) {
     vd: wJ.id,
     rc: wJ.rc,
     ch: wJ.ch,
-    vw: wJ.vw,
-    lk: wJ.lk,
-    cm: wJ.cm,
+    vw: Number(wJ.vw),
+    lk: Number(wJ.lk),
+    cm: Number(wJ.cm),
     cm_ad: strSub('D', wJ.cm_h, wJ.pd_l),
     rn_i: wJ.rn_i,
     rt: wJ.rt,
-    pd: wJ.pd
+    pd: Number(wJ.pd)
   }
 
   Ranking[wJ.cat].push(a);
@@ -129,8 +129,8 @@ function strMin(f, str) {
 
   val = 100;
   for (let i=j; i<arr.length-1; i++) {
-    if (arr[i]==='') { continue; }
-    else if (arr[i]<val) { val = arr[i] }
+    if (Number(arr[i])==='') { continue; }
+    else if (Number(arr[i])<val) { val = Number(arr[i]) }
   }
 
   return val
@@ -175,7 +175,7 @@ function wpResult(rc) {
       for (let i=0; i<wD.length; i++) { dArguments(i); }
       for (let i=0; i<Ranking.length; i++) {
         Ranking[i].sort((a, b) => (a.rt_ad < b.rt_ad)? 1: -1);
-        Top.concat(Ranking[i][0].t_c.replace(/(チャンネル|ちゃんねる|channel|Channel)/g, ''));
+        Top.push(Ranking[i][0].t_c.replace(/(チャンネル|ちゃんねる|channel|Channel)/g, ''));
       }
       console.log({ranking:r,drop:d});
     } catch (e) {
@@ -329,7 +329,7 @@ function wpResult(rc) {
 function wpFlash(rc) {
 
   /** ■■■■ 変数 ■■■■ */
-  const zone = {'11':':朝', '12':':昼', '13':':夕方', '14':':夜'};
+  const zone = {'11':'朝', '12':'昼', '13':'夕方', '14':'夜'};
   const slug = {'11':'morning', '12':'afternoon', '13':'evening', '14':'night'};
   const time = new Date();
   let hour = time.getHours();
@@ -350,8 +350,8 @@ function wpFlash(rc) {
   const day = time.getDay()+60;
 
   /** ■■■■ 実施判定 ■■■■ */
-  const flag = wpAPI(pURL+(id+20)).title;
-  if (flag === parent) { return console.log('実施済み : '+date+' '+zone[id])}
+  const flag = wpAPI(pURL+(id+20)).title.slice(0,6);
+  if (flag == parent) { return console.log('実施済み : '+date+' '+zone[id])}
 
   const wD = wpAPI(aURL+'11/'+rc);
   let Ranking = {};
@@ -386,14 +386,14 @@ function wpFlash(rc) {
         }
       }
 
-      const prefix = 'YouTube急上昇ランキング動画まとめ【'+date+zone[id]+'】各カテゴリでランキング1位にランクインしたチャンネルはこちら［';
+      const prefix = 'YouTube急上昇ランキング動画まとめ【'+date+':'+zone[id]+'】各カテゴリでランキング1位にランクインしたチャンネルはこちら［';
       const suffix = '］『レシオ！』ではYouTube急上昇ランキングをリアルタイム集計、1時間ごとに最新情報をお届け。';
       Excerpt = prefix + Array.from(new Set(Excerpt)).join() + suffix;
 
       const arg = {
         date: p1,
         status: 'publish',
-        title: '【速報】YouTube急上昇ランキングまとめ【'+date+zone[id]+'】',
+        title: '【速報】YouTube急上昇ランキングまとめ【'+date+':'+zone[id]+'】',
         content: JSON.stringify(Ranking),
         excerpt: Excerpt,
         featured_media: fm,
@@ -464,7 +464,7 @@ function wpFlash(rc) {
     try {
       const t1 = 'レシオ！';
       const t2 = 'YouTube急上昇ランキング';
-      const t4 = '【速報】'+ date + zone[id] +'【集計】';
+      const t4 = '【速報】'+ date +':'+ zone[id] +'【集計】';
       const t5 = '- ratio100.com -';
 
       const wURL  = 'https://ratio100.com/featured-media/' + 0 + '/' + t1 + '/' + t2 + '/' + t4 + '/' + t5;

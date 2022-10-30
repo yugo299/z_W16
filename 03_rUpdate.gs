@@ -65,14 +65,32 @@ function rUpdate() {
   const date = new Date();
   const hour = date.getHours();
   const minutes = date.getMinutes();
+  const day = date.getDay() + 60;
 
 
   if (minutes>40 && minutes<45) { //Youtube,チャンネル,動画ページ更新
     const time = (Utilities.formatDate(date,'JST','yyyy-MM-dd HH:')+'30:00').replace(' ','T');
-    const arg = { date: time }
+    let arg = { date: time }
     console.log(wpAPI(pURL+4, arg));
+
+    tr = wpAPI(sURL+'/wp-json/ratio-zid/zid/trending/');
+
+    let title = 'YouTube急上昇 本日ランクインのチャンネル(' + tr.c + ')をピックアップ';
+    let prefix = 'YouTube急上昇 本日は'+tr.v+'のチャンネルの動画が各カテゴリTop100にランクイン。獲得レシオ上位のチャンネルはこちら［';
+    let suffix = '］『レシオ！』ではYouTube急上昇ランキングをリアルタイム集計、1時間ごとに最新情報をお届け。';
+    let excerpt = prefix + tr.channel.join().replace(/(チャンネル|ちゃんねる|channel|Channel)/g, '') + suffix;
+
+    arg = {date: time, title: title, excerpt: excerpt, tags: [70,73,74,78,51,day]}
     console.log(wpAPI(oURL+8, arg));
+
+    title = 'YouTube急上昇 本日ランクインの動画(' + tr.v + ')の獲得レシオTop100';
+    prefix = 'YouTube急上昇 本日は'+tr.v+'本の動画が各カテゴリTop100にランクイン。獲得レシオ上位の動画はこちら［';
+    suffix = '］『レシオ！』ではYouTube急上昇ランキングをリアルタイム集計、1時間ごとに最新情報をお届け。';
+    excerpt = prefix + tr.video.join() + suffix;
+
+    arg = {date: time, title: title, excerpt: excerpt, tags: [70,73,74,79,51,day]}
     console.log(wpAPI(oURL+9, arg));
+
     console.log('アップデート完了 ( 4,8,9 ) : '+time);
   }
 
