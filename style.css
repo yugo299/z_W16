@@ -69,6 +69,9 @@ section {width: 100%; max-width: 600px; min-width: 370px; margin-left: auto; mar
 .cm .g-b, .cm .g-c {background: #eee}
 .cm .g-a, .cm .g-d, .cm .g-e {background: #ddd}
 
+.banner:has(img) {width: 600px; height: 150px; position: relative; overflow: hidden}
+.banner img {position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); -webkit-transform: translate(-50%, -50%); -ms-transform: translate(-50%, -50%)}
+
 .category ul {display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px}
 .zone ul {display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 10px}
 

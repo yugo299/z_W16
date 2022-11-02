@@ -12,6 +12,7 @@ function rHour(rc) {
     return fSheet.getRange(1, 1, sRow, sCol).getValues();
   }
   function ssWrite(sheet, src) {
+    if (!src.length || !src[0].length) { return }
     sheet.getRange(1, 1, src.length, src[0].length).setValues(src);
   }
   function ssStart(flag) { rFile.insertSheet(flag) }
@@ -288,7 +289,7 @@ function rHour(rc) {
     arr = str.split(',');
     if (f==='D') { j = arr.length-1-24 }
     else if (f==='W') { j = arr.length-1-7 }
-    else if (f==='M') { j = arr.length-1-date }
+    else if (f==='M') { j = arr.length-1-tDate }
 
     val = 101;
     for (let i=j; i<arr.length-1; i++) {

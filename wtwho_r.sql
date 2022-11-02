@@ -458,6 +458,7 @@ SELECT
 	c.rt AS rt,
 	y.des AS des,
 	y.img AS img,
+	y.banner AS banner,
 	z.id AS ch,
 	z.rc AS rc
 FROM channel_z AS z

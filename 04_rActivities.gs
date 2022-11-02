@@ -36,7 +36,7 @@ function rActivities() {
         xA.channel_x.push(ytActivities(list[i].id));
         yA.channel_y.push(ytBanner(list[i].id));
       }
-      yA.channel_x.push({id:'------------------------', activities:next});
+      xA.channel_x.push({id:'------------------------', activities:next});
 
       console.log('aArguments,バナー取得\n実施件数 : '+num+' = '+xA.channel_x.length+'(x) = '+yA.channel_y.length+'(y) - 1\n実施開始位置 : '+id+' = '+list[0].id+'\n次回開始位置 : '+next);
     } catch (e) {

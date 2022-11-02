@@ -1,5 +1,20 @@
 /** ■■■■ 変数 ■■■■ */
 const cNo = [1,2,10,15,17,20,22,23,24,25,26,28];
+const cName = [
+  '映画とアニメ',
+  '自動車と乗り物',
+  '音楽',
+  'ペットと動物',
+  'スポーツ',
+  'ゲーム',
+  'ブログ',
+  'お笑い',
+  'エンタメ',
+  'ニュースと政治',
+  'ハウツーとスタイル',
+  '科学と技術'
+];
+
 const sURL = 'https://ratio100.com';
 const pURL = sURL + '/wp-json/wp/v2/pages/';
 const aURL = sURL + '/wp-json/ratio-zid/zid/a/';
@@ -10,10 +25,17 @@ const authUser = 'syo-zid';
 const authPass = 'lpwN R9pX bviV fliz CZIo wV8W';
 const msKey = 'cb4064ed957644f485ca6ebe1ec96ce5';
 
+const CONSUMER_KEY = 'TaaTCR2HJ3hr5Tor5rDGfkhBs';
+const CONSUMER_SECRET = 'XfrWXBSiF0YCvLTN3JGXyK41wv8fo5PWdRhsG7RpIdWokRoIuv';
+const client = TwitterClient2.getInstance(CONSUMER_KEY, CONSUMER_SECRET)
+
 const rFile = SpreadsheetApp.openById('1WsUl5TYWxcE4ltAisWPja9fkqb5hd48uvAeT-r5HrQ4');
 const fSheet = rFile.getSheetByName('F');
 const rCol = {jp:2};
 let data = ssData();
+
+let d = new Date(Utilities.formatDate(new Date(), 'Etc/GMT-4', 'yyyy-MM-dd HH:mm:ss'));
+const tDate = d.getDate();
 
 let wD = [];
 let Ranking = {};
@@ -22,8 +44,35 @@ let Channel = [];
 let Video = [];
 let Top = [];
 let r = 0;
-let d = 0;
+d = 0;
 let t = 0;
+
+/** ■■■■ Twitter関数 ■■■■ */
+
+/**認証実行
+ */
+function authorize () {
+  client.authorize();
+}
+
+/**認証を削除したい時はこれを実行する
+ */
+function reset () {
+  client.reset()
+}
+
+/**Twitterの developer portal に登録するURLを取得する
+ */
+function getCallbackUrl () {
+  client.getCallbackUrl();
+}
+
+/**authorizeでTwitterでの認証後に実行される処理
+ * ※手動で実行はしません
+ */
+function authCallback (request) {
+  return client.authCallback(request)
+}
 
 /** ■■■■ 関数 ■■■■ */
 function ssData() {
@@ -125,7 +174,7 @@ function strMin(f, str) {
   arr = str.split(',');
   if (f==='D') { j = arr.length-1-24 }
   else if (f==='W') { j = arr.length-1-7 }
-  else if (f==='M') { j = arr.length-1-date }
+  else if (f==='M') { j = arr.length-1-tDate }
 
   val = 100;
   for (let i=j; i<arr.length-1; i++) {
@@ -173,9 +222,9 @@ function wpResult(rc) {
       d = 0;
       for (let i=0; i<cNo.length; i++) { Ranking[cNo[i]] = []; }
       for (let i=0; i<wD.length; i++) { dArguments(i); }
-      for (let i=0; i<Ranking.length; i++) {
-        Ranking[i].sort((a, b) => (a.rt_ad < b.rt_ad)? 1: -1);
-        Top.push(Ranking[i][0].t_c.replace(/(チャンネル|ちゃんねる|channel|Channel)/g, ''));
+      for (let i=0; i<cNo.length; i++) {
+        Ranking[cNo[i]].sort((a, b) => (a.rt_ad < b.rt_ad)? 1: -1);
+        Top.push(Ranking[cNo[i]][0].t_c.replace(/(チャンネル|ちゃんねる|channel|Channel)/g, ''));
       }
       console.log({ranking:r,drop:d});
     } catch (e) {
@@ -196,7 +245,7 @@ function wpResult(rc) {
     err = {};
     try {
       const resD = wpAPI(vURL, Drop);
-      console.log('Dropアップデート：' + resD);
+      console.log({m:'Dropアップデート',res:resD});
     } catch (e) {
       console.log('Dropアップデート\n' + e.message);
       err = e;
@@ -219,11 +268,9 @@ function wpResult(rc) {
 
       const prefix = 'YouTube急上昇ランキング デイリーまとめ【'+today+'】各カテゴリのレシオ1位のチャンネルはこちら［';
       const suffix = '］『レシオ！』ではYouTube急上昇ランキングをリアルタイム集計、1時間ごとに最新情報をお届け。';
+      data.des = prefix + Top.join() + suffix
 
-      const excerpt = {
-        title: 'YouTube急上昇 レシオ！デイリーランキング ' + today,
-        des: prefix + Top.join() + suffix
-      };
+      const excerpt = 'YouTube急上昇 レシオ！デイリーランキング ' + today;
 
       arg = {
         date: publish,
@@ -278,18 +325,18 @@ function wpResult(rc) {
     try {
       Channel = [];
       Video = [];
-      for (let i=0; i<Ranking.length; i++) {
+      for (let i=0; i<cNo.length; i++) {
         for (let j=0; j<7; j++) {
-          let url = 'https://ratio100.com/youtube/channel/' + Ranking[i][j].ch;
+          let url = 'https://ratio100.com/youtube/channel/' + Ranking[cNo[i]][j].ch;
           Channel.push(url);
-          url = 'https://ratio100.com/youtube/video/' + Ranking[i][j].vd;
+          url = 'https://ratio100.com/youtube/video/' + Ranking[cNo[i]][j].vd;
           Video.push(url);
         }
       }
       msSubmit(Channel);
-      console.log('IndexNow送信');
+      console.log('IndexNow送信 : '+Channel.length+'件');
       console.log(Channel.join('\n'));
-      console.log('Google Indexing用');
+      console.log('Google Indexing用 : '+Video.length+'件');
       console.log(Video.join('\n'));
     } catch (e) {
       console.log('IndexNow送信\n' + e.message);
@@ -349,20 +396,24 @@ function wpFlash(rc) {
   const date = Utilities.formatDate(time, 'JST', 'M月d日');
   const day = time.getDay()+60;
 
-  /** ■■■■ 実施判定 ■■■■ */
-  const flag = wpAPI(pURL+(id+20)).title.slice(0,6);
-  if (flag == parent) { return console.log('実施済み : '+date+' '+zone[id])}
-
-  const wD = wpAPI(aURL+'11/'+rc);
   let Ranking = {};
+  let Title = '';
   let Excerpt = [];
   let err = {};
   let t = 0;
 
+  /** ■■■■ 実施判定 ■■■■ */
+  const flag = wpAPI(pURL+(id+20)).content.raw.slice(0,6);
+  if (flag == parent) { return console.log('実施済み : '+date+' '+zone[id])}
+
+  const wD = wpAPI(aURL+'11/'+rc);
+
   function step_1() { //速報（11～15）
     err = {};
     try {
+      Title = '';
       Excerpt = [];
+      Channel = [];
       for (let i=0; i<cNo.length; i++) { Ranking[cNo[i]] = []; }
       for (let i=0; i<wD.length; i++) {
         if (wD[i].rn > 20) { break; }
@@ -381,19 +432,21 @@ function wpFlash(rc) {
         }
         Ranking[wD[i].cat].push(a);
         if (a.rn === '1') {
-          const channel = a.t_c.replace(/(チャンネル|ちゃんねる|channel|Channel)/g, '');
-          Excerpt.concat(channel);
+          const t_c = a.t_c.replace(/(チャンネル|ちゃんねる|channel|Channel)/g, '');
+          Excerpt.push(t_c);
+          Channel.push('#'+cName[wD[i].cat]+'\n◆'+t_c+'◆\nyoutu.be/'+wJ.vd);
         }
       }
 
       const prefix = 'YouTube急上昇ランキング動画まとめ【'+date+':'+zone[id]+'】各カテゴリでランキング1位にランクインしたチャンネルはこちら［';
       const suffix = '］『レシオ！』ではYouTube急上昇ランキングをリアルタイム集計、1時間ごとに最新情報をお届け。';
       Excerpt = prefix + Array.from(new Set(Excerpt)).join() + suffix;
+      Title = '【速報】YouTube急上昇ランキングまとめ【'+date+':'+zone[id]+'】';
 
       const arg = {
         date: p1,
         status: 'publish',
-        title: '【速報】YouTube急上昇ランキングまとめ【'+date+':'+zone[id]+'】',
+        title: Title,
         content: JSON.stringify(Ranking),
         excerpt: Excerpt,
         featured_media: fm,
@@ -430,9 +483,9 @@ function wpFlash(rc) {
       const arg = {
         date: p2,
         status: (p2<now)? 'publish': 'future',
-        title: parent + '【' + zone[id] + '】',
-        content: '',
-        excerpt: '',
+        title: Title,
+        content: parent + '【' + zone[id] + '】',
+        excerpt: Excerpt,
         featured_media: fm,
         comment_status: 'open',
         ping_status: 'open',
@@ -443,7 +496,21 @@ function wpFlash(rc) {
       }
 
       let res = wpAPI(pURL+(id+20), arg);
-      console.log(res)
+      console.log(res);
+
+      let tw = Array(4);
+      let url = Utilities.formatDate(time, 'Etc/GMT-4', 'yyyy/MM/dd/');
+      url = 'ratio100.com/youtube/trending/' + url + slug;
+      tweet = '#YouTube #急上昇 #まとめサイト\n『レシオ！』の速報\n'+url+'\n\n▼各カテゴリ急上昇ランキング1位は▼\n▼以下のチャンネルの動画です！▼';
+
+      Channel.sort(() => Math.random() - 0.5);
+      let id = null;
+      for (let i=0; i<tw.length; i++) {
+        if (i!==0) { tweet = Channel.slice((i-1)*4,i*4).join('\n\n'); }
+        const res = client.postTweet(tweet, id);
+        id = res.data.id;
+        console.log(res);
+      }
 
     } catch (e) {
       console.log('速報（31～35）\n' + e.message);
