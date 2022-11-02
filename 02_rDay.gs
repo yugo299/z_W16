@@ -434,7 +434,7 @@ function wpFlash(rc) {
         if (a.rn === '1') {
           const t_c = a.t_c.replace(/(チャンネル|ちゃんねる|channel|Channel)/g, '');
           Excerpt.push(t_c);
-          Channel.push('#'+cName[wD[i].cat]+'\n◆'+t_c+'◆\nyoutu.be/'+wJ.vd);
+          Channel.push('#'+cName[cNo.findIndex(x=>x==wD[i].cat)]+'\n◆ '+t_c+' ◆\nyoutu.be/'+wJ.vd);
         }
       }
 
@@ -500,15 +500,15 @@ function wpFlash(rc) {
 
       let tw = Array(4);
       let url = Utilities.formatDate(time, 'Etc/GMT-4', 'yyyy/MM/dd/');
-      url = 'ratio100.com/youtube/trending/' + url + slug;
+      url = 'ratio100.com/youtube/trending/' + url + slug[id];
       tweet = '#YouTube #急上昇 #まとめサイト\n『レシオ！』の速報\n'+url+'\n\n▼各カテゴリ急上昇ランキング1位は▼\n▼以下のチャンネルの動画です！▼';
 
       Channel.sort(() => Math.random() - 0.5);
-      let id = null;
+      let tID = null;
       for (let i=0; i<tw.length; i++) {
         if (i!==0) { tweet = Channel.slice((i-1)*4,i*4).join('\n\n'); }
-        const res = client.postTweet(tweet, id);
-        id = res.data.id;
+        const res = client.postTweet(tweet, tID);
+        tID = res.data.id;
         console.log(res);
       }
 

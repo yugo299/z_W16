@@ -26,17 +26,23 @@ blockquote {padding: 15px}
 cite {padding: 0 15px}
 p:has(>cite) {width: 100%; text-align: right}
 h3, h4, h5, h6, ul {margin: 0; font-size: 14px}
-section>h1, section>h2, header>h1, header>h2 {margin: 15px; font-size: 16px;}
-section>nav {width: 100vw; height: 40px; background: #ddd; text-align: center; padding: 10px}
+
 header {z-index: 10; width: 100vw; position: sticky; position: -webkit-sticky; top: 0; box-shadow: rgba(0, 0, 0, 0.16) 0px 3px 6px, rgba(0, 0, 0, 0.23) 0px 3px 6px}
 
+section {width: 100%; max-width: 600px; min-width: 370px; margin: -45px auto 15px; padding: 45px 3px 0}
+section>h1, section>h2, header>h1, header>h2 {margin: 15px; font-size: 16px;}
+section>nav {width: 100vw; height: 40px; background: #ddd; text-align: center; padding: 10px}
+section.navigation {order: 50} section.contents {order: 60}
+section.navigation, section.category, section.zone, section.contents {margin-top: 0; padding-top: 0}
+
+.category ul, .contents ul {display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; width: fit-content}
+.contents h3 {font-weight: normal}
+.zone ul {display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 10px}
+
 article {width: 100%}
-section.navigation {order: 100}
 article.featured-media {width: 1200px; height: 630px; font-family: 'Yusei Magic', sans-serif;}
 article.featured-media span {font-size: 60px}
 .featured-media>div {margin-top: 120px; margin-left: 160px;}
-
-section {width: 100%; max-width: 600px; min-width: 370px; margin-left: auto; margin-right: auto; padding: 0 3px}
 
 .no {top: 5px; left:5px; padding: 5px}
 .vt {top: 5px; left:5px; width: 164px; max-width: 35%; height: 90px; overflow: hidden}
@@ -52,12 +58,13 @@ section {width: 100%; max-width: 600px; min-width: 370px; margin-left: auto; mar
 .vs .r33 {width: calc((100% - 108px) * 0.30)}
 .vs .r25 {width: calc((100% - 108px) * 0.25)}
 .vs .lc {padding-left: 110px}
-.vs .c01 {width: 108px}
+th.vs .c01 {width: 108px}
 
 .vl table {width: 100%}
 .vl tbody {display: grid; grid-template-areas: "a a a" "b c d" "e f g" "h i j" "k k k"; grid-template-columns: repeat(3, 1fr); gap: 0 2px}
 .vl tr {padding: 0 5px}
 .vl tr:nth-child(n + 2) {display: flex; justify-content: space-between}
+.vl img {height: 180px; width: 320px}
 .vl .g-b, .vl .g-d, .vl .g-h, .vl .g-j {background: #eee}
 .vl .g-a, .vl .g-e, .vl .g-g, .vl .g-k {background: #ddd}
 .vl .g-k div {border-width: 1px 0; border-color: #666; border-style: dashed; padding: 5px 0}
@@ -71,9 +78,6 @@ section {width: 100%; max-width: 600px; min-width: 370px; margin-left: auto; mar
 
 .banner:has(img) {width: 600px; height: 150px; position: relative; overflow: hidden}
 .banner img {position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); -webkit-transform: translate(-50%, -50%); -ms-transform: translate(-50%, -50%)}
-
-.category ul {display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px}
-.zone ul {display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 10px}
 
 .w2 {width: 20%} .w6 {width: 60%} .w8 {width: 80%} .w10 {width: 100%}
 .w90 {width: 90px} .w100 {width: 100px}
@@ -97,6 +101,7 @@ section {width: 100%; max-width: 600px; min-width: 370px; margin-left: auto; mar
 .ox {overflow-x: auto}
 .oy {overflow-y: auto}
 .ln {list-style: none; padding: 0}
+.cc2 {column-count: 2}
 
 .g-a {grid-area: a} .g-b {grid-area: b} .g-c {grid-area: c} .g-d {grid-area: d} .g-e {grid-area: e} .g-f {grid-area: f} .g-g {grid-area: g} .g-h {grid-area: h} .g-i {grid-area: i} .g-j {grid-area: j} .g-k {grid-area: k}
 
