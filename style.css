@@ -58,7 +58,7 @@ article.featured-media span {font-size: 60px}
 .vs .r33 {width: calc((100% - 108px) * 0.30)}
 .vs .r25 {width: calc((100% - 108px) * 0.25)}
 .vs .lc {padding-left: 110px}
-th.vs .c01 {width: 108px}
+.vs th .c01 {width: 108px}
 
 .vl table {width: 100%}
 .vl tbody {display: grid; grid-template-areas: "a a a" "b c d" "e f g" "h i j" "k k k"; grid-template-columns: repeat(3, 1fr); gap: 0 2px}
@@ -84,11 +84,11 @@ th.vs .c01 {width: 108px}
 .h3 {height: 30px} .h4 {height: 40px} .h5 {height: 50px} .h6 {height: 60px} .h7 {height: 70px} .h9 {height: 90px} .h10 {height: 100px} .h43 {height: 430px}
 .hm40 {max-height: 400px}
 .g10 {gap: 0 10px}
-.m3 {margin: 3px 0} .m5 {margin: 5px 0} .m10 {margin: 10px 0} .m15 {margin: 15px 0}
+.m3 {margin: 3px 0} .m5 {margin: 5px 0} .m10 {margin: 10px 0} .m15 {margin: 15px 0} .m20 {margin: 20px 0}
 .mc {margin-left: auto; margin-right: auto}
 .p5 {padding: 5px} .p60 {padding: 60px} .p100 {padding: 100px} .p110 {padding-left: 110px}
 .f14 {font-size: 14px} .f16 {font-size: 16px} .f24 {font-size: 24px} .f36 {font-size: 36px} .f45 {font-size: 45px}
-.o1 {order: 1} .o2 {order: 2}
+.o1 {order: 1} .o2 {order: 2} .o3 {order: 3}
 
 .bw {border: 1px solid #fff}
 

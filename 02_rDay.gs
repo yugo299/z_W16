@@ -389,8 +389,8 @@ function wpFlash(rc) {
   const fm = 100 + id;
   if (hour===7) { hour = '07';}
 
-  const p1 = Utilities.formatDate(time, 'JST', 'yyyy-MM-dd') +'T'+hour+':00:10';
-  const p2 = Utilities.formatDate(time, 'JST', 'yyyy-MM-dd') +'T'+hour+':30:00';
+  const p1 = Utilities.formatDate(time, 'JST', 'yyyy-MM-dd') +'T'+'00:00:10';
+  const p2 = Utilities.formatDate(time, 'JST', 'yyyy-MM-dd') +'T'+hour+':00:10';
   const now = Utilities.formatDate(time, 'JST', 'yyyy-MM-dd HH:mm:ss').replace(' ','T');
   const parent = Utilities.formatDate(time, 'Etc/GMT-4', 'yyMMdd');
   const date = Utilities.formatDate(time, 'JST', 'M月d日');
@@ -444,7 +444,6 @@ function wpFlash(rc) {
       Title = '【速報】YouTube急上昇ランキングまとめ【'+date+':'+zone[id]+'】';
 
       const arg = {
-        date: p1,
         status: 'publish',
         title: Title,
         content: JSON.stringify(Ranking),
@@ -457,6 +456,7 @@ function wpFlash(rc) {
         categories: [4],
         tags: [70,73,74,78,51,day]
       }
+      if (!time.getHours()) { arg.date = p1; }
 
       let res = wpAPI(pURL+id, arg);
       res.content = res.content.raw.length;
@@ -477,12 +477,12 @@ function wpFlash(rc) {
     return console.log('【途中終了】エラー回数超過\n速報（11～15）')
   }
 
-  function step_2() { //速報（31～35）
+  function step_2() { //速報（31～35,Twitter）
     err = {};
     try {
       const arg = {
         date: p2,
-        status: (p2<now)? 'publish': 'future',
+        status: 'publish',
         title: Title,
         content: parent + '【' + zone[id] + '】',
         excerpt: Excerpt,
@@ -499,8 +499,8 @@ function wpFlash(rc) {
       console.log(res);
 
       let tw = Array(4);
-      let url = Utilities.formatDate(time, 'Etc/GMT-4', 'yyyy/MM/dd/');
-      url = 'ratio100.com/youtube/trending/' + url + slug[id];
+      let url = Utilities.formatDate(time, 'Etc/GMT-4', 'dd/');
+      url = 'ratio100.com/' + url + slug[id];
       tweet = '#YouTube #急上昇 #まとめサイト\n『レシオ！』の速報\n'+url+'\n\n▼各カテゴリ急上昇ランキング1位は▼\n▼以下のチャンネルの動画です！▼';
 
       Channel.sort(() => Math.random() - 0.5);
@@ -513,7 +513,7 @@ function wpFlash(rc) {
       }
 
     } catch (e) {
-      console.log('速報（31～35）\n' + e.message);
+      console.log('速報（31～35,Twitter）\n' + e.message);
       err = e;
     }
     finally {
@@ -523,7 +523,7 @@ function wpFlash(rc) {
   t = 0;
   step_2();
   if (t===3) {
-    return console.log('【途中終了】エラー回数超過\n速報（31～35）')
+    return console.log('【途中終了】エラー回数超過\n速報（31～35,Twitter）')
   }
 
   function step_fm() { //アイキャッチ画像

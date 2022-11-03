@@ -196,6 +196,7 @@ SELECT
 	y.tags AS tags,
 	y.img AS img,
 	y.vw AS vw,
+	y.vw_a AS vw_a,
 	y.vw_h AS vw_h,
 	y.vw_d AS vw_d,
 	y.vw_w AS vw_w,
@@ -205,6 +206,7 @@ SELECT
 	y.vw_aw AS vw_aw,
 	y.vw_am AS vw_am,
 	y.lk AS lk,
+	y.lk_a AS lk_a,
 	y.lk_h AS lk_h,
 	y.lk_d AS lk_d,
 	y.lk_w AS lk_w,
@@ -214,6 +216,7 @@ SELECT
 	y.lk_aw AS lk_aw,
 	y.lk_am AS lk_am,
 	y.cm AS cm,
+	y.cm_a AS cm_a,
 	y.cm_h AS cm_h,
 	y.cm_d AS cm_d,
 	y.cm_w AS cm_w,
@@ -241,10 +244,7 @@ SELECT
 	z.rt_am AS rt_am,
 	z.pd AS pd,
 	z.pd_f AS pd_f,
-	z.pd_l AS pd_l,
-	z.pd_b AS pd_b,
-	z.pd_s AS pd_s,
-	z.pd_e AS pd_e
+	z.pd_l AS pd_l
 FROM
 	video_z AS z
 	LEFT JOIN video_y AS y ON z.id = y.id
@@ -307,11 +307,9 @@ SELECT
 	vrt.rt_aw AS rt_aw,
 	vrt.rt_am AS rt_am,
 	z.pd AS pd,
+	z.pd_n AS pd_n,
 	z.pd_f AS pd_f,
-	z.pd_l AS pd_l,
-	z.pd_b AS pd_b,
-	z.pd_s AS pd_s,
-	z.pd_e AS pd_e
+	z.pd_l AS pd_l
 FROM (
 	SELECT
 		vyrn.ch AS ch,

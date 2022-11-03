@@ -426,16 +426,24 @@ function rHour(rc) {
       a.vw_ah = (a.vw==null || wJ.vw==null)? null: a.vw - Number(wJ.vw);
       a.lk_ah = (a.lk==null || wJ.lk==null)? null: a.lk - Number(wJ.lk);
       a.cm_ah = (a.cm==null || wJ.cm==null)? null: a.cm - Number(wJ.cm);
+      if (f==='S') {
+        a.vw_a = Number(wJ.vw_a) + a.vw_h;
+        a.lk_a = Number(wJ.lk_a) + a.lk_h;
+        a.cm_a = Number(wJ.cm_a) + a.cm_h;
+      }
     } else {
       done[1]++;
+      a.vw_a = 0;
       a.vw_h = Array(hLen).join() + ((a.vw==null)? '': a.vw);
       a.vw_d = Array(dLen).join();
       a.vw_w = Array(wLen).join();
       a.vw_m = Array(mLen).join();
+      a.lk_a = 0;
       a.lk_h = Array(hLen).join() + ((a.lk==null)? '': a.lk);
       a.lk_d = Array(dLen).join();
       a.lk_w = Array(wLen).join();
       a.lk_m = Array(mLen).join();
+      a.cm_a = 0;
       a.cm_h = Array(hLen).join() + ((a.cm==null)? '': a.cm);
       a.cm_d = Array(dLen).join();
       a.cm_w = Array(wLen).join();
@@ -486,9 +494,6 @@ function rHour(rc) {
       a.pd   = wJ.pd;
       a.pd_f = wJ.pd_f;
       a.pd_l = wJ.pd_l;
-      a.pd_b = wJ.pd_b;
-      a.pd_s = wJ.pd_s;
-      a.pd_e = wJ.pd_e;
       a.rt = (yJ.rt==null)? Number(wJ.rt): numR(Number(wJ.rt) + yJ.rt);
       a.rn_h = strLen(wJ.rn_h +','+ ((yJ.rn==null)? '': yJ.rn), hLen);
       a.rt_h = strLen(wJ.rt_h +','+ a.rt, hLen);
@@ -501,17 +506,7 @@ function rHour(rc) {
         a.pd_l = tLabel;
       }
       else if (f==='S') {
-        a.pd = 0;
         a.pd_f = tLabel;
-      }
-      else {
-        a.pd = null;
-        a.pd_f = null;
-        a.pd_l = null;
-      }
-      if (!(a.pd < Number(wJ.pd_b)) && a.pd!==0) {
-        a.pd_b = a.pd;
-        a.pd_e = tLabel
       }
     } else {
       a.rt   = yJ.rt;
@@ -529,9 +524,6 @@ function rHour(rc) {
       a.pd   = 0;
       a.pd_f = tLabel;
       a.pd_l = tLabel;
-      a.pd_b = 0;
-      a.pd_s = tLabel;
-      a.pd_e = tLabel;
     }
     if (tHour === 4) {
       const sub = strSub('D', a.rt_h, a.rt_h, a.rt_h);
@@ -687,11 +679,9 @@ function rHour(rc) {
     }
     if (wJ.date!=null) {
       a.pd   = wJ.pd;
+      a.pd_n = wJ.pd_n;
       a.pd_f = wJ.pd_f;
       a.pd_l = wJ.pd_l;
-      a.pd_b = wJ.pd_b;
-      a.pd_s = wJ.pd_s;
-      a.pd_e = wJ.pd_e;
       a.rn_h = strLen(wJ.rn_h +','+ ((wJ.rn==null)? '': Number(wJ.rn)), hLen);
       a.rt_h = strLen(wJ.rt_h +','+ Number(wJ.rt), hLen);
       if (!(Number(wJ.rn) > Number(wJ.rn_b)) && wJ.rn!==undefined) {
@@ -700,19 +690,12 @@ function rHour(rc) {
       }
       if (wJ.pd_l === bLabel && wJ.rn!==undefined) {
         a.pd = Number(wJ.pd) + 1;
+        a.pd_n = Number(wJ.pd_n) + 1;
         a.pd_l = tLabel;
       } else if (wJ.rn!==undefined) {
-        a.pd = 0;
+        a.pd_n = 0;
         a.pd_f = tLabel;
         a.pd_l = tLabel;
-      } else {
-        a.pd = null;
-        a.pd_f = null;
-        a.pd_l = null;
-      }
-      if (!(a.pd < Number(wJ.pd_b)) && a.pd!==0) {
-        a.pd_b = a.pd;
-        a.pd_e = tLabel;
       }
       done[0]++;
     } else {
@@ -727,11 +710,9 @@ function rHour(rc) {
       a.rt_w = Array(wLen).join();
       a.rt_m = Array(mLen).join();
       a.pd   = 0;
+      a.pd_n = 0;
       a.pd_f = tLabel;
       a.pd_l = tLabel;
-      a.pd_b = 0;
-      a.pd_s = tLabel;
-      a.pd_e = tLabel;
       done[1]++;
     }
     if (tHour === 4) {
