@@ -131,9 +131,9 @@ function dArguments(i) {
 
   let a = {
     rt_ad: Math.round(strSub('D', wJ.rt_h, wJ.pd_l)*10000)/10000,
-    t_c: wJ.t_c,
     t_v: wJ.title,
     rn: strMin('D', wJ.rn_h),
+    t_c: wJ.t_c,
     vw_ad: strSub('D', wJ.vw_h, wJ.pd_l),
     lk_ad: strSub('D', wJ.lk_h, wJ.pd_l),
     vd: wJ.id,

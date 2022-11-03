@@ -27,6 +27,14 @@ cite {padding: 0 15px}
 p:has(>cite) {width: 100%; text-align: right}
 h3, h4, h5, h6, ul {margin: 0; font-size: 14px}
 
+.test thead, .test tr:nth-child(even) th {background: #ddd}
+.test thead th:nth-child(odd) {background: #ccc}
+.test tr:nth-child(even) {background: #eee}
+.test tr:nth-child(even) td {background: #ddd}
+.test td {width: calc((100% - 220px) / 24)}
+.test tr:nth-child(-n+6) td {color: #eee}
+.test td {padding: 0}
+
 header {z-index: 10; width: 100vw; position: sticky; position: -webkit-sticky; top: 0; box-shadow: rgba(0, 0, 0, 0.16) 0px 3px 6px, rgba(0, 0, 0, 0.23) 0px 3px 6px}
 
 section {width: 100%; max-width: 600px; min-width: 370px; margin: -45px auto 15px; padding: 45px 3px 0}
@@ -80,13 +88,13 @@ article.featured-media span {font-size: 60px}
 .banner img {position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); -webkit-transform: translate(-50%, -50%); -ms-transform: translate(-50%, -50%)}
 
 .w2 {width: 20%} .w6 {width: 60%} .w8 {width: 80%} .w10 {width: 100%}
-.w90 {width: 90px} .w100 {width: 100px}
+.w60 {width: 60px} .w90 {width: 90px} .w100 {width: 100px} .w160 {width: 160px}
 .h3 {height: 30px} .h4 {height: 40px} .h5 {height: 50px} .h6 {height: 60px} .h7 {height: 70px} .h9 {height: 90px} .h10 {height: 100px} .h43 {height: 430px}
 .hm40 {max-height: 400px}
 .g10 {gap: 0 10px}
 .m3 {margin: 3px 0} .m5 {margin: 5px 0} .m10 {margin: 10px 0} .m15 {margin: 15px 0} .m20 {margin: 20px 0}
 .mc {margin-left: auto; margin-right: auto}
-.p5 {padding: 5px} .p60 {padding: 60px} .p100 {padding: 100px} .p110 {padding-left: 110px}
+.p0 {padding: 0} .p5 {padding: 5px} .p60 {padding: 60px} .p100 {padding: 100px} .p110 {padding-left: 110px}
 .f14 {font-size: 14px} .f16 {font-size: 16px} .f24 {font-size: 24px} .f36 {font-size: 36px} .f45 {font-size: 45px}
 .o1 {order: 1} .o2 {order: 2} .o3 {order: 3}
 
@@ -124,3 +132,4 @@ article.featured-media span {font-size: 60px}
 
 .lc {line-height: 30px; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 1; overflow: hidden}
 .lc.l2 {-webkit-line-clamp: 2}
+.fn {font-weight: normal} .fb {font-weight: bold}

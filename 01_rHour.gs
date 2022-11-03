@@ -344,8 +344,7 @@ function rHour(rc) {
     if (wJ.ban!=null) { //非公開化 or BAN
       a = {
         id: wJ.id,
-        img_m: wJ.img_m,
-        img_s: wJ.img_s,
+        img: wJ.img,
         vw: null,
         lk: null,
         cm: null,
@@ -396,9 +395,6 @@ function rHour(rc) {
         rt_ad: null,
         rt_aw: null,
         rt_am: null,
-        pd  : null,
-        pd_f: null,
-        pd_l: null,
       }
       wZ.video_z.push(a);
       return done[0]++;
@@ -409,7 +405,6 @@ function rHour(rc) {
       id: yJ.id,
       ch: yJ.snippet.channelId,
       title: yJ.snippet.title,
-      date: Utilities.formatDate(new Date(yJ.snippet.publishedAt), 'JST', 'yyyy-MM-dd HH:mm:ss'),
       dur: convertTime(yJ.contentDetails.duration),
       des: textToLink(yJ.snippet.description, yJ.id),
       tags: (yJ.snippet.tags)? yJ.snippet.tags.join(): '',
@@ -433,6 +428,7 @@ function rHour(rc) {
       }
     } else {
       done[1]++;
+      a.date = Utilities.formatDate(new Date(yJ.snippet.publishedAt), 'JST', 'yyyy-MM-dd HH:mm:ss');
       a.vw_a = 0;
       a.vw_h = Array(hLen).join() + ((a.vw==null)? '': a.vw);
       a.vw_d = Array(dLen).join();
@@ -558,8 +554,7 @@ function rHour(rc) {
     if (!f) { //非公開化 or BAN
       a = {
         id: wJ.id,
-        img_m: wJ.img_m,
-        img_s: wJ.img_s,
+        img: wJ.img,
         vw: null,
         sb: null,
         vc: null,
@@ -601,10 +596,7 @@ function rHour(rc) {
         rt_h: strLen(wJ.rt_h +','),
         rt_d: strLen(wJ.rt_d +','),
         rt_w: strLen(wJ.rt_w +','),
-        rt_m: strLen(wJ.rt_m +','),
-        pd  : null,
-        pd_f: null,
-        pd_l: null,
+        rt_m: strLen(wJ.rt_m +',')
       }
       wZ.channel_z.push(a);
       return done[0]++
@@ -614,7 +606,6 @@ function rHour(rc) {
     a = {
       id: yJ.id,
       title: yJ.snippet.title,
-      date: Utilities.formatDate(new Date(yJ.snippet.publishedAt), 'JST', 'yyyy-MM-dd HH:mm:ss'),
       des: textToLink(yJ.snippet.description, yJ.id),
       img: imgChannel(yJ.snippet.thumbnails.medium.url),
       handle: yJ.snippet.customUrl,
@@ -630,6 +621,7 @@ function rHour(rc) {
       a.sb_ah = (a.sb==null || wJ.sb==null)? null: a.sb - Number(wJ.sb);
       a.vc_ah = (a.vc==null || wJ.vc==null)? null: a.vc - Number(wJ.vc);
     } else {
+      a.date = Utilities.formatDate(new Date(yJ.snippet.publishedAt), 'JST', 'yyyy-MM-dd HH:mm:ss'),
       a.vw_h = Array(hLen).join() + ((a.vw==null)? '': a.vw);
       a.vw_d = Array(dLen).join();
       a.vw_w = Array(wLen).join();
