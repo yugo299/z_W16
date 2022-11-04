@@ -106,8 +106,8 @@ function rUpdate() {
   if (minutes>30 && minutes<35 && (hour===19)) { //リンクページ更新
     const time = (Utilities.formatDate(date,'JST','yyyy-MM-dd HH:')+'01:29').replace(' ','T');
     const arg = { date: time }
-    console.log(wpAPI(pURL+6, arg));
-    console.log('アップデート完了（ 6 ） : '+time);
+    console.log(wpAPI(pURL+16, arg));
+    console.log('アップデート完了（ 16 ） : '+time);
   }
 
   if (minutes>50 && minutes<55 && (hour===4)) { //Bing WebMaterTool API送信

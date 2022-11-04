@@ -27,13 +27,15 @@ cite {padding: 0 15px}
 p:has(>cite) {width: 100%; text-align: right}
 h3, h4, h5, h6, ul {margin: 0; font-size: 14px}
 
-.test thead, .test tr:nth-child(even) th {background: #ddd}
-.test thead th:nth-child(odd) {background: #ccc}
-.test tr:nth-child(even) {background: #eee}
-.test tr:nth-child(even) td {background: #ddd}
-.test td {width: calc((100% - 220px) / 24)}
-.test tr:nth-child(-n+6) td {color: #eee}
-.test td {padding: 0}
+.heatmap thead, .heatmap tr:nth-child(even) th {background: #ddd}
+.heatmap thead th:nth-child(odd) {background: #ccc}
+.heatmap tr:nth-child(even) {background: #eee}
+.heatmap tr:nth-child(even) td {background: #ddd}
+.heatmap td {width: calc((100% - 190px) / 24)}
+.heatmap tbody th {width: 140px}
+.heatmap tbody td:nth-child(2) {width: 50px}
+.heatmap tr:nth-child(-n+6) td {color: #eee}
+.heatmap td {padding: 0}
 
 header {z-index: 10; width: 100vw; position: sticky; position: -webkit-sticky; top: 0; box-shadow: rgba(0, 0, 0, 0.16) 0px 3px 6px, rgba(0, 0, 0, 0.23) 0px 3px 6px}
 
@@ -88,7 +90,7 @@ article.featured-media span {font-size: 60px}
 .banner img {position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); -webkit-transform: translate(-50%, -50%); -ms-transform: translate(-50%, -50%)}
 
 .w2 {width: 20%} .w6 {width: 60%} .w8 {width: 80%} .w10 {width: 100%}
-.w60 {width: 60px} .w90 {width: 90px} .w100 {width: 100px} .w160 {width: 160px}
+.w60 {width: 60px} .w90 {width: 90px} .w100 {width: 100px} .w220 {width: 220px} .w160 {width: 160px}
 .h3 {height: 30px} .h4 {height: 40px} .h5 {height: 50px} .h6 {height: 60px} .h7 {height: 70px} .h9 {height: 90px} .h10 {height: 100px} .h43 {height: 430px}
 .hm40 {max-height: 400px}
 .g10 {gap: 0 10px}
@@ -133,3 +135,4 @@ article.featured-media span {font-size: 60px}
 .lc {line-height: 30px; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 1; overflow: hidden}
 .lc.l2 {-webkit-line-clamp: 2}
 .fn {font-weight: normal} .fb {font-weight: bold}
+.ti-05 {text-indent: -0.5em;}

@@ -1085,30 +1085,33 @@ function rHour(rc) {
     try {
       const id = Utilities.formatDate(new Date(), 'Etc/GMT-4', 'yyMMdd')
       data = wpAPI(pURL+id);
-      let arg = {ranking:{}, still:{}, new:{}, drop:{}};
+      let a = {ranking:{}, still:{}, new:{}, drop:{}};
       const flag = Number(data.excerpt.raw);
       const h = (tHour+19) % 24;
 
       if (tHour !== flag) {
         if (tHour === 5 || data.content.raw === '') {
           for (let i=0; i<cNo.length; i++) {
-            arg.still[cNo[i]] = Array(24).fill(0);
-            arg.new[cNo[i]] = Array(24).fill(0);
-            arg.drop[cNo[i]] = Array(24).fill(0);
+            a.still[cNo[i]] = Array(24).fill(0);
+            a.new[cNo[i]] = Array(24).fill(0);
+            a.drop[cNo[i]] = Array(24).fill(0);
           }
-        } else { arg = JSON.parse(data.content.raw); }
+        } else { a = JSON.parse(data.content.raw); }
 
         for (let i=0; i<cNo.length; i++) {
-          arg.still[cNo[i]][h] = Still[cNo[i]];
-          arg.new[cNo[i]][h]   = New[cNo[i]];
-          arg.drop[cNo[i]][h]  = Drop[cNo[i]];
+          a.still[cNo[i]][h] = Still[cNo[i]];
+          a.new[cNo[i]][h]   = New[cNo[i]];
+          a.drop[cNo[i]][h]  = Drop[cNo[i]];
         }
-        arg.content = JSON.stringify(arg);
-        arg.excerpt = tHour;
+        const arg = {
+          content: JSON.stringify(a),
+          excerpt: tHour
+        }
         console.log(wpAPI(pURL+id, arg));
         console.log('日次ランキング結果アップデート : '+tLabel+'\nid : '+id);
 
       } else { console.log('実施済み : 日次ランキング結果アップデート\nid : '+id) }
+      data = [];
 
     } catch (e) {
       console.log('Flash\n' + e.message);
