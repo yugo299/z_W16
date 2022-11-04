@@ -14,7 +14,7 @@ function wpPage() {
       ping_status: 'open',
       post_name: slug,
       post_parent: parent,
-      menu_order: Number((slug<70)? slug+100: slug),
+      menu_order: (Number(slug)<70)? Number(slug)+100: Number(slug),
       post_type: 'page',
     };
     wA.zr_posts.push(a);
@@ -31,8 +31,9 @@ function wpPage() {
 
   let wA = {zr_posts:[]};
 
+  const s = 50;
   let slug = y + 1;
-  let id = Number(slug+'0000');
+  let id = Number(slug+'00'+s);
   let parent = 4;
   pArguments(id, slug);
 
@@ -45,21 +46,21 @@ function wpPage() {
       w = 0;
       m = ts.getMonth()+1;
       slug = (m < 10)? ('0'+m): String(m);
-      id = Number(y+slug+'00');
-      parent = y+'0000';
+      id = Number(y+slug)+s;
+      parent = y+'00'+s;
       pArguments(id, slug);
       parent = id;
     };
     d = ts.getDate();
 
     if (ts.getDay()===0) {
-      slug = String(7) + (++w);
-      id = Number(y + ((m<10)? ('0'+m): String(m)) + slug);
+      slug = String(70 + (++w));
+      id = Number(y + ((m<10)? ('0'+m): String(m)) + slug) + s;
       pArguments(id, slug);
     }
 
     slug = (d < 10)? ('0'+d): String(d);
-    id = Number(y + ((m<10)? ('0'+m): String(m)) + slug);
+    id = Number(y + ((m<10)? ('0'+m): String(m)) + slug) + s;
     pArguments(id, slug);
   }
   console.log(wpAPI(vURL, wA));

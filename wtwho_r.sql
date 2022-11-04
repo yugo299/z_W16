@@ -6,9 +6,172 @@ a_06 : チャンネル-ランキング最高順位（現在）
 a_07 : チャンネル-ランキング最高順位（通期）
 a_08 : チャンネル-レシオ（現在/期間別）
 a_11 : 急上昇ランキング（トップ/カテゴリ別）
+a_61 : スタッツ-再生回数
+a_62 : スタッツ-高評価数
+a_63 : スタッツ-コメント
 a_78 : チャンネル-詳細（個別ページ用）
 a_79 : 動画-一覧（個別ページ用）
 a_89 : メタタグ-動画/チャンネル
+
+--■■■■ video_y ■■■■
+CREATE TABLE IF NOT EXISTS `video_y` (
+  `id` varchar(11) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
+  `ch` varchar(24) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL COMMENT 'channel',
+  `title` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `date` datetime DEFAULT NULL COMMENT 'publishedAt',
+  `dur` time DEFAULT NULL COMMENT 'duration',
+  `des` text COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'description',
+  `tags` text COLLATE utf8mb4_unicode_ci NOT NULL,
+  `img` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'thumbnails_medium',
+  `vw` bigint(20) unsigned DEFAULT NULL COMMENT 'viewCount',
+  `vw_a` int(10) unsigned NOT NULL DEFAULT 0,
+  `vw_h` text COLLATE utf8mb4_unicode_ci NOT NULL,
+  `vw_d` text COLLATE utf8mb4_unicode_ci NOT NULL,
+  `vw_w` text COLLATE utf8mb4_unicode_ci NOT NULL,
+  `vw_m` text COLLATE utf8mb4_unicode_ci NOT NULL,
+  `vw_ah` int(10) unsigned DEFAULT NULL,
+  `vw_ad` int(10) unsigned DEFAULT NULL,
+  `vw_aw` int(10) unsigned DEFAULT NULL,
+  `vw_am` int(10) unsigned DEFAULT NULL,
+  `lk` int(10) unsigned DEFAULT NULL COMMENT 'like',
+  `lk_a` int(10) unsigned NOT NULL DEFAULT 0,
+  `lk_h` text COLLATE utf8mb4_unicode_ci NOT NULL,
+  `lk_d` text COLLATE utf8mb4_unicode_ci NOT NULL,
+  `lk_w` text COLLATE utf8mb4_unicode_ci NOT NULL,
+  `lk_m` text COLLATE utf8mb4_unicode_ci NOT NULL,
+  `lk_ah` int(10) DEFAULT NULL,
+  `lk_ad` int(10) DEFAULT NULL,
+  `lk_aw` int(10) DEFAULT NULL,
+  `lk_am` int(10) DEFAULT NULL,
+  `cm` int(10) unsigned DEFAULT NULL COMMENT 'comment',
+  `cm_a` int(10) unsigned NOT NULL DEFAULT 0,
+  `cm_h` text COLLATE utf8mb4_unicode_ci NOT NULL,
+  `cm_d` text COLLATE utf8mb4_unicode_ci NOT NULL,
+  `cm_w` text COLLATE utf8mb4_unicode_ci NOT NULL,
+  `cm_m` text COLLATE utf8mb4_unicode_ci NOT NULL,
+  `cm_ah` int(10) DEFAULT NULL,
+  `cm_ad` int(10) DEFAULT NULL,
+  `cm_aw` int(10) DEFAULT NULL,
+  `cm_am` int(10) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--■■■■ video_z ■■■■
+CREATE TABLE IF NOT EXISTS `video_z` (
+  `id` varchar(11) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
+  `rc` varchar(2) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'regionCode',
+  `cat` tinyint(2) unsigned NOT NULL DEFAULT 0 COMMENT 'category',
+  `flag` tinyint(2) unsigned NOT NULL DEFAULT 24,
+  `rn` tinyint(3) unsigned DEFAULT NULL COMMENT 'rank',
+  `rn_i` datetime DEFAULT NULL,
+  `rn_b` tinyint(3) unsigned DEFAULT 101,
+  `rn_t` datetime DEFAULT NULL,
+  `rn_h` text COLLATE utf8mb4_unicode_ci NOT NULL,
+  `rn_d` text COLLATE utf8mb4_unicode_ci NOT NULL,
+  `rn_w` text COLLATE utf8mb4_unicode_ci NOT NULL,
+  `rn_m` text COLLATE utf8mb4_unicode_ci NOT NULL,
+  `rt` decimal(10,4) unsigned NOT NULL DEFAULT 0.0000 COMMENT 'ratio',
+  `rt_h` text COLLATE utf8mb4_unicode_ci NOT NULL,
+  `rt_d` text COLLATE utf8mb4_unicode_ci NOT NULL,
+  `rt_w` text COLLATE utf8mb4_unicode_ci NOT NULL,
+  `rt_m` text COLLATE utf8mb4_unicode_ci NOT NULL,
+  `rt_ah` decimal(10,4) unsigned DEFAULT NULL,
+  `rt_ad` decimal(10,4) unsigned DEFAULT NULL,
+  `rt_aw` decimal(10,4) unsigned DEFAULT NULL,
+  `rt_am` decimal(10,4) unsigned DEFAULT NULL,
+  `pd` smallint(5) unsigned DEFAULT 0 COMMENT 'period',
+  `pd_f` datetime DEFAULT NULL,
+  `pd_l` datetime DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--■■■■ channel_y ■■■■
+CREATE TABLE IF NOT EXISTS `channel_y` (
+  `id` varchar(24) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
+  `title` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `date` datetime DEFAULT NULL COMMENT 'publishedAt',
+  `des` text COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'description',
+  `handle` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'customUrl',
+  `img` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'thumbnails_medium',
+  `banner` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `vw` bigint(20) unsigned DEFAULT NULL COMMENT 'viewCount',
+  `vw_h` text COLLATE utf8mb4_unicode_ci NOT NULL,
+  `vw_d` text COLLATE utf8mb4_unicode_ci NOT NULL,
+  `vw_w` text COLLATE utf8mb4_unicode_ci NOT NULL,
+  `vw_m` text COLLATE utf8mb4_unicode_ci NOT NULL,
+  `vw_ah` int(10) unsigned DEFAULT NULL,
+  `vw_ad` int(10) unsigned DEFAULT NULL,
+  `vw_aw` int(10) unsigned DEFAULT NULL,
+  `vw_am` int(10) unsigned DEFAULT NULL,
+  `sb` int(10) unsigned DEFAULT NULL COMMENT 'subscriberCount',
+  `sb_h` text COLLATE utf8mb4_unicode_ci NOT NULL,
+  `sb_d` text COLLATE utf8mb4_unicode_ci NOT NULL,
+  `sb_w` text COLLATE utf8mb4_unicode_ci NOT NULL,
+  `sb_m` text COLLATE utf8mb4_unicode_ci NOT NULL,
+  `sb_ah` int(10) DEFAULT NULL,
+  `sb_ad` int(10) DEFAULT NULL,
+  `sb_aw` int(10) DEFAULT NULL,
+  `sb_am` int(10) DEFAULT NULL,
+  `vc` int(10) unsigned DEFAULT NULL COMMENT 'videoCount',
+  `vc_h` text COLLATE utf8mb4_unicode_ci NOT NULL,
+  `vc_d` text COLLATE utf8mb4_unicode_ci NOT NULL,
+  `vc_w` text COLLATE utf8mb4_unicode_ci NOT NULL,
+  `vc_m` text COLLATE utf8mb4_unicode_ci NOT NULL,
+  `vc_ah` int(10) DEFAULT NULL,
+  `vc_ad` int(10) DEFAULT NULL,
+  `vc_aw` int(10) DEFAULT NULL,
+  `vc_am` int(10) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--■■■■ channel_z ■■■■
+CREATE TABLE IF NOT EXISTS `channel_z` (
+  `id` varchar(24) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
+  `rc` varchar(2) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'regionCode',
+  `rn_b` tinyint(3) unsigned DEFAULT 101,
+  `rn_t` datetime DEFAULT NULL,
+  `rn_h` text COLLATE utf8mb4_unicode_ci NOT NULL,
+  `rn_d` text COLLATE utf8mb4_unicode_ci NOT NULL,
+  `rn_w` text COLLATE utf8mb4_unicode_ci NOT NULL,
+  `rn_m` text COLLATE utf8mb4_unicode_ci NOT NULL,
+  `rt_h` text COLLATE utf8mb4_unicode_ci NOT NULL,
+  `rt_d` text COLLATE utf8mb4_unicode_ci NOT NULL,
+  `rt_w` text COLLATE utf8mb4_unicode_ci NOT NULL,
+  `rt_m` text COLLATE utf8mb4_unicode_ci NOT NULL,
+  `pd` smallint(5) unsigned DEFAULT 0 COMMENT 'period',
+  `pd_n` smallint(5) unsigned NOT NULL DEFAULT 0,
+  `pd_f` datetime DEFAULT NULL,
+  `pd_l` datetime DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--■■■■ stats ■■■■
+CREATE TABLE IF NOT EXISTS `result` (
+  `date` date NOT NULL,
+  `rc` varchar(2) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'regionCode',
+  `cat` tinyint(2) unsigned NOT NULL DEFAULT 0,
+  `type` varchar(2) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `5` int(10) unsigned NOT NULL DEFAULT 0,
+  `6` int(10) unsigned NOT NULL DEFAULT 0,
+  `7` int(10) unsigned NOT NULL DEFAULT 0,
+  `8` int(10) unsigned NOT NULL DEFAULT 0,
+  `9` int(10) unsigned NOT NULL DEFAULT 0,
+  `10` int(10) unsigned NOT NULL DEFAULT 0,
+  `11` int(10) unsigned NOT NULL DEFAULT 0,
+  `12` int(10) unsigned NOT NULL DEFAULT 0,
+  `13` int(10) unsigned NOT NULL DEFAULT 0,
+  `14` int(10) unsigned NOT NULL DEFAULT 0,
+  `15` int(10) unsigned NOT NULL DEFAULT 0,
+  `16` int(10) unsigned NOT NULL DEFAULT 0,
+  `17` int(10) unsigned NOT NULL DEFAULT 0,
+  `18` int(10) unsigned NOT NULL DEFAULT 0,
+  `19` int(10) unsigned NOT NULL DEFAULT 0,
+  `20` int(10) unsigned NOT NULL DEFAULT 0,
+  `21` int(10) unsigned NOT NULL DEFAULT 0,
+  `22` int(10) unsigned NOT NULL DEFAULT 0,
+  `23` int(10) unsigned NOT NULL DEFAULT 0,
+  `0` int(10) unsigned NOT NULL DEFAULT 0,
+  `1` int(10) unsigned NOT NULL DEFAULT 0,
+  `2` int(10) unsigned NOT NULL DEFAULT 0,
+  `3` int(10) unsigned NOT NULL DEFAULT 0,
+  `4` int(10) unsigned NOT NULL DEFAULT 0
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --■■■■ video_00（test） ■■■■
 ALTER VIEW video_00 AS
@@ -502,11 +665,13 @@ SELECT
 	z.rc AS rc,
 	z.flag AS flag,
 	y.title AS t_v,
-	y.date AS v_d,
+	y.date AS d_v,
 	y.ch AS ch,
 	c.title AS t_c,
-	c.date AS c_d,
-	y.vw AS vw,
+	c.date AS d_c,
+	c.sb AS sb,
+	c.vw AS v_c,
+	y.vw AS v_v,
 	y.lk AS lk,
 	z.rn AS rn,
 	z.cat AS cat,

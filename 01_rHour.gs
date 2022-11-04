@@ -1104,8 +1104,8 @@ function rHour(rc) {
           a.drop[cNo[i]][h]  = Drop[cNo[i]];
         }
         const arg = {
-          content: JSON.stringify(a),
-          excerpt: tHour
+          excerpt: String(tHour),
+          content: JSON.stringify(a)
         }
         console.log(wpAPI(pURL+id, arg));
         console.log('日次ランキング結果アップデート : '+tLabel+'\nid : '+id);
