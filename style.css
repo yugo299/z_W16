@@ -60,15 +60,17 @@ article.featured-media span {font-size: 60px}
 .vlll {height: 180px}
 .vlll img{width: 320px; height: 180px; position: absolute; left: 50%; transform: translate(-50%, 0); -webkit-transform: translate(-50%, 0); -ms-transform: translate(-50%, 0); border-style: solid; border-width: 0 5px; border-color: var(--c1)}
 
-.vs {text-align: center}
-.vs tbody tr {display: flex; justify-content: flex-end; flex-wrap: wrap; position: relative; padding: 5px; content-visibility: auto; contain-intrinsic-size: 70px}
-.vs th {position: -webkit-sticky; position: sticky; top: 0; z-index: 1}
+.vs, .cs {text-align: center}
+.vs tbody tr, .cs tbody tr {display: flex; justify-content: flex-end; flex-wrap: wrap; position: relative; padding: 5px; content-visibility: auto; contain-intrinsic-size: 70px}
+.vs th, .cs th {position: -webkit-sticky; position: sticky; top: 0; z-index: 1}
 .vs div:has(img) {width: 108px; height: 60px; margin: 5px 0; position: relative; overflow: hidden}
 .vs img {height: 81px; object-fit: cover; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); -webkit-transform: translate(-50%, -50%); -ms-transform: translate(-50%, -50%)}
-.vs .r33 {width: calc((100% - 108px) * 0.30)}
+.cs div:has(img) {width: 70px; height: 60px; margin: 5px 0}
+.cs img {height: 60px; width: 60px; margin: 0 auto; border-radius: 50%}
 .vs .r25 {width: calc((100% - 108px) * 0.25)}
-.vs .lc {padding-left: 110px}
-.vs th .c01 {width: 108px}
+.cs .r20 {width: calc((100% - 70px) * 0.20)} .cs .r30 {width: calc((100% - 70px) * 0.30)}
+.vs .lc {padding-left: 110px} .cs .lc {padding-left: 80px}
+.vs th .c01 {width: 108px} .cs th .c01 {width: 90px}
 
 .vl table {width: 100%}
 .vl tbody {display: grid; grid-template-areas: "a a a" "b c d" "e f g" "h i j" "k k k"; grid-template-columns: repeat(3, 1fr); gap: 0 2px}

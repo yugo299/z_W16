@@ -151,6 +151,7 @@ function rHour(rc) {
   const mLen = 60;
 
   const sURL = 'https://ratio100.com';
+  const aURL = sURL + '/wp-json/ratio-zid/zid/a/';
   const vURL = sURL + '/wp-json/ratio-zid/zid/video/';
   const cURL = sURL + '/wp-json/ratio-zid/zid/channel/';
   const iURL = sURL + '/wp-json/ratio-zid/zid/image';
@@ -1103,11 +1104,35 @@ function rHour(rc) {
           a.new[cNo[i]][h]   = New[cNo[i]];
           a.drop[cNo[i]][h]  = Drop[cNo[i]];
         }
-        const arg = {
+        let arg = {
           excerpt: String(tHour),
           content: JSON.stringify(a)
         }
         console.log(wpAPI(pURL+id, arg));
+
+        const type = {'61':'vw', '62':'lk', '63':'cm'}
+        arg = {stats:[]}
+
+        for (let i=0; i<cNo.length; i++) {
+          let a = { date:today, rc:rc, cat:cNo[i], type:'st'};
+          a[tHour] = Still[cNo[i]];
+          arg.stats.push(a);
+
+          a = { date:today, rc:rc, cat:cNo[i], type:'nw'};
+          a[tHour] = New[cNo[i]];
+          arg.stats.push(a);
+        }
+
+        for (let i=61; i<=63; i++) {
+          const res = wpAPI(aURL+i+'/'+rc);
+          res.forEach(r => {
+            let a = { date:today, rc:rc, cat:r.cat, type:type[i]};
+            a[tHour] = r[[type[i]]];
+            arg.stats.push(a);
+          })
+        }
+        console.log({step:'stats', date:today, hour:tHour, r:wpAPI(aURL, arg)});
+
         console.log('日次ランキング結果アップデート : '+tLabel+'\nid : '+id);
 
       } else { console.log('実施済み : 日次ランキング結果アップデート\nid : '+id) }

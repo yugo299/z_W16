@@ -4,7 +4,7 @@ function fOther() {
   //let a = {video_y: {idddd:'QNqD-vWkea0'}}
   //let id = 'UCzy1nQFnKpacpu1E3uRMMVw';
 
-  let r = wpAPI(pURL+11);
+  //let r = wpAPI(pURL+11);
   //r.unshift(['id','rc','cat','flag','rn','num']);
   //ssWrite(xSheet,r);
 
@@ -17,11 +17,12 @@ function fOther() {
   //ytActivities();
   //ytPopular();
   //wpScreenshot();
+  wpStats('jp');
   //r = wpImage();
 
   //r = ytChannel(id)
 
-  console.log(r);
+  //console.log(r);
 }
 
 //■■■■ 変数 ■■■■
@@ -292,7 +293,7 @@ function wpImage() {
   return wpAPI(vURL, wA);
 }
 
-function wpPage() {
+function wpPage(parent) {
 
   function pArguments(id, slug) {
     a = {
@@ -327,7 +328,6 @@ function wpPage() {
   const s = 50;
   let slug = y + 1;
   let id = Number(slug+'00'+s);
-  let parent = 4;
   pArguments(id, slug);
 
   while (y < e) {
@@ -339,7 +339,7 @@ function wpPage() {
       w = 0;
       m = ts.getMonth()+1;
       slug = (m < 10)? ('0'+m): String(m);
-      id = Number(y+slug)+s;
+      id = Number(y+slug+'00') + s;
       parent = y+'00'+s;
       pArguments(id, slug);
       parent = id;
@@ -348,7 +348,7 @@ function wpPage() {
 
     if (ts.getDay()===0) {
       slug = String(70 + (++w));
-      id = Number(y + ((m<10)? ('0'+m): String(m)) + slug) + s;
+      id = Number(y + ((m<10)? ('0'+m): String(m)) + slug) - 30 + s;
       pArguments(id, slug);
     }
 
@@ -496,3 +496,20 @@ function wpScreenshot() {
   return wpAPI(iURL, arg);
 }
 
+function wpStats(rc) {
+  const hour = 17;
+  const date = '2022-11-03';
+  const type = {'61':'vw', '62':'lk', '63':'cm'}
+  const arg = {stats:[]}
+
+  for (let i=61; i<=63; i++) {
+    const res = wpAPI(aURL+i+'/'+rc);
+    res.forEach(r => {
+      let a = { date:date, rc:rc, cat:r.cat, type:type[i]};
+      a[hour] = r[[type[i]]];
+      arg.stats.push(a);
+    })
+  }
+  const res = wpAPI(aURL, arg);
+  console.log(res);
+}

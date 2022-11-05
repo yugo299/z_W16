@@ -6,9 +6,10 @@ a_06 : チャンネル-ランキング最高順位（現在）
 a_07 : チャンネル-ランキング最高順位（通期）
 a_08 : チャンネル-レシオ（現在/期間別）
 a_11 : 急上昇ランキング（トップ/カテゴリ別）
-a_61 : スタッツ-再生回数
-a_62 : スタッツ-高評価数
-a_63 : スタッツ-コメント
+a_61 : スタッツ-再生回数（デイリー/カテゴリ別）
+a_62 : スタッツ-高評価数（デイリー/カテゴリ別）
+a_63 : スタッツ-コメント（デイリー/カテゴリ別）
+a_77 : チャンネル-詳細（一覧ページ用）
 a_78 : チャンネル-詳細（個別ページ用）
 a_79 : 動画-一覧（個別ページ用）
 a_89 : メタタグ-動画/チャンネル
@@ -608,6 +609,59 @@ WHERE
 	z.flag < 24
 ORDER BY
 	z.rn ASC
+
+--■■■■ a_61 : スタッツ-再生回数（デイリー/カテゴリ別） ■■■■
+ALTER VIEW a_61 AS
+SELECT v.rc AS rc, v.cat AS cat, SUM(v.vw_ah) AS vw
+FROM (
+	SELECT z.id AS id, z.rc AS rc, z.cat AS cat, y.vw_ah AS vw_ah
+	FROM video_z AS z
+		LEFT JOIN video_y AS y ON z.id = y.id
+	WHERE y.vw_ah IS NOT NULL AND z.flag < 24
+) AS v GROUP BY rc, cat ORDER BY rc, cat ASC
+
+--■■■■ a_62 : スタッツ-高評価数（デイリー/カテゴリ別） ■■■■
+ALTER VIEW a_62 AS
+SELECT v.rc AS rc, v.cat AS cat, SUM(v.lk_ah) AS lk
+FROM (
+	SELECT z.id AS id, z.rc AS rc, z.cat AS cat, y.lk_ah AS lk_ah
+	FROM video_z AS z
+		LEFT JOIN video_y AS y ON z.id = y.id
+	WHERE y.lk_ah IS NOT NULL AND z.flag < 24
+) AS v GROUP BY rc, cat ORDER BY rc, cat ASC
+
+--■■■■ a_63 : スタッツ-コメント（デイリー/カテゴリ別） ■■■■
+ALTER VIEW a_63 AS
+SELECT v.rc AS rc, v.cat AS cat, SUM(v.cm_ah) AS cm
+FROM (
+	SELECT z.id AS id, z.rc AS rc, z.cat AS cat, y.cm_ah AS cm_ah
+	FROM video_z AS z
+		LEFT JOIN video_y AS y ON z.id = y.id
+	WHERE y.cm_ah IS NOT NULL AND z.flag < 24
+) AS v GROUP BY rc, cat ORDER BY rc, cat ASC
+
+--■■■■ a_77 : チャンネル-詳細（一覧ページ用） ■■■■
+ALTER VIEW a_77 AS
+SELECT
+	c.rt AS rt,
+	y.title AS t_c,
+	y.id AS ch,
+	c.rn AS rn,
+	y.vw AS vw,
+	y.sb AS sb,
+	y.img AS img,
+	c.rc AS rc
+FROM (
+	SELECT
+		vy.ch AS ch,
+		vz.rc AS rc,
+		SUM(vz.rt) AS rt,
+		MIN(vz.rn) AS rn
+	FROM (SELECT id AS vd, rc, MIN(rn) AS rn, SUM(rt) AS rt FROM video_z WHERE flag < 24 GROUP BY id, rc) AS vz
+		LEFT JOIN video_y AS vy ON vz.vd = vy.id GROUP BY ch, rc
+	) AS c
+	LEFT JOIN	channel_y AS y ON y.id = c.ch
+ORDER BY rt DESC
 
 --■■■■ a_78 : チャンネル-詳細（個別ページ用） ■■■■
 ALTER VIEW a_78 AS
