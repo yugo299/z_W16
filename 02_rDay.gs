@@ -27,7 +27,7 @@ const msKey = 'cb4064ed957644f485ca6ebe1ec96ce5';
 
 const CONSUMER_KEY = 'TaaTCR2HJ3hr5Tor5rDGfkhBs';
 const CONSUMER_SECRET = 'XfrWXBSiF0YCvLTN3JGXyK41wv8fo5PWdRhsG7RpIdWokRoIuv';
-const client = TwitterClient2.getInstance(CONSUMER_KEY, CONSUMER_SECRET)
+const client = TwitterClient2.getInstance(CONSUMER_KEY, CONSUMER_SECRET);
 
 const rFile = SpreadsheetApp.openById('1WsUl5TYWxcE4ltAisWPja9fkqb5hd48uvAeT-r5HrQ4');
 const fSheet = rFile.getSheetByName('F');

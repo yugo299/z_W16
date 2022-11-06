@@ -3,12 +3,12 @@ function rFetch() {
   /** ■■■■ 実施判定 ■■■■ */
   let x = new Date(Utilities.formatDate(new Date(), 'JST', 'yyyy-MM-dd HH:mm:ss'));
   x = x.getHours();
-  if (x>18 && x<23) { x = 4; }
+  if (x>18) { x = 4; }
   else if (x>10) { x = 6; }
-  else if (x<2 && x>6) { x = 8; }
+  else if (x<2 || x>6) { x = 8; }
   else { x = 0; }
-  x = (x)? Math.round(Math.random()*10) % x: x;
-  if (!x) { return console.log('実施対象外') }
+  x = (x)? Math.round(Math.random()*10) % x: 10;
+  if (x) { return console.log('実施対象外 : '+x) }
 
   /** ■■■■ ブログランキング ■■■■ */
   let url = 'https://blog.with2.net/link/?id=2093058';
@@ -16,7 +16,8 @@ function rFetch() {
 
   let res = UrlFetchApp.fetch(url, options).getContentText();
   x = res.indexOf('2093058');
-  x = res.slice(x-40,x+40);
+  x = res.slice(x-60,x+60).replace('\n', '');
+  console.log(x);
   let regexp = /(.*)link(.*)">(.*)/;
   url = 'https://blog.with2.net/link' + x.replace(regexp,'$2') +'&wh=1';
   console.log(url);
@@ -24,6 +25,7 @@ function rFetch() {
   res = UrlFetchApp.fetch(url, options).getContentText();
   x = res.indexOf('Fratio100.com%');
   x = res.slice(x-60,x+60);
+  console.log(x);
   regexp = /(.*)php(.*)" (.*)/;
   url = 'https://blog.with2.net/out.php' + x.replace(regexp,'$2');
   console.log(url);
@@ -41,6 +43,7 @@ function rFetch() {
   res = UrlFetchApp.fetch(url, options).getContentText();
   x = res.indexOf('Fratio100.com%');
   x = res.slice(x-80,x+80).replace('\n', '').replace(/amp;/g, '');
+  console.log(x);
   regexp = /(.*)out\/(.*)" (.*)/;
   url = 'https://link.blogmura.com/out/' + x.replace(regexp,'$2');
   console.log(url);

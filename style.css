@@ -72,14 +72,14 @@ article.featured-media span {font-size: 60px}
 .vs .lc {padding-left: 110px} .cs .lc {padding-left: 80px}
 .vs th .c01 {width: 108px} .cs th .c01 {width: 90px}
 
-.vl table {width: 100%}
-.vl tbody {display: grid; grid-template-areas: "a a a" "b c d" "e f g" "h i j" "k k k"; grid-template-columns: repeat(3, 1fr); gap: 0 2px}
-.vl tr {padding: 0 5px}
-.vl tr:nth-child(n + 2) {display: flex; justify-content: space-between}
+.vl table, .cl table {width: 100%}
+.vl tbody, .cl tbody {display: grid; grid-template-areas: "a a a" "b c d" "e f g" "h i j" "k k k"; grid-template-columns: repeat(3, 1fr); gap: 0 2px}
+.vl tr, .cl tr {padding: 0 5px}
+.vl tr:nth-child(n + 2), .cl tr:nth-child(n + 2) {display: flex; justify-content: space-between}
 .vl img {height: 180px; width: 320px}
-.vl .g-b, .vl .g-d, .vl .g-h, .vl .g-j {background: #eee}
-.vl .g-a, .vl .g-e, .vl .g-g, .vl .g-k {background: #ddd}
-.vl .g-k div {border-width: 1px 0; border-color: #666; border-style: dashed; padding: 5px 0}
+.vl .g-b, .vl .g-d, .vl .g-i, .cl .g-c, .cl .g-d, .cl .g-i {background: #eee}
+.vl .g-a, .vl .g-f, .vl .g-k, .cl .g-a, .cl .g-g, .cl .g-k {background: #ddd}
+.vl .g-k div, .cl .g-k div {border-width: 1px 0; border-color: #666; border-style: dashed; padding: 5px 0}
 
 .cm table {width: calc(100% - 106px)}
 .cm tbody {display: grid; grid-template-areas: "a a" "b c" "d e"; grid-template-columns: repeat(2, 1fr); gap: 0 2px}
@@ -88,8 +88,9 @@ article.featured-media span {font-size: 60px}
 .cm .g-b, .cm .g-c {background: #eee}
 .cm .g-a, .cm .g-d, .cm .g-e {background: #ddd}
 
-.banner:has(img) {width: 600px; height: 150px; position: relative; overflow: hidden}
-.banner img {position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); -webkit-transform: translate(-50%, -50%); -ms-transform: translate(-50%, -50%)}
+div:has(.banner) {width: 100%; height: 140px; position: relative; overflow: hidden}
+.banner {width: 600px; height: 338px; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); -webkit-transform: translate(-50%, -50%); -ms-transform: translate(-50%, -50%)}
+.logo {height: 60px; width: 60px; position: absolute; top: 10px; left: 10px; border-radius: 50%}
 
 .w2 {width: 20%} .w6 {width: 60%} .w8 {width: 80%} .w10 {width: 100%}
 .w60 {width: 60px} .w90 {width: 90px} .w100 {width: 100px} .w220 {width: 220px} .w160 {width: 160px}

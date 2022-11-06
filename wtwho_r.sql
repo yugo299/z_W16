@@ -146,8 +146,8 @@ CREATE TABLE IF NOT EXISTS `channel_z` (
 CREATE TABLE IF NOT EXISTS `result` (
   `date` date NOT NULL,
   `rc` varchar(2) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'regionCode',
-  `cat` tinyint(2) unsigned NOT NULL DEFAULT 0,
   `type` varchar(2) COLLATE utf8mb4_unicode_ci NOT NULL,
+	`cat` tinyint(2) unsigned NOT NULL DEFAULT 0,
   `5` int(10) unsigned NOT NULL DEFAULT 0,
   `6` int(10) unsigned NOT NULL DEFAULT 0,
   `7` int(10) unsigned NOT NULL DEFAULT 0,
@@ -672,6 +672,7 @@ SELECT
 	y.vc AS vc,
 	c.rt AS rt,
 	y.des AS des,
+	y.date AS date,
 	y.img AS img,
 	y.banner AS banner,
 	z.id AS ch,
