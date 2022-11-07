@@ -1,4 +1,4 @@
 User-agent: *
-Disallow: /link/
+Disallow: /link/*
 
 Sitemap: https://ratio100.com/sitemap_index.xml

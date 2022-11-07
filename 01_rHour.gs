@@ -301,6 +301,20 @@ function rHour(rc) {
     return val
   }
 
+  function strPeriod(f, pd) {
+    const now = new Date(tLabel);
+    const before = new Date(pd);
+    let val = now.getTime() - before.getTime();
+
+    if (f==='H') { val = Math.round(val/3600000); }
+    else if (f==='D') { val = Math.round(val/(86400000)); }
+    else if (f==='W') { val = Math.round(val/(604800000)); }
+
+    let str = '';
+    for (let i=0; i<val; i++) { str += ','; }
+    return str;
+  }
+
   function strHandle() {
     if (!str) { return }
     else if (str.slice(0,6) === '@user-') { return }
@@ -327,7 +341,6 @@ function rHour(rc) {
   }
 
   function vArguments(f) {
-
     const wJ = (f==='N')? false: data[w];
     const yJ = (f==='D')? todo[y]: yV[y];
     let a = {};
@@ -416,16 +429,17 @@ function rHour(rc) {
     }
     if (wJ) {
       done[0]++;
-      a.vw_h = strLen(wJ.vw_h +','+ ((a.vw==null)? '': a.vw), hLen);
-      a.lk_h = strLen(wJ.lk_h +','+ ((a.lk==null)? '': a.lk), hLen);
-      a.cm_h = strLen(wJ.cm_h +','+ ((a.cm==null)? '': a.cm), hLen);
-      a.vw_ah = (a.vw==null || wJ.vw==null)? null: a.vw - Number(wJ.vw);
-      a.lk_ah = (a.lk==null || wJ.lk==null)? null: a.lk - Number(wJ.lk);
-      a.cm_ah = (a.cm==null || wJ.cm==null)? null: a.cm - Number(wJ.cm);
+      const c = strPeriod('H', wJ.pd_l);
+      a.vw_h = strLen(wJ.vw_h + c + ((a.vw==null)? '': a.vw), hLen);
+      a.lk_h = strLen(wJ.lk_h + c + ((a.lk==null)? '': a.lk), hLen);
+      a.cm_h = strLen(wJ.cm_h + c + ((a.cm==null)? '': a.cm), hLen);
+      a.vw_ah = (a.vw==null || wJ.vw==null || Number(wJ.flag)===30)? null: a.vw - Number(wJ.vw);
+      a.lk_ah = (a.lk==null || wJ.lk==null || Number(wJ.flag)===30)? null: a.lk - Number(wJ.lk);
+      a.cm_ah = (a.cm==null || wJ.cm==null || Number(wJ.flag)===30)? null: a.cm - Number(wJ.cm);
       if (f==='S') {
-        a.vw_a = Number(wJ.vw_a) + a.vw_h;
-        a.lk_a = Number(wJ.lk_a) + a.lk_h;
-        a.cm_a = Number(wJ.cm_a) + a.cm_h;
+        a.vw_a = (Number(wJ.flag)!==30)? Number(wJ.vw_a) + a.vw_ah: null;
+        a.lk_a = (Number(wJ.flag)!==30)? Number(wJ.lk_a) + a.lk_ah: null;
+        a.cm_a = (Number(wJ.flag)!==30)? Number(wJ.cm_a) + a.cm_ah: null;
       }
     } else {
       done[1]++;
@@ -447,18 +461,20 @@ function rHour(rc) {
       a.cm_m = Array(mLen).join();
     }
     if (tHour === 4) {
-      a.vw_d = strLen(wJ.vw_d +','+ ((a.vw==null)? '': a.vw), dLen);
-      a.lk_d = strLen(wJ.lk_d +','+ ((a.lk==null)? '': a.lk), dLen);
-      a.cm_d = strLen(wJ.cm_d +','+ ((a.cm==null)? '': a.cm), dLen);
+      const c = strPeriod('D', wJ.pd_l);
+      a.vw_d = strLen(wJ.vw_d + c + ((a.vw==null)? '': a.vw), dLen);
+      a.lk_d = strLen(wJ.lk_d + c + ((a.lk==null)? '': a.lk), dLen);
+      a.cm_d = strLen(wJ.cm_d + c + ((a.cm==null)? '': a.cm), dLen);
       const sub = strSub('D', a.vw_h, a.lk_h, a.cm_h);
       a.vw_ad = (a.vw==null)? null: a.vw - sub[0];
       a.lk_ad = (a.lk==null)? null: a.lk - sub[1];
       a.cm_ad = (a.cm==null)? null: a.cm - sub[2];
     }
     if (tHour === 4 && tDay === 0) {
-      a.vw_w = strLen(wJ.vw_w +','+ ((a.vw==null)? '': a.vw), wLen);
-      a.lk_w = strLen(wJ.lk_w +','+ ((a.lk==null)? '': a.lk), wLen);
-      a.cm_w = strLen(wJ.cm_w +','+ ((a.cm==null)? '': a.cm), wLen);
+      const c = strPeriod('W', wJ.pd_l);
+      a.vw_w = strLen(wJ.vw_w + c + ((a.vw==null)? '': a.vw), wLen);
+      a.lk_w = strLen(wJ.lk_w + c + ((a.lk==null)? '': a.lk), wLen);
+      a.cm_w = strLen(wJ.cm_w + c + ((a.cm==null)? '': a.cm), wLen);
       const sub = strSub('W', a.vw_d, a.lk_d, a.cm_d);
       a.vw_aw = (a.vw==null)? null: a.vw - sub[0];
       a.lk_aw = (a.lk==null)? null: a.lk - sub[1];
@@ -485,6 +501,7 @@ function rHour(rc) {
       rt_ah: (f==='D')? null: yJ.rt
     }
     if (wJ) {
+      const c = strPeriod('H', wJ.pd_l);
       a.rn_i = wJ.rn_i;
       a.rn_b = wJ.rn_b;
       a.rn_t = wJ.rn_t;
@@ -492,8 +509,8 @@ function rHour(rc) {
       a.pd_f = wJ.pd_f;
       a.pd_l = wJ.pd_l;
       a.rt = (yJ.rt==null)? Number(wJ.rt): numR(Number(wJ.rt) + yJ.rt);
-      a.rn_h = strLen(wJ.rn_h +','+ ((yJ.rn==null)? '': yJ.rn), hLen);
-      a.rt_h = strLen(wJ.rt_h +','+ a.rt, hLen);
+      a.rn_h = strLen(wJ.rn_h + c + ((yJ.rn==null)? '': yJ.rn), hLen);
+      a.rt_h = strLen(wJ.rt_h + c + a.rt, hLen);
       if (!(yJ.rn >= wJ.rn_b) && f==='S') {
         a.rn_b = yJ.rn;
         a.rn_t = tLabel;
@@ -523,15 +540,17 @@ function rHour(rc) {
       a.pd_l = tLabel;
     }
     if (tHour === 4) {
+      const c = strPeriod('D', wJ.pd_l);
       const sub = strSub('D', a.rt_h, a.rt_h, a.rt_h);
-      a.rn_d = strLen(wJ.rn_d +','+ strMin('D', a.rn_h), dLen);
-      a.rt_d = strLen(wJ.rt_d +','+ a.rt, dLen);
+      a.rn_d = strLen(wJ.rn_d + c + strMin('D', a.rn_h), dLen);
+      a.rt_d = strLen(wJ.rt_d + c + a.rt, dLen);
       a.rt_ad = (a.rt === sub)? null: numR(a.rt - sub[0]);
     }
     if (tHour === 4 && tDay === 0) {
+      const c = strPeriod('W', wJ.pd_l);
       const sub = strSub('W', a.rt_d, a.rt_d, a.rt_d);
-      a.rn_w = strLen(wJ.rn_w +','+ strMin('W', a.rn_d), wLen);
-      a.rt_w = strLen(wJ.rt_w +','+ a.rt, wLen);
+      a.rn_w = strLen(wJ.rn_w + c + strMin('W', a.rn_d), wLen);
+      a.rt_w = strLen(wJ.rt_w + c + a.rt, wLen);
       a.rt_aw = (a.rt === sub)? null: numR(a.rt - sub[0]);
     }
     if (tHour === 4 && nDate === 1) {
@@ -542,7 +561,7 @@ function rHour(rc) {
     }
     wZ.video_z.push(a);
 
-    if (f!=='D'){Rank[a.rn][a.cat] = a.id;}
+    if (f!=='D' && wJ.flag!=='30'){Rank[a.rn][a.cat] = a.id;}
     if (a.flag!==tHour && a.flag!==24) { console.log(a); }
   }
 
@@ -615,9 +634,10 @@ function rHour(rc) {
       vc: yJ.statistics.videoCount,
     }
     if (wJ.date!=null) {
-      a.vw_h = strLen(wJ.vw_h +','+ ((a.vw==null)? '': a.vw), hLen);
-      a.sb_h = strLen(wJ.sb_h +','+ ((a.sb==null)? '': a.sb), hLen);
-      a.vc_h = strLen(wJ.vc_h +','+ ((a.vc==null)? '': a.vc), hLen);
+      const c = strPeriod('H', wJ.pd_l);
+      a.vw_h = strLen(wJ.vw_h + c + ((a.vw==null)? '': a.vw), hLen);
+      a.sb_h = strLen(wJ.sb_h + c + ((a.sb==null)? '': a.sb), hLen);
+      a.vc_h = strLen(wJ.vc_h + c + ((a.vc==null)? '': a.vc), hLen);
       a.vw_ah = (a.vw==null || wJ.vw==null)? null: a.vw - Number(wJ.vw);
       a.sb_ah = (a.sb==null || wJ.sb==null)? null: a.sb - Number(wJ.sb);
       a.vc_ah = (a.vc==null || wJ.vc==null)? null: a.vc - Number(wJ.vc);
@@ -637,18 +657,20 @@ function rHour(rc) {
       a.vc_m = Array(mLen).join();
     }
     if (tHour === 4) {
-      a.vw_d = strLen(wJ.vw_d +','+ ((a.vw==null)? '': a.vw), dLen);
-      a.sb_d = strLen(wJ.sb_d +','+ ((a.sb==null)? '': a.sb), dLen);
-      a.vc_d = strLen(wJ.vc_d +','+ ((a.vc==null)? '': a.vc), dLen);
+      const c = strPeriod('D', wJ.pd_l);
+      a.vw_d = strLen(wJ.vw_d + c + ((a.vw==null)? '': a.vw), dLen);
+      a.sb_d = strLen(wJ.sb_d + c + ((a.sb==null)? '': a.sb), dLen);
+      a.vc_d = strLen(wJ.vc_d + c + ((a.vc==null)? '': a.vc), dLen);
       const sub = strSub('D', a.vw_h, a.sb_h, a.vc_h);
       a.vw_ad = (a.vw==null)? null: a.vw - sub[0];
       a.sb_ad = (a.sb==null)? null: a.sb - sub[1];
       a.vc_ad = (a.vc==null)? null: a.vc - sub[2];
     }
     if (tHour === 4 && tDay === 0) {
-      a.vw_w = strLen(wJ.vw_w +','+ ((a.vw==null)? '': a.vw), wLen);
-      a.sb_w = strLen(wJ.sb_w +','+ ((a.sb==null)? '': a.sb), wLen);
-      a.vc_w = strLen(wJ.vc_w +','+ ((a.vc==null)? '': a.vc), wLen);
+      const c = strPeriod('W', wJ.pd_l);
+      a.vw_w = strLen(wJ.vw_w + c + ((a.vw==null)? '': a.vw), wLen);
+      a.sb_w = strLen(wJ.sb_w + c + ((a.sb==null)? '': a.sb), wLen);
+      a.vc_w = strLen(wJ.vc_w + c + ((a.vc==null)? '': a.vc), wLen);
       const sub = strSub('W', a.vw_d, a.sb_d, a.vc_d);
       a.vw_aw = (a.vw==null)? null: a.vw - sub[0];
       a.sb_aw = (a.sb==null)? null: a.sb - sub[1];
@@ -671,12 +693,13 @@ function rHour(rc) {
       rc: rc
     }
     if (wJ.date!=null) {
+      const c = (wJ.flag!==30)? ',': strPeriod('H', wJ.pd_l);
       a.pd   = wJ.pd;
       a.pd_n = wJ.pd_n;
       a.pd_f = wJ.pd_f;
       a.pd_l = wJ.pd_l;
-      a.rn_h = strLen(wJ.rn_h +','+ ((wJ.rn==null)? '': Number(wJ.rn)), hLen);
-      a.rt_h = strLen(wJ.rt_h +','+ Number(wJ.rt), hLen);
+      a.rn_h = strLen(wJ.rn_h + c + ((wJ.rn==null)? '': Number(wJ.rn)), hLen);
+      a.rt_h = strLen(wJ.rt_h + c + Number(wJ.rt), hLen);
       if (!(Number(wJ.rn) > Number(wJ.rn_b)) && wJ.rn!==undefined) {
         a.rn_b = Number(wJ.rn);
         a.rn_t = tLabel;
@@ -709,12 +732,14 @@ function rHour(rc) {
       done[1]++;
     }
     if (tHour === 4) {
-      a.rn_d = strLen(wJ.rn_d +','+ strMin('D', a.rn_h), dLen);
-      a.rt_d = strLen(wJ.rt_d +','+ a.rt, dLen);
+      const c = (wJ.flag!==30)? ',': strPeriod('D', wJ.pd_l);
+      a.rn_d = strLen(wJ.rn_d + c + strMin('D', a.rn_h), dLen);
+      a.rt_d = strLen(wJ.rt_d + c + a.rt, dLen);
     }
     if (tHour === 4 && tDay === 0) {
-      a.rn_w = strLen(wJ.rn_w +','+ strMin('W', a.rn_d), wLen);
-      a.rt_w = strLen(wJ.rt_w +','+ a.rt, wLen);
+      const c = (wJ.flag!==30)? ',': strPeriod('W', wJ.pd_l);
+      a.rn_w = strLen(wJ.rn_w + c + strMin('W', a.rn_d), wLen);
+      a.rt_w = strLen(wJ.rt_w + c + a.rt, wLen);
     }
     if (tHour === 4 && nDate === 1) {
       a.rn_m = strLen(wJ.rn_m +','+ strMin('M', a.rn_m), mLen);
@@ -920,7 +945,6 @@ function rHour(rc) {
   function step_vp() { //vPost
     err = {};
     try {
-      yV = [];
       wD = [];
       Rank = [...Array(101)].map(()=>Array(30));
       Rank[0] = [,1,2,,,,,,,,10,,,,,15,,17,,,20,,22,23,24,25,26,,28,''];
@@ -934,6 +958,9 @@ function rHour(rc) {
       wD = [];
       let rY = wpAPI(vURL, wY);
       let rZ = wpAPI(vURL, wZ);
+      console.log({'rY':rY.r.y.length, 'rZ':rZ.r.z.length});
+      data = rZ.r.z;
+
       console.log('vPost（処理結果）\nvideo_y : '+rY.y+' = '+(rY.t+rY.u+rY.f)+'（正常/変更なし/エラー：'+rY.t+' / '+rY.u+' / '+rY.f+'）\nvideo_z : '+rZ.z+' = '+(rZ.t+rZ.u+rZ.f)+'（正常/変更なし/エラー：'+rZ.t+' / '+rZ.u+' / '+rZ.f+'）');
     } catch (e) {
       console.log('vPost\n' + e.message);
@@ -948,6 +975,38 @@ function rHour(rc) {
   if (t===3) {
     ssEnd('doing_'+rc);
     return console.log('【途中終了】エラー回数超過\nvPost')
+  }
+
+  function step_vr() { //vRetry
+    err = {};
+    try {
+      wY = {video_y:[]};
+      wZ = {video_z:[]};
+      Rank = [...Array(101)].map(()=>Array(30));
+
+      for (w=0; w<data.length; w++) {
+        cat = Number(data[w].cat);
+        y = yV.findIndex(v => (v.id===data[w].id && v.cat===cat));
+        vArguments('S');
+      }
+      let rY = wpAPI(vURL, wY);
+      let rZ = wpAPI(vURL, wZ);
+      console.log({'rY':rY.r.y.length, 'rZ':rZ.r.z.length});
+
+      console.log('vRetry（処理結果）\nvideo_y : '+rY.y+' = '+(rY.t+rY.u+rY.f)+'（正常/変更なし/エラー：'+rY.t+' / '+rY.u+' / '+rY.f+'）\nvideo_z : '+rZ.z+' = '+(rZ.t+rZ.u+rZ.f)+'（正常/変更なし/エラー：'+rZ.t+' / '+rZ.u+' / '+rZ.f+'）');
+    } catch (e) {
+      console.log('vRetry\n' + e.message);
+      err = e;
+    }
+    finally {
+      if('message' in err && ++t < 3){ step_vr() }
+    }
+  }
+  t = 0;
+  step_vr();
+  if (t===3) {
+    ssEnd('doing_'+rc);
+    return console.log('【途中終了】エラー回数超過\nvRetry')
   }
 
   function step_cg() { //チャンネル情報取得（WP,YT）
@@ -1031,6 +1090,8 @@ function rHour(rc) {
       wD = [];
       let rY = wpAPI(cURL, wY);
       let rZ = wpAPI(cURL, wZ);
+      console.log({'rY':rY.r.y.length});
+      console.log({'rZ':rZ.r.z.length});
       console.log('cPost（処理結果）\nchannel_y : '+rY.y+' = '+(rY.t+rY.u+rY.f)+'（正常/変更なし/エラー：'+rY.t+' / '+rY.u+' / '+rY.f+'）\nchannel_z : '+rZ.z+' = '+(rZ.t+rZ.u+rZ.f)+'（正常/変更なし/エラー：'+rZ.t+' / '+rZ.u+' / '+rZ.f+'）');
     } catch (e) {
       console.log('cPost\n' + e.message);
