@@ -76,7 +76,8 @@ article.featured-media span {font-size: 60px}
 .vl tbody, .cl tbody {display: grid; grid-template-areas: "a a a" "b c d" "e f g" "h i j" "k k k"; grid-template-columns: repeat(3, 1fr); gap: 0 2px}
 .vl tr, .cl tr {padding: 0 5px}
 .vl tr:nth-child(n + 2), .cl tr:nth-child(n + 2) {display: flex; justify-content: space-between}
-.vl img {height: 180px; width: 320px}
+.vl div:has(img), .vl div:has(iframe) {height: 180px; width: 100%; display: flex; justify-content: center}
+.vl img, .vl iframe {height: 180px; width: 320px; border: 0}
 .vl .g-b, .vl .g-d, .vl .g-i, .cl .g-c, .cl .g-d, .cl .g-i {background: #eee}
 .vl .g-a, .vl .g-f, .vl .g-k, .cl .g-a, .cl .g-g, .cl .g-k {background: #ddd}
 .vl .g-k div, .cl .g-k div {border-width: 1px 0; border-color: #666; border-style: dashed; padding: 5px 0}
@@ -93,7 +94,7 @@ div:has(.banner) {width: 100%; height: 140px; position: relative; overflow: hidd
 .logo {height: 60px; width: 60px; position: absolute; top: 10px; left: 10px; border-radius: 50%}
 
 .w2 {width: 20%} .w6 {width: 60%} .w8 {width: 80%} .w10 {width: 100%}
-.w60 {width: 60px} .w90 {width: 90px} .w100 {width: 100px} .w220 {width: 220px} .w160 {width: 160px}
+.w60 {width: 60px} .w90 {width: 90px} .w100 {width: 100px} .w160 {width: 160px} .w220 {width: 220px} .w320 {width: 320px}
 .h3 {height: 30px} .h4 {height: 40px} .h5 {height: 50px} .h6 {height: 60px} .h7 {height: 70px} .h9 {height: 90px} .h10 {height: 100px} .h43 {height: 430px}
 .hm40 {max-height: 400px}
 .g10 {gap: 0 10px}

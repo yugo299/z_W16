@@ -413,8 +413,8 @@ FROM
 	video_z AS z
 	LEFT JOIN video_y AS y ON z.id = y.id
 	LEFT JOIN channel_y AS c ON y.ch = c.id
-WHERE
-	z.flag <= 24;
+WHERE z.flag <= 24
+ORDER BY flag, id ASC
 
 --■■■■ channel_24 ■■■■
 ALTER VIEW channel_24 AS

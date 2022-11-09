@@ -301,14 +301,11 @@ function rHour(rc) {
     return val
   }
 
-  function strPeriod(f, pd) {
+  function strPeriod(pd) {
     const now = new Date(tLabel);
     const before = new Date(pd);
     let val = now.getTime() - before.getTime();
-
-    if (f==='H') { val = Math.round(val/3600000); }
-    else if (f==='D') { val = Math.round(val/(86400000)); }
-    else if (f==='W') { val = Math.round(val/(604800000)); }
+    val = Math.round((val%86400000)/3600000);
 
     let str = '';
     for (let i=0; i<val; i++) { str += ','; }
@@ -429,7 +426,7 @@ function rHour(rc) {
     }
     if (wJ) {
       done[0]++;
-      const c = strPeriod('H', wJ.pd_l);
+      const c = strPeriod(wJ.pd_l);
       a.vw_h = strLen(wJ.vw_h + c + ((a.vw==null)? '': a.vw), hLen);
       a.lk_h = strLen(wJ.lk_h + c + ((a.lk==null)? '': a.lk), hLen);
       a.cm_h = strLen(wJ.cm_h + c + ((a.cm==null)? '': a.cm), hLen);
@@ -461,20 +458,18 @@ function rHour(rc) {
       a.cm_m = Array(mLen).join();
     }
     if (tHour === 4) {
-      const c = strPeriod('D', wJ.pd_l);
-      a.vw_d = strLen(wJ.vw_d + c + ((a.vw==null)? '': a.vw), dLen);
-      a.lk_d = strLen(wJ.lk_d + c + ((a.lk==null)? '': a.lk), dLen);
-      a.cm_d = strLen(wJ.cm_d + c + ((a.cm==null)? '': a.cm), dLen);
+      a.vw_d = strLen(wJ.vw_d +','+ ((a.vw==null)? '': a.vw), dLen);
+      a.lk_d = strLen(wJ.lk_d +','+ ((a.lk==null)? '': a.lk), dLen);
+      a.cm_d = strLen(wJ.cm_d +','+ ((a.cm==null)? '': a.cm), dLen);
       const sub = strSub('D', a.vw_h, a.lk_h, a.cm_h);
       a.vw_ad = (a.vw==null)? null: a.vw - sub[0];
       a.lk_ad = (a.lk==null)? null: a.lk - sub[1];
       a.cm_ad = (a.cm==null)? null: a.cm - sub[2];
     }
     if (tHour === 4 && tDay === 0) {
-      const c = strPeriod('W', wJ.pd_l);
-      a.vw_w = strLen(wJ.vw_w + c + ((a.vw==null)? '': a.vw), wLen);
-      a.lk_w = strLen(wJ.lk_w + c + ((a.lk==null)? '': a.lk), wLen);
-      a.cm_w = strLen(wJ.cm_w + c + ((a.cm==null)? '': a.cm), wLen);
+      a.vw_w = strLen(wJ.vw_w +','+ ((a.vw==null)? '': a.vw), wLen);
+      a.lk_w = strLen(wJ.lk_w +','+ ((a.lk==null)? '': a.lk), wLen);
+      a.cm_w = strLen(wJ.cm_w +','+ ((a.cm==null)? '': a.cm), wLen);
       const sub = strSub('W', a.vw_d, a.lk_d, a.cm_d);
       a.vw_aw = (a.vw==null)? null: a.vw - sub[0];
       a.lk_aw = (a.lk==null)? null: a.lk - sub[1];
@@ -501,7 +496,7 @@ function rHour(rc) {
       rt_ah: (f==='D')? null: yJ.rt
     }
     if (wJ) {
-      const c = strPeriod('H', wJ.pd_l);
+      const c = strPeriod(wJ.pd_l);
       a.rn_i = wJ.rn_i;
       a.rn_b = wJ.rn_b;
       a.rn_t = wJ.rn_t;
@@ -540,17 +535,15 @@ function rHour(rc) {
       a.pd_l = tLabel;
     }
     if (tHour === 4) {
-      const c = strPeriod('D', wJ.pd_l);
       const sub = strSub('D', a.rt_h, a.rt_h, a.rt_h);
-      a.rn_d = strLen(wJ.rn_d + c + strMin('D', a.rn_h), dLen);
-      a.rt_d = strLen(wJ.rt_d + c + a.rt, dLen);
+      a.rn_d = strLen(wJ.rn_d +','+ strMin('D', a.rn_h), dLen);
+      a.rt_d = strLen(wJ.rt_d +','+ a.rt, dLen);
       a.rt_ad = (a.rt === sub)? null: numR(a.rt - sub[0]);
     }
     if (tHour === 4 && tDay === 0) {
-      const c = strPeriod('W', wJ.pd_l);
       const sub = strSub('W', a.rt_d, a.rt_d, a.rt_d);
-      a.rn_w = strLen(wJ.rn_w + c + strMin('W', a.rn_d), wLen);
-      a.rt_w = strLen(wJ.rt_w + c + a.rt, wLen);
+      a.rn_w = strLen(wJ.rn_w +','+ strMin('W', a.rn_d), wLen);
+      a.rt_w = strLen(wJ.rt_w +','+ a.rt, wLen);
       a.rt_aw = (a.rt === sub)? null: numR(a.rt - sub[0]);
     }
     if (tHour === 4 && nDate === 1) {
@@ -634,7 +627,7 @@ function rHour(rc) {
       vc: yJ.statistics.videoCount,
     }
     if (wJ.date!=null) {
-      const c = strPeriod('H', wJ.pd_l);
+      const c = strPeriod(wJ.pd_l);
       a.vw_h = strLen(wJ.vw_h + c + ((a.vw==null)? '': a.vw), hLen);
       a.sb_h = strLen(wJ.sb_h + c + ((a.sb==null)? '': a.sb), hLen);
       a.vc_h = strLen(wJ.vc_h + c + ((a.vc==null)? '': a.vc), hLen);
@@ -657,20 +650,18 @@ function rHour(rc) {
       a.vc_m = Array(mLen).join();
     }
     if (tHour === 4) {
-      const c = strPeriod('D', wJ.pd_l);
-      a.vw_d = strLen(wJ.vw_d + c + ((a.vw==null)? '': a.vw), dLen);
-      a.sb_d = strLen(wJ.sb_d + c + ((a.sb==null)? '': a.sb), dLen);
-      a.vc_d = strLen(wJ.vc_d + c + ((a.vc==null)? '': a.vc), dLen);
+      a.vw_d = strLen(wJ.vw_d +','+ ((a.vw==null)? '': a.vw), dLen);
+      a.sb_d = strLen(wJ.sb_d +','+ ((a.sb==null)? '': a.sb), dLen);
+      a.vc_d = strLen(wJ.vc_d +','+ ((a.vc==null)? '': a.vc), dLen);
       const sub = strSub('D', a.vw_h, a.sb_h, a.vc_h);
       a.vw_ad = (a.vw==null)? null: a.vw - sub[0];
       a.sb_ad = (a.sb==null)? null: a.sb - sub[1];
       a.vc_ad = (a.vc==null)? null: a.vc - sub[2];
     }
     if (tHour === 4 && tDay === 0) {
-      const c = strPeriod('W', wJ.pd_l);
-      a.vw_w = strLen(wJ.vw_w + c + ((a.vw==null)? '': a.vw), wLen);
-      a.sb_w = strLen(wJ.sb_w + c + ((a.sb==null)? '': a.sb), wLen);
-      a.vc_w = strLen(wJ.vc_w + c + ((a.vc==null)? '': a.vc), wLen);
+      a.vw_w = strLen(wJ.vw_w +','+ ((a.vw==null)? '': a.vw), wLen);
+      a.sb_w = strLen(wJ.sb_w +','+ ((a.sb==null)? '': a.sb), wLen);
+      a.vc_w = strLen(wJ.vc_w +','+ ((a.vc==null)? '': a.vc), wLen);
       const sub = strSub('W', a.vw_d, a.sb_d, a.vc_d);
       a.vw_aw = (a.vw==null)? null: a.vw - sub[0];
       a.sb_aw = (a.sb==null)? null: a.sb - sub[1];
@@ -693,7 +684,7 @@ function rHour(rc) {
       rc: rc
     }
     if (wJ.date!=null) {
-      const c = (wJ.flag!==30)? ',': strPeriod('H', wJ.pd_l);
+      const c = strPeriod(wJ.pd_l);
       a.pd   = wJ.pd;
       a.pd_n = wJ.pd_n;
       a.pd_f = wJ.pd_f;
@@ -732,14 +723,12 @@ function rHour(rc) {
       done[1]++;
     }
     if (tHour === 4) {
-      const c = (wJ.flag!==30)? ',': strPeriod('D', wJ.pd_l);
-      a.rn_d = strLen(wJ.rn_d + c + strMin('D', a.rn_h), dLen);
-      a.rt_d = strLen(wJ.rt_d + c + a.rt, dLen);
+      a.rn_d = strLen(wJ.rn_d +','+ strMin('D', a.rn_h), dLen);
+      a.rt_d = strLen(wJ.rt_d +','+ a.rt, dLen);
     }
     if (tHour === 4 && tDay === 0) {
-      const c = (wJ.flag!==30)? ',': strPeriod('W', wJ.pd_l);
-      a.rn_w = strLen(wJ.rn_w + c + strMin('W', a.rn_d), wLen);
-      a.rt_w = strLen(wJ.rt_w + c + a.rt, wLen);
+      a.rn_w = strLen(wJ.rn_w +','+ strMin('W', a.rn_d), wLen);
+      a.rt_w = strLen(wJ.rt_w +','+ a.rt, wLen);
     }
     if (tHour === 4 && nDate === 1) {
       a.rn_m = strLen(wJ.rn_m +','+ strMin('M', a.rn_m), mLen);
