@@ -215,14 +215,14 @@ function rUpdate() {
     wD.forEach(d => { if (Number(d.cat)===cNo[tNo[i]] && Number(d.rn)<=10) { data[d.rn] = d; } });
 
     for (let j=1; j<=10; j++) {
-      const len = (j<=4)? 14: 12;
+      const len = (j<=4)? 14: 11;
       rank[j] = no[j] + ' ' + strSlice(data[j].t_c, len) + '\nratio100.com/@' + data[j].id;
       if (j<=3) { yt[j] = 'youtu.be/' + data[j].id; }
     }
 
-    tw[0] = '『レシオ！』のYouTube急上昇ランキング速報\n'+hour+'時は #'+cName[tNo[i]]+' カテゴリのトップ10\n\n▼100位までのランキングはこちら▼\nratio100.com/'+cNo[tNo[i]]+'\n\n'+rank[1]+'\n\n'+rank[4]+'\n\n'+yt[1];
-    tw[1] = '▼100位までのランキングはこちら▼\nratio100.com/'+cNo[tNo[i]]+'\n\n'+rank[2]+'\n\n'+rank[5]+'\n\n'+rank[7]+'\n\n'+rank[9]+'\n\n'+yt[2];
-    tw[2] = '▼100位までのランキングはこちら▼\nratio100.com/'+cNo[tNo[i]]+'\n\n'+rank[3]+'\n\n'+rank[6]+'\n\n'+rank[8]+'\n\n'+rank[10]+'\n\n'+yt[3];
+    tw[0] = '『レシオ！』のYouTube急上昇ランキング速報\n'+hour+'時は #'+cName[tNo[i]]+' カテゴリのトップ10\n\n▼100位までのランキング▼\nratio100.com/'+cNo[tNo[i]]+'\n\n'+rank[1]+'\n\n'+rank[4]+'\n\n'+yt[1];
+    tw[1] = '▼100位までのランキング▼\nratio100.com/'+cNo[tNo[i]]+'\n\n'+rank[2]+'\n\n'+rank[5]+'\n\n'+rank[7]+'\n\n'+rank[9]+'\n\n'+yt[2];
+    tw[2] = '▼100位までのランキング▼\nratio100.com/'+cNo[tNo[i]]+'\n\n'+rank[3]+'\n\n'+rank[6]+'\n\n'+rank[8]+'\n\n'+rank[10]+'\n\n'+yt[3];
 
     for (let i=0; i<tw.length; i++) {
       console.log('文字数 : '+strCount(tw[i])+'\n'+tw[i]);

@@ -10,6 +10,10 @@ function rFetch() {
   x = (x)? Math.round(Math.random()*10) % x: 10;
   if (x) { return console.log('実施対象外 : '+x) }
 
+  const s = Math.round(Math.random()*500+500) * 60;
+  console.log(Math.round(s/1000)+'秒待機');
+  Utilities.sleep(s);
+
   /** ■■■■ ブログランキング ■■■■ */
   let url = 'https://blog.with2.net/link/?id=2093058';
   const options = {"muteHttpExceptions" : true,};
@@ -30,7 +34,6 @@ function rFetch() {
   url = 'https://blog.with2.net/out.php' + x.replace(regexp,'$2');
   console.log(url);
 
-  const s = Math.round(Math.random()*500+500) * 60;
   console.log(Math.round(s/1000)+'秒待機');
   Utilities.sleep(s);
 

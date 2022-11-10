@@ -15,6 +15,11 @@ const cName = [
   '科学と技術'
 ];
 
+const hLen = 72;
+const dLen = 35;
+const wLen = 28;
+const mLen = 60;
+
 const sURL = 'https://ratio100.com';
 const pURL = sURL + '/wp-json/wp/v2/pages/';
 const aURL = sURL + '/wp-json/ratio-zid/zid/a/';
@@ -35,8 +40,18 @@ const rCol = {jp:2};
 let data = ssData();
 
 let d = new Date(Utilities.formatDate(new Date(), 'Etc/GMT-4', 'yyyy-MM-dd HH:mm:ss'));
+const tHour = d.getHours();
 const tDate = d.getDate();
+const tDay = d.getDay();
+d = new Date(Utilities.formatDate(new Date(), 'JST', 'yyyy-MM-dd'));
+const nDate = d.getDate();
 
+let wY = {};
+let wZ = {};
+let w = 0;
+let y = 0;
+let todo = [];
+let done = [];
 let wD = [];
 let Ranking = {};
 let Drop = {video_z:[]}
@@ -124,8 +139,8 @@ function vArguments(f) {
   if (f==='D' && yJ.rn!=null) {console.log({m:'エラー',id:{id:wJ.id,b:(wJ.id===yJ.id)},cat:{cat:wJ.cat,b:(wJ.cat===yJ.cat)},rn:yJ.rn})}
 
   if (wJ && wJ.flag==tHour) { //実施済み判定
-    wY.video_y.unshift( { id:yJ.id } );
-    wZ.video_z.unshift( { id:yJ.id, rc:rc, cat: cat} );
+    wY.video_y.unshift( { id:wJ.id } );
+    wZ.video_z.unshift( { id:wJ.id, rc:wJ.rc, cat: wJ.cat} );
     done[2]++;
     return
   }
@@ -235,9 +250,9 @@ function vArguments(f) {
 
   //video_z
   a = {
-    id: yJ.id,
-    rc: rc,
-    cat: cat,
+    id: wJ.id,
+    rc: wJ.rc,
+    cat: wJ.cat,
     flag: (f==='D')? 30: 70
   }
   a.rn_h = strLen(wJ.rn_h + Array(25), hLen);
@@ -256,8 +271,6 @@ function vArguments(f) {
   }
   wZ.video_z.push(a);
 
-  if (f!=='D' && wJ.flag!=='30'){Rank[a.rn][a.cat] = a.id;}
-  if (a.flag!==tHour && a.flag!==24) { console.log(a); }
 }
 
 function cArguments(f) {
@@ -361,7 +374,7 @@ function cArguments(f) {
   //channel_z
   a = {
     id: wJ.id,
-    rc: rc
+    rc: wJ.rc
   }
   a.rn_h = strLen(wJ.rn_h + Array(25), hLen);
   a.rt_h = strLen(wJ.rt_h + Array(25), hLen);
@@ -394,19 +407,19 @@ function dArguments(i) {
   }
 
   let a = {
-    rt_ad: Math.round(strSub('D', wJ.rt_h, wJ.pd_l)*10000)/10000,
+    rt_ad: Math.round(strDrop('D', wJ.rt_h, wJ.pd_l)*10000)/10000,
     t_v: wJ.title,
     rn: strMin('D', wJ.rn_h),
     t_c: wJ.t_c,
-    vw_ad: strSub('D', wJ.vw_h, wJ.pd_l),
-    lk_ad: strSub('D', wJ.lk_h, wJ.pd_l),
+    vw_ad: strDrop('D', wJ.vw_h, wJ.pd_l),
+    lk_ad: strDrop('D', wJ.lk_h, wJ.pd_l),
     vd: wJ.id,
     rc: wJ.rc,
     ch: wJ.ch,
     vw: Number(wJ.vw),
     lk: Number(wJ.lk),
     cm: Number(wJ.cm),
-    cm_ad: strSub('D', wJ.cm_h, wJ.pd_l),
+    cm_ad: strDrop('D', wJ.cm_h, wJ.pd_l),
     rn_i: wJ.rn_i,
     rt: wJ.rt,
     pd: Number(wJ.pd)
@@ -414,6 +427,35 @@ function dArguments(i) {
 
   Ranking[wJ.cat].push(a);
   r++;
+}
+
+/** ■■■■ YouTube関数 ■■■■ */
+function ytVideo(id) {
+
+  const part = 'snippet,contentDetails,statistics';
+  const vfields = 'items(id,snippet(title,description,publishedAt,thumbnails(medium(url),default(url)),tags,channelId,channelTitle),contentDetails(duration),statistics(viewCount,likeCount,commentCount))';
+  const filter = '?part='+part+'&id='+id+'&maxResults=50&fields='+vfields+'&key='+apiKey;
+
+  const url = 'https://youtube.googleapis.com/youtube/v3/videos' + filter;
+
+  const options = {"muteHttpExceptions" : true,};
+  const resJson = JSON.parse(UrlFetchApp.fetch(url, options).getContentText());
+
+  return resJson
+}
+
+function ytChannel(id) {
+
+  const part = 'snippet,statistics';
+  const cfields = 'items(id,snippet(title,description,publishedAt,thumbnails(medium(url),default(url)),customUrl),statistics(viewCount,subscriberCount,videoCount))';
+  const filter = '?part='+part+'&id='+id+'&maxResults=50&fields='+cfields+'&key='+apiKey;
+
+  const url = 'https://youtube.googleapis.com/youtube/v3/channels' + filter;
+
+  const options = {"muteHttpExceptions" : true,};
+  const resJson = JSON.parse(UrlFetchApp.fetch(url, options).getContentText());
+
+  return resJson
 }
 
 /** ■■■■ 文字列,数値操作 ■■■■ */
@@ -466,7 +508,7 @@ function imgChannel(str) {
   return str
 }
 
-function strSub(f, str, label) {
+function strDrop(f, str, label) {
   let j = 0;
   arr = str.split(',');
   if (f==='D') { j = arr.length-1-24 }
@@ -547,9 +589,6 @@ function wpResult(rc) {
   time = Utilities.formatDate(new Date(),'JST','yyyy-MM-dd HH:') + '00:00';
   time = new Date(time).getTime();
 
-  let wY = {};
-  let wZ = {};
-
   function step_va() { //vArguments
     err = {};
     try {
@@ -558,6 +597,9 @@ function wpResult(rc) {
         else { return (a.id > b.id)? 1: -1 }
       })
 
+      wY = {video_y:[]};
+      wZ = {video_z:[]};
+      done = [];
       todo = [].concat(data);
       console.log('30_todo : '+todo.length);
       while (todo.length) {
@@ -585,8 +627,8 @@ function wpResult(rc) {
         if (f==='D') { y++; }
       }
 
-      const wSum = wD.length;
-      const ySum = Total.reduce((sum, x) => sum + x, 0);
+      const wSum = data.length;
+      const ySum = todo.length;
       console.log('WP動画情報取得 : YT動画情報取得 = ' + wSum + ' : ' + ySum + '\n');
 
     } catch (e) {
@@ -607,8 +649,7 @@ function wpResult(rc) {
   function step_ca() { //cArguments
     err = {};
     try {
-      wD = wpAPI(cURL+'24/'+rc).sort((a, b) => (a.id > b.id)? 1: -1);;
-      data = [].concat(wD);
+      data =  wpAPI(cURL+'24/'+rc).sort((a, b) => (a.id > b.id)? 1: -1);
       todo = [];
       while (data.length) {
         let vID = data.splice(0,50).map(x => x.id);
@@ -616,7 +657,7 @@ function wpResult(rc) {
       }
       todo = todo.sort((a, b) => (a.id > b.id)? 1: -1);
 
-      let wSum = wD.length;
+      let wSum = data.length;
       let ySum = todo.length;
       console.log('チャンネル情報取得（WP,YT）\nWP(channel_24) : ' + wSum + '\nYT : ' + ySum);
 
@@ -625,15 +666,15 @@ function wpResult(rc) {
       done = [0,0,0];
 
       w = 0; y = 0;
-      while (w < wD.length || y < todo.length) {
+      while (w < data.length || y < todo.length) {
         let f = false;
-        if (w === wD.length) { throw new Error('cArg : エラー (真偽判定ミスの可能性あり)'); }
+        if (w === data.length) { throw new Error('cArg : エラー (真偽判定ミスの可能性あり)'); }
         if (y === todo.length) { f='B'; }
-        if (!f && wD[w].id > todo[y].id) { throw new Error('cArg : エラー (真偽判定ミスの可能性あり)'); }
-        if (!f && wD[w].id < todo[y].id) { f='B'; }
-        if (!f && wD[w].id===todo[y].id) { f='S'; }
+        if (!f && data[w].id > todo[y].id) { throw new Error('cArg : エラー (真偽判定ミスの可能性あり)'); }
+        if (!f && data[w].id < todo[y].id) { f='B'; }
+        if (!f && data[w].id===todo[y].id) { f='S'; }
         if (!f) {
-          throw new Error('cArg エラー : 振り分け判定漏れ\n'+ wD[w].id +' : '+ todo[y].id);
+          throw new Error('cArg エラー : 振り分け判定漏れ\n'+ data[w].id +' : '+ todo[y].id);
         }
         cArguments(((f==='S')? true: false));
         w++;

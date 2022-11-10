@@ -61,6 +61,7 @@ article.featured-media span {font-size: 60px}
 .vlll img{width: 320px; height: 180px; position: absolute; left: 50%; transform: translate(-50%, 0); -webkit-transform: translate(-50%, 0); -ms-transform: translate(-50%, 0); border-style: solid; border-width: 0 5px; border-color: var(--c1)}
 
 .vs, .cs {text-align: center}
+table.vs, table.cs {width: 100%; margin: 30px 0}
 .vs tbody tr, .cs tbody tr {display: flex; justify-content: flex-end; flex-wrap: wrap; position: relative; padding: 5px; content-visibility: auto; contain-intrinsic-size: 70px}
 .vs th, .cs th {position: -webkit-sticky; position: sticky; top: 0; z-index: 1}
 .vs div:has(img) {width: 108px; height: 60px; margin: 5px 0; position: relative; overflow: hidden}
