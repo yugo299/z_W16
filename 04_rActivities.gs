@@ -156,6 +156,7 @@ function aArguments(yJ) {
     vw: yJ.statistics.viewCount,
     lk: yJ.statistics.likeCount,
     cm: yJ.statistics.commentCount,
+    yt: ''
     //date: Utilities.formatDate(new Date(yJ.snippet.publishedAt), 'JST', 'yyyy-MM-dd HH:mm:ss'),
     //dur: convertTime(yJ.contentDetails.duration),
     //des: textToLink(yJ.snippet.description),

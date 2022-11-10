@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS `video_y` (
   `ch` varchar(24) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL COMMENT 'channel',
   `title` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `date` datetime DEFAULT NULL COMMENT 'publishedAt',
-  `dur` time DEFAULT NULL COMMENT 'duration',
+  `dur` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'duration',
   `des` text COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'description',
   `tags` text COLLATE utf8mb4_unicode_ci NOT NULL,
   `img` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'thumbnails_medium',

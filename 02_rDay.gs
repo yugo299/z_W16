@@ -209,8 +209,8 @@ function vArguments(f) {
     id: yJ.id,
     ch: yJ.snippet.channelId,
     title: yJ.snippet.title,
-    dur: convertTime(yJ.contentDetails.duration),
-    des: textToLink(yJ.snippet.description, yJ.id),
+    dur: yJ.contentDetails.duration,
+    des: yJ.snippet.description,
     tags: (yJ.snippet.tags)? yJ.snippet.tags.join(): '',
     img: imgVideo(yJ.snippet.thumbnails.medium.url),
     vw: yJ.statistics.viewCount,
@@ -334,7 +334,7 @@ function cArguments(f) {
   a = {
     id: yJ.id,
     title: yJ.snippet.title,
-    des: textToLink(yJ.snippet.description, yJ.id),
+    des: yJ.snippet.description,
     img: imgChannel(yJ.snippet.thumbnails.medium.url),
     handle: yJ.snippet.customUrl,
     vw: yJ.statistics.viewCount,
@@ -459,43 +459,6 @@ function ytChannel(id) {
 }
 
 /** ■■■■ 文字列,数値操作 ■■■■ */
-function convertTime(duration) {
-
-  if (duration === '' || duration.slice(0,2) !== 'PT') { return }
-  var reg = new RegExp('^PT([0-9]*H)?([0-9]*M)?([0-9]*S)?');
-  var regResult = duration.match(reg);
-
-  var hour = regResult[1];
-  var minutes = regResult[2];
-  var sec = regResult[3];
-
-  if(hour == undefined) {hour = '00';}
-  else {
-    hour = hour.split('H')[0];
-    if(hour.length == 1){hour = '0' + hour;}
-  }
-
-  if(minutes == undefined) {minutes = '00';}
-  else {
-    minutes = minutes.split('M')[0];
-    if(minutes.length == 1){minutes = '0' + minutes;}
-  }
-
-  if(sec == undefined) {sec = '00';}
-  else {
-    sec = sec.split('S')[0];
-    if(sec.length == 1){sec = '0' + sec;}
-  }
-
-  return hour + ":" + minutes + ":" + sec
-}
-
-function textToLink(str, id) {
-  const regexp = /(htt)(ps|p)(:\/)([\w/:%#\$&\?\(\)~\.=\+\-\@ぁ-んァ-ヶ亜-熙Ａ-Ｚａ-ｚ]+)/g;
-  str = str.replace(regexp, '<a class="external" href="/link/'+id+'/$2$4" title="外部リンク"></a> ');
-  return str
-}
-
 function imgVideo(str) {
   const regexp = /(.*\/vi\/)([\w\_\-]+)(.*)/;
   str = str.replace(regexp, '$2');
