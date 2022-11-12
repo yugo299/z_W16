@@ -16,6 +16,7 @@ function fOther() {
   //ytChannel();
   //ytActivities();
   //ytPopular();
+  //wpPage(4);
   //wpScreenshot();
   wpStats('jp');
   //r = wpImage();
@@ -326,7 +327,7 @@ function wpPage(parent) {
   let wA = {zr_posts:[]};
 
   const s = 50;
-  let slug = y + 1;
+  let slug = y + 2001;
   let id = Number(slug+'00'+s);
   pArguments(id, slug);
 
@@ -357,6 +358,40 @@ function wpPage(parent) {
     pArguments(id, slug);
   }
   console.log(wpAPI(vURL, wA));
+}
+
+function wpScreenshot() {
+
+  const ts = new Date();
+  const date = Utilities.formatDate(ts, 'JST', 'M月d日H:00');
+  const hour = ts.getHours();
+  let list = Array(cNo.length);
+  let arg = {};
+
+  for (let i=0; i<cNo.length; i++) {
+
+    const t1 = 'レシオ！';
+    const t2 = 'YouTube急上昇ランキング';
+    const t3 = 'カテゴリ：' + cName[i];
+    const t4 = '【速報】'+ date +'【集計】';
+    const t5 = '- ratio100.com -';
+
+    const wURL  = 'https://ratio100.com/featured-media/' + cNo[i] + '/' + t1 + '/' + t2 + '/' + t3 + '/' + t4 + '/' + t5;
+    const width  = 1200;
+    const height = 630;
+    const url = 'https://s.wordpress.com/mshots/v1/' + wURL + '?w=' + width + '&h=' + height;
+
+    UrlFetchApp.fetch(url);
+    list[i] = url;
+  }
+  Utilities.sleep(1000 * 60);
+
+  for (let i=0; i<cNo.length; i++) {
+    const image = UrlFetchApp.fetch(list[i]).getBlob();
+    arg[cSlug[i] + '-' + hour + '.jpg'] = Utilities.base64Encode(image.getBytes());
+    console.log({name:(cSlug[i] + '-' + hour + '.jpg'), length:arg[cSlug[i] + '-' + hour + '.jpg'].length})
+  }
+  return wpAPI(iURL, arg);
 }
 
 //■■■■ MS関数 ■■■■
@@ -461,40 +496,6 @@ function editPost() {
 }
 
 /** ■■■■ テスト ■■■■ */
-
-function wpScreenshot() {
-
-  const ts = new Date();
-  const date = Utilities.formatDate(ts, 'JST', 'M月d日H:00');
-  const hour = ts.getHours();
-  let list = Array(cNo.length);
-  let arg = {};
-
-  for (let i=0; i<cNo.length; i++) {
-
-    const t1 = 'レシオ！';
-    const t2 = 'YouTube急上昇ランキング';
-    const t3 = 'カテゴリ：' + cName[i];
-    const t4 = '【速報】'+ date +'【集計】';
-    const t5 = '- ratio100.com -';
-
-    const wURL  = 'https://ratio100.com/featured-media/' + cNo[i] + '/' + t1 + '/' + t2 + '/' + t3 + '/' + t4 + '/' + t5;
-    const width  = 1200;
-    const height = 630;
-    const url = 'https://s.wordpress.com/mshots/v1/' + wURL + '?w=' + width + '&h=' + height;
-
-    UrlFetchApp.fetch(url);
-    list[i] = url;
-  }
-  Utilities.sleep(1000 * 60);
-
-  for (let i=0; i<cNo.length; i++) {
-    const image = UrlFetchApp.fetch(list[i]).getBlob();
-    arg[cSlug[i] + '-' + hour + '.jpg'] = Utilities.base64Encode(image.getBytes());
-    console.log({name:(cSlug[i] + '-' + hour + '.jpg'), length:arg[cSlug[i] + '-' + hour + '.jpg'].length})
-  }
-  return wpAPI(iURL, arg);
-}
 
 function wpStats(rc) {
   const hour = 17;

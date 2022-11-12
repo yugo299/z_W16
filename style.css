@@ -25,22 +25,13 @@ ul, p {line-height: 30px}
 blockquote {padding: 15px}
 cite {padding: 0 15px}
 p:has(>cite) {width: 100%; text-align: right}
+div:has(iframe) {z-index: 2}
 h3, h4, h5, h6, ul {margin: 0; font-size: 14px}
-
-.heatmap thead, .heatmap tr:nth-child(even) th {background: #ddd}
-.heatmap thead th:nth-child(odd) {background: #ccc}
-.heatmap tr:nth-child(even) {background: #eee}
-.heatmap tr:nth-child(even) td {background: #ddd}
-.heatmap td {width: calc((100% - 190px) / 24)}
-.heatmap tbody th {width: 140px}
-.heatmap tbody td:nth-child(2) {width: 50px}
-.heatmap tr:nth-child(-n+6) td {color: #eee}
-.heatmap td {padding: 0}
 
 header {z-index: 10; width: 100vw; position: sticky; position: -webkit-sticky; top: 0; box-shadow: rgba(0, 0, 0, 0.16) 0px 3px 6px, rgba(0, 0, 0, 0.23) 0px 3px 6px}
 
 section {width: 100%; max-width: 600px; min-width: 370px; margin: -45px auto 15px; padding: 45px 3px 0}
-section>h1, section>h2, header>h1, header>h2 {margin: 15px; font-size: 16px;}
+section>h1, section>h2, article>h1, article>h2 header>h1, header>h2 {margin: 15px; font-size: 16px;}
 section>nav {width: 100vw; height: 40px; background: #ddd; text-align: center; padding: 10px}
 section.navigation {order: 50} section.contents {order: 60}
 section.navigation, section.category, section.zone, section.contents {margin-top: 0; padding-top: 0}
@@ -53,12 +44,6 @@ article {width: 100%}
 article.featured-media {width: 1200px; height: 630px; font-family: 'Yusei Magic', sans-serif;}
 article.featured-media span {font-size: 60px}
 .featured-media>div {margin-top: 120px; margin-left: 160px;}
-
-.no {top: 5px; left:5px; padding: 5px}
-.vt {top: 5px; left:5px; width: 164px; max-width: 35%; height: 90px; overflow: hidden}
-.vt img{width: 164px; height: 123px; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); -webkit-transform: translate(-50%, -50%); -ms-transform: translate(-50%, -50%)}
-.vlll {height: 180px}
-.vlll img{width: 320px; height: 180px; position: absolute; left: 50%; transform: translate(-50%, 0); -webkit-transform: translate(-50%, 0); -ms-transform: translate(-50%, 0); border-style: solid; border-width: 0 5px; border-color: var(--c1)}
 
 .vs, .cs {text-align: center}
 table.vs, table.cs {width: 100%; margin: 30px 0}
@@ -97,12 +82,22 @@ div:has(.banner) {width: 100%; height: 140px; position: relative; overflow: hidd
 .banner + .logo {height: 60px; width: 60px; position: absolute; top: 10px; left: 10px; border-width: 4px}
 .banner + .logo img {height: 60px; width: 60px}
 
+.heatmap thead, .heatmap tr:nth-child(even) th {background: #ddd}
+.heatmap thead th:nth-child(odd) {background: #ccc}
+.heatmap tr:nth-child(even) {background: #eee}
+.heatmap tr:nth-child(even) td {background: #ddd}
+.heatmap td {width: calc((100% - 190px) / 24)}
+.heatmap tbody th {width: 140px}
+.heatmap tbody td:nth-child(2) {width: 50px}
+.heatmap tr:nth-child(-n+6) td {color: #eee}
+.heatmap td {padding: 0}
+
 .w2 {width: 20%} .w6 {width: 60%} .w8 {width: 80%} .w10 {width: 100%}
 .w20 {width: 20px} .w60 {width: 60px} .w90 {width: 90px} .w100 {width: 100px} .w160 {width: 160px} .w220 {width: 220px} .w320 {width: 320px}
 .h3 {height: 30px} .h4 {height: 40px} .h5 {height: 50px} .h6 {height: 60px} .h7 {height: 70px} .h9 {height: 90px} .h10 {height: 100px} .h43 {height: 430px}
 .hm40 {max-height: 400px}
 .g10 {gap: 0 10px}
-.m3 {margin: 3px 0} .m5 {margin: 5px 0} .m10 {margin: 10px 0} .m15 {margin: 15px 0} .m20 {margin: 20px 0}
+.m3 {margin: 3px 0} .m5 {margin: 5px 0} .m10 {margin: 10px 0} .m15 {margin: 15px 0} .m20 {margin: 20px 0} .m30 {margin: 30px 0}
 .mc {margin-left: auto; margin-right: auto}
 .p0 {padding: 0} .p5 {padding: 5px} .p60 {padding: 60px} .p100 {padding: 100px} .p110 {padding-left: 110px}
 .f14 {font-size: 14px} .f16 {font-size: 16px} .f24 {font-size: 24px} .f36 {font-size: 36px} .f45 {font-size: 45px}
@@ -123,7 +118,7 @@ div:has(.banner) {width: 100%; height: 140px; position: relative; overflow: hidd
 
 .g-a {grid-area: a} .g-b {grid-area: b} .g-c {grid-area: c} .g-d {grid-area: d} .g-e {grid-area: e} .g-f {grid-area: f} .g-g {grid-area: g} .g-h {grid-area: h} .g-i {grid-area: i} .g-j {grid-area: j} .g-k {grid-area: k}
 
-.re {position: relative} .ab {position: absolute; left: 0px; top: 0px}
+.re {position: relative} .ab {position: absolute; left: 0px; top: 0px} .abr {position: absolute; right: 0px}
 .row {display: flex} .col {display: flex; flex-direction: column; align-items: center}
 .wr {flex-wrap: wrap}
 .fe {justify-content: flex-end}
@@ -139,6 +134,7 @@ div:has(.banner) {width: 100%; height: 140px; position: relative; overflow: hidd
 .wsp {white-space: pre-wrap}
 .wsn {white-space: nowrap}
 .bb {box-sizing: border-box}
+.of {order: -1}
 
 .lc {line-height: 30px; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 1; overflow: hidden}
 .lc.l2 {-webkit-line-clamp: 2}

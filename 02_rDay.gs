@@ -61,6 +61,7 @@ let Top = [];
 let r = 0;
 d = 0;
 let t = 0;
+let time = 0;
 
 /** ■■■■ Twitter関数 ■■■■ */
 
@@ -136,15 +137,6 @@ function vArguments(f) {
   const yJ = todo[y];
   let a = {};
 
-  if (f==='D' && yJ.rn!=null) {console.log({m:'エラー',id:{id:wJ.id,b:(wJ.id===yJ.id)},cat:{cat:wJ.cat,b:(wJ.cat===yJ.cat)},rn:yJ.rn})}
-
-  if (wJ && wJ.flag==tHour) { //実施済み判定
-    wY.video_y.unshift( { id:wJ.id } );
-    wZ.video_z.unshift( { id:wJ.id, rc:wJ.rc, cat: wJ.cat} );
-    done[2]++;
-    return
-  }
-
   if (wJ.ban!=null) { //非公開化 or BAN
     a = {
       id: wJ.id,
@@ -201,7 +193,7 @@ function vArguments(f) {
       rt_am: null,
     }
     wZ.video_z.push(a);
-    return done[0]++;
+    return done[2]++;
   }
 
   //video_y
@@ -407,22 +399,12 @@ function dArguments(i) {
   }
 
   let a = {
-    rt_ad: Math.round(strDrop('D', wJ.rt_h, wJ.pd_l)*10000)/10000,
+    rt_ad: Math.round(strAdd('D', wJ.rt_h, wJ.pd_l)*10000)/10000,
     t_v: wJ.title,
-    rn: strMin('D', wJ.rn_h),
     t_c: wJ.t_c,
-    vw_ad: strDrop('D', wJ.vw_h, wJ.pd_l),
-    lk_ad: strDrop('D', wJ.lk_h, wJ.pd_l),
-    vd: wJ.id,
-    rc: wJ.rc,
-    ch: wJ.ch,
-    vw: Number(wJ.vw),
-    lk: Number(wJ.lk),
-    cm: Number(wJ.cm),
-    cm_ad: strDrop('D', wJ.cm_h, wJ.pd_l),
-    rn_i: wJ.rn_i,
-    rt: wJ.rt,
-    pd: Number(wJ.pd)
+    rn: strMin('D', wJ.rn_h),
+    vw_ad: strAdd('D', wJ.vw_h, wJ.pd_l),
+    lk_ad: strAdd('D', wJ.lk_h, wJ.pd_l)
   }
 
   Ranking[wJ.cat].push(a);
@@ -471,7 +453,7 @@ function imgChannel(str) {
   return str
 }
 
-function strDrop(f, str, label) {
+function strAdd(f, str, label) {
   let j = 0;
   arr = str.split(',');
   if (f==='D') { j = arr.length-1-24 }
@@ -483,7 +465,7 @@ function strDrop(f, str, label) {
     if (i===arr.length-1) { j = arr.length-1 }
   }
 
-  const t = (label)? Math.ceil((time-new Date(label).getTime())/(1000*60)): 0;
+  const t = (label)? Math.round((time-new Date(label).getTime())/(1000*60*60)): 0;
   val = (arr.length-1-t>j)? (arr[arr.length-1-t]-arr[j]): 0;
   return val
 }
@@ -547,7 +529,15 @@ function wpResult(rc) {
   const id = Utilities.formatDate(new Date(), 'Etc/GMT+14', 'yyMMdd');
   const today = Utilities.formatDate(new Date(), 'Etc/GMT+14', 'yyyy年M月d日');
   const publish = Utilities.formatDate(new Date(), 'JST', 'yyyy-MM-dd') + 'T05:30:00';
+  const middle = Utilities.formatDate(new Date(), 'JST', 'yyyy-MM-dd') + 'T04:00:00';
   const now = Utilities.formatDate(new Date(), 'JST', 'yyyy-MM-dd HH:mm:ss').replace(' ','T');
+
+  time = new Date(Utilities.formatDate(new Date(), 'Etc/GMT+14', 'yyyy-MM-dd'));
+  if (time.getDay()!==0) {
+    time = new Date(time.getTime() + (7-time.getDay()) * (1000*60*60*24));
+  }
+  time = String(time.getFullYear()-2000) + String((time.getMonth()+1<10)? '0'+(time.getMonth()+1): time.getMonth()+1);
+  let week = Number(time + '40');
 
   time = Utilities.formatDate(new Date(),'JST','yyyy-MM-dd HH:') + '00:00';
   time = new Date(time).getTime();
@@ -555,7 +545,7 @@ function wpResult(rc) {
   function step_va() { //vArguments
     err = {};
     try {
-      data = wpAPI(vURL+'25/'+rc).sort((a,b) => {
+      data = wpAPI(vURL+'30/'+rc).sort((a,b) => {
         if (a.id === b.id) { return (a.cat > b.cat)? 1: -1 }
         else { return (a.id > b.id)? 1: -1 }
       })
@@ -570,6 +560,7 @@ function wpResult(rc) {
         done = done.concat(ytVideo(vID.join()).items);
       }
       todo = [].concat(done).sort((a, b) => (a.id > b.id)? 1: -1);
+      console.log('WP動画情報取得 : YT動画情報取得 = ' + data.length + ' : ' + todo.length + '\n');
 
       done = [0,0,0];
       w = 0; y = 0;
@@ -590,10 +581,9 @@ function wpResult(rc) {
         if (f==='D') { y++; }
       }
 
-      const wSum = data.length;
-      const ySum = todo.length;
-      console.log('WP動画情報取得 : YT動画情報取得 = ' + wSum + ' : ' + ySum + '\n');
-
+      const ySum = wY.video_y.length;
+      const zSum = wZ.video_z.length;
+      console.log('vArg (video_y:video_z) : '+ySum+' = '+zSum+'\n'+(done[0]+done[1]+done[2])+' ( Still : Ban = '+done[0]+' : '+done[2]+' )');
     } catch (e) {
       console.log('vArguments\n' + e.message);
       err = e;
@@ -605,24 +595,43 @@ function wpResult(rc) {
   t = 0;
   step_va();
   if (t===3) {
-    /*ssEnd('doing_'+rc);
-    return*/ console.log('【途中終了】エラー回数超過\nvArguments')
+    //return
+    console.log('【途中終了】エラー回数超過\nvArguments')
+  }
+
+  function step_vp() { //vPost
+    err = {};
+    try {
+      let rY = wpAPI(vURL, wY);
+      let rZ = wpAPI(vURL, wZ);
+      console.log('vPost（処理結果）\nvideo_y : '+rY.y+' = '+(rY.t+rY.u+rY.f)+'（正常/変更なし/エラー：'+rY.t+' / '+rY.u+' / '+rY.f+'）\nvideo_z : '+rZ.z+' = '+(rZ.t+rZ.u+rZ.f)+'（正常/変更なし/エラー：'+rZ.t+' / '+rZ.u+' / '+rZ.f+'）');
+    } catch (e) {
+      console.log('vPost\n' + e.message);
+      err = e;
+    }
+    finally {
+      if('message' in err && ++t < 3){ step_vp() }
+    }
+  }
+  t = 0;
+  step_vp();
+  if (t===3) {
+    //return
+    console.log('【途中終了】エラー回数超過\nvPost')
   }
 
   function step_ca() { //cArguments
     err = {};
     try {
-      data =  wpAPI(cURL+'24/'+rc).sort((a, b) => (a.id > b.id)? 1: -1);
+      data =  wpAPI(cURL+'30/'+rc).sort((a, b) => (a.id > b.id)? 1: -1);
       todo = [];
       while (data.length) {
         let vID = data.splice(0,50).map(x => x.id);
         todo = todo.concat(ytChannel(vID.join()).items);
       }
       todo = todo.sort((a, b) => (a.id > b.id)? 1: -1);
-
-      let wSum = data.length;
-      let ySum = todo.length;
-      console.log('チャンネル情報取得（WP,YT）\nWP(channel_24) : ' + wSum + '\nYT : ' + ySum);
+      console.log('30_todo : '+todo.length);
+      console.log('WPチャンネル情報取得 : YTチャンネル情報取得 = ' + data.length + ' : ' + todo.length + '\n');
 
       wY = {channel_y:[]};
       wZ = {channel_z:[]};
@@ -644,9 +653,9 @@ function wpResult(rc) {
         if (f==='S') { y++; }
       }
 
-      ySum = wY.channel_y.length;
-      let zSum = wZ.channel_z.length;
-      console.log('cArg (channel_y:channel_z) : '+ySum+' = '+zSum+'\n'+(done[0]+done[1]+done[2])+' ( Still : New : Done = '+done[0]+' : '+done[1]+' : '+done[2]+' )');
+      const ySum = wY.channel_y.length;
+      const zSum = wZ.channel_z.length;
+      console.log('cArg (channel_y:channel_z) : '+ySum+' = '+zSum+'\n'+(done[0]+done[1]+done[2])+' ( Still : Done = '+done[0]+' : '+done[2]+' )');
       done = [];
     } catch (e) {
       console.log('cArg\n' + e.message);
@@ -659,8 +668,29 @@ function wpResult(rc) {
   t = 0;
   step_ca();
   if (t===3) {
-    /*ssEnd('doing_'+rc);
-    return*/  console.log('【途中終了】エラー回数超過\ncArg')
+    //return
+    console.log('【途中終了】エラー回数超過\ncArg')
+  }
+
+  function step_cp() { //cPost
+    err = {};
+    try {
+      let rY = wpAPI(cURL, wY);
+      let rZ = wpAPI(cURL, wZ);
+      console.log('cPost（処理結果）\nchannel_y : '+rY.y+' = '+(rY.t+rY.u+rY.f)+'（正常/変更なし/エラー：'+rY.t+' / '+rY.u+' / '+rY.f+'）\nchannel_z : '+rZ.z+' = '+(rZ.t+rZ.u+rZ.f)+'（正常/変更なし/エラー：'+rZ.t+' / '+rZ.u+' / '+rZ.f+'）');
+    } catch (e) {
+      console.log('cPost\n' + e.message);
+      err = e;
+    }
+    finally {
+      if('message' in err && ++t < 3){ step_cp() }
+    }
+  }
+  t = 0;
+  step_cp();
+  if (t===3) {
+    //return
+    console.log('【途中終了】エラー回数超過\ncPost')
   }
 
   function step_da() { //dArguments
@@ -715,13 +745,9 @@ function wpResult(rc) {
   function step_ar() { //arg : デイリーランキング
     err = {};
     try {
-      data = JSON.parse(wpAPI(pURL+id).content.raw);
-      data.ranking = Ranking;
-
       const prefix = 'YouTube急上昇ランキング デイリーまとめ【'+today+'】各カテゴリのレシオ1位のチャンネルはこちら［';
       const suffix = '］『レシオ！』ではYouTube急上昇ランキングをリアルタイム集計、1時間ごとに最新情報をお届け。';
-      data.des = prefix + Top.join() + suffix
-
+      data = { des: prefix + Top.join() + suffix, ranking: Ranking }
       const excerpt = 'YouTube急上昇 レシオ！デイリーランキング ' + today;
 
       arg = {
@@ -730,7 +756,7 @@ function wpResult(rc) {
         title: date+'日',
         content: JSON.stringify(data),
         excerpt: excerpt,
-        //featured_media: 0,
+        featured_media: 107,
         comment_status: 'open',
         ping_status: 'open',
         sticky: false,
@@ -802,6 +828,45 @@ function wpResult(rc) {
   step_ms();
   if (t===3) {
     return console.log('【途中終了】エラー回数超過\nIndexNow送信')
+  }
+
+  function step_wk() { //arg : ウィークリーランキング
+    err = {};
+    try {
+      let a = {};
+      do { a = wpAPI(pURL+(++week)); } while (a.tags.includes(52))
+
+      week = String(week);
+      const title = '20'+week.slice(0,2)+'年'+Number(week.slice(2,4))+'月 第'+(Number(week.slice(4))-40)+'週';
+
+      arg = {
+        date: middle,
+        status: 'publish',
+        title: title,
+        content: '集計中',
+        //excerpt: excerpt,
+        featured_media: 107,
+        comment_status: 'open',
+        ping_status: 'open',
+        sticky: false,
+        categories: [4],
+        tags: [70,73,74,78,79,59,56]
+      };
+
+      console.log(wpAPI(pURL+week, arg));
+      console.log('完了 : ウィークリーランキング');
+    } catch (e) {
+      console.log('arg : ウィークリーランキング\n' + e.message);
+      err = e;
+    }
+    finally {
+      if('message' in err && ++t < 3){ step_wk() }
+    }
+  }
+  t = 0;
+  step_wk();
+  if (t===3) {
+    return console.log('【途中終了】エラー回数超過\narg : ウィークリーランキング')
   }
 
   function step_e() { //終了処理

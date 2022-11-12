@@ -153,8 +153,8 @@ function rUpdate() {
   const minutes = date.getMinutes();
   const day = date.getDay() + 60;
 
-  if (minutes>40 && minutes<45) { //Youtube,チャンネル,動画ページ更新
-    const time = (Utilities.formatDate(date,'JST','yyyy-MM-dd HH:')+'30:00').replace(' ','T');
+  if ((minutes>10 && minutes<15) || (minutes>30 && minutes<35) ||(minutes>50 && minutes<55)) { //Youtube,チャンネル,動画ページ更新
+    const time = Utilities.formatDate(new Date(date.getTime()-10800000),'JST','yyyy-MM-dd HH:mm:ss').replace(' ','T');
     let arg = { date: time }
     console.log(wpAPI(pURL+4, arg));
 
@@ -188,8 +188,8 @@ function rUpdate() {
     console.log('アップデート完了 ( '+Math.round(hour/2)+' ) : '+time);
   }
 
-  if (minutes>30 && minutes<35 && hour===19) { //リンクページ更新
-    const time = (Utilities.formatDate(date,'JST','yyyy-MM-dd HH:')+'01:29').replace(' ','T');
+  if (minutes>35 && minutes<40 && hour===19) { //リンクページ更新
+    const time = Utilities.formatDate(date,'JST','yyyy-MM-dd HH:01:29').replace(' ','T');
     const arg = { date: time }
     console.log(wpAPI(pURL+16, arg));
     console.log('アップデート完了（ 16 ） : '+time);
@@ -221,8 +221,8 @@ function rUpdate() {
     }
 
     tw[0] = '『レシオ！』のYouTube急上昇ランキング速報\n'+hour+'時は #'+cName[tNo[i]]+' カテゴリのトップ10\n\n▼100位までのランキング▼\nratio100.com/'+cNo[tNo[i]]+'\n\n'+rank[1]+'\n\n'+rank[4]+'\n\n'+yt[1];
-    tw[1] = '▼100位までのランキング▼\nratio100.com/'+cNo[tNo[i]]+'\n\n'+rank[2]+'\n\n'+rank[5]+'\n\n'+rank[7]+'\n\n'+rank[9]+'\n\n'+yt[2];
-    tw[2] = '▼100位までのランキング▼\nratio100.com/'+cNo[tNo[i]]+'\n\n'+rank[3]+'\n\n'+rank[6]+'\n\n'+rank[8]+'\n\n'+rank[10]+'\n\n'+yt[3];
+    tw[1] = '100位までのランキング\nratio100.com/'+cNo[tNo[i]]+'\n\n'+rank[2]+'\n\n'+rank[5]+'\n\n'+rank[7]+'\n\n'+rank[9]+'\n\n'+yt[2];
+    tw[2] = '100位までのランキング\nratio100.com/'+cNo[tNo[i]]+'\n\n'+rank[3]+'\n\n'+rank[6]+'\n\n'+rank[8]+'\n\n'+rank[10]+'\n\n'+yt[3];
 
     for (let i=0; i<tw.length; i++) {
       console.log('文字数 : '+strCount(tw[i])+'\n'+tw[i]);

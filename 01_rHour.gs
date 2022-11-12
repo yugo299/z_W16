@@ -575,7 +575,7 @@ function rHour(rc) {
         rt_m: strLen(wJ.rt_m +',')
       }
       wZ.channel_z.push(a);
-      return done[0]++
+      return done[2]++
     }
 
     //channel_y
@@ -1019,7 +1019,7 @@ function rHour(rc) {
 
       const ySum = wY.channel_y.length;
       const zSum = wZ.channel_z.length;
-      console.log('cArg (channel_y:channel_z) : '+ySum+' = '+zSum+'\n'+(done[0]+done[1]+done[2])+' ( Still : New : Done = '+done[0]+' : '+done[1]+' : '+done[2]+' )');
+      console.log('cArg (channel_y:channel_z) : '+ySum+' = '+zSum+'\n'+(done[0]+done[1]+done[2])+' ( Still : New : Ban = '+done[0]+' : '+done[1]+' : '+done[2]+' )');
       done = [];
     } catch (e) {
       console.log('cArg\n' + e.message);
@@ -1128,11 +1128,11 @@ function rHour(rc) {
 
         for (let i=0; i<cNo.length; i++) {
           let a = { date:today, rc:rc, cat:cNo[i], type:'st'};
-          a[tHour] = Still[cNo[i]];
+          a[tHour+'t'] = Still[cNo[i]];
           arg.stats.push(a);
 
           a = { date:today, rc:rc, cat:cNo[i], type:'nw'};
-          a[tHour] = New[cNo[i]];
+          a[tHour+'t'] = New[cNo[i]];
           arg.stats.push(a);
         }
 
@@ -1140,7 +1140,7 @@ function rHour(rc) {
           const res = wpAPI(aURL+i+'/'+rc);
           res.forEach(r => {
             let a = { date:today, rc:rc, cat:r.cat, type:type[i]};
-            a[tHour] = r[[type[i]]];
+            a[tHour+'t'] = r[[type[i]]];
             arg.stats.push(a);
           })
         }
