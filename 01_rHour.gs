@@ -172,8 +172,7 @@ function rHour(rc) {
   const today = Utilities.formatDate(new Date(), 'Etc/GMT-4', 'yyyy-MM-dd');
   const tDate = new Date(today).getDate();
   const tDay = new Date(today).getDay();
-  const tomottow = Utilities.formatDate(new Date(), 'JST', 'yyyy-MM-dd');
-  const nDate = new Date(tomottow).getDate();
+  const bDate = new Date(Utilities.formatDate(new Date(), 'Etc/GMT+14', 'yyyy-MM-dd')).getDate();
 
   const tLabel = Utilities.formatDate(new Date(), 'JST', 'yyyy-MM-dd HH:') + '00:00';
   ts = new Date(tLabel).getTime() - (1000 * 60 * 60);
@@ -221,31 +220,35 @@ function rHour(rc) {
     return str
   }
 
-  function strLast(str) {
-    let arr = str.split(',');
-    return Number(arr[arr.length-1])
-  }
-
   function strLen(str, len) {
     str = Array(len).join() + str.replace(/(undefined|null|NULL|NaN)/g, '');
     let arr = str.split(',').map(x=>(x==='')? x: Number(x));
     return arr.slice(arr.length-len).join()
   }
 
-  function strSub(f, x, y, z) {
-    let j = 0;
-    x = x.split(',');
-    y = y.split(',');
-    z = z.split(',');
-    if (f==='D') { j = x.length-1-24 }
-    else if (f==='W') { j = x.length-1-7 }
-    else {f==='M'} { j = x.length-1-tDate }
-
-    for (let i=j; i<x.length-1; i++) {
-      if (x[i]!=='') { j = i; break; }
-      if (i===x.length-1) { j = x.length-1 }
+  function strLast(str, val, f = true) {
+    let arr = str.split(',');
+    if (f) { arr[arr.length-1] = val; }
+    else {
+      if (!arr[arr.length-1] && !val) { arr[arr.length-1] = ''; }
+      else if (!arr[arr.length-1]) { arr[arr.length-1] = val; }
+      else if (arr[arr.length-1] && val) { arr[arr.length-1] = Math.min(val, arr[arr.length-1]); }
     }
-    return [x[j], y[j], z[j]];
+    return arr.join();
+  }
+
+  function strSub(f, str) {
+    let j = 0;
+    const arr = str.split(',');
+    if (f==='D') { j = arr.length-1-24 }
+    else if (f==='W') { j = arr.length-1-7 }
+    else {f==='M'} { j = arr.length-1-bDate }
+
+    for (let i=j; i<arr.length-1; i++) {
+      if (arr[i]!=='') { j = i; break; }
+      if (i===arr.length-1) { j = arr.length-1 }
+    }
+    return arr[arr.length-1] - arr[j];
   }
 
   function strMin(f, str) {
@@ -257,7 +260,7 @@ function rHour(rc) {
 
     val = 101;
     for (let i=j; i<arr.length-1; i++) {
-      if (arr[i]==='') { continue; }
+      if (!arr[i]) { continue; }
       else if (arr[i]<val) { val = arr[i] }
     }
     if (val === 101) { val = ''; }
@@ -401,52 +404,62 @@ function rHour(rc) {
         a.lk_a = (Number(wJ.flag)!==30)? Number(wJ.lk_a) + a.lk_ah: null;
         a.cm_a = (Number(wJ.flag)!==30)? Number(wJ.cm_a) + a.cm_ah: null;
       }
+      if (tHour === 5) {
+        a.vw_d = strLen(wJ.vw_d +','+ ((a.vw==null)? '': a.vw), dLen);
+        a.lk_d = strLen(wJ.lk_d +','+ ((a.lk==null)? '': a.lk), dLen);
+        a.cm_d = strLen(wJ.cm_d +','+ ((a.cm==null)? '': a.cm), dLen);
+      } else {
+        a.vw_d = (a.vw==null)? wJ.vw_d: strLast(wJ.vw_d, a.vw);
+        a.lk_d = (a.lk==null)? wJ.lk_d: strLast(wJ.lk_d, a.lk);
+        a.cm_d = (a.cm==null)? wJ.cm_d: strLast(wJ.cm_d, a.cm);
+      }
+      if (tHour === 5 && tDay === 1) {
+        a.vw_w = strLen(wJ.vw_w +','+ ((a.vw==null)? '': a.vw), wLen);
+        a.lk_w = strLen(wJ.lk_w +','+ ((a.lk==null)? '': a.lk), wLen);
+        a.cm_w = strLen(wJ.cm_w +','+ ((a.cm==null)? '': a.cm), wLen);
+      } else {
+        a.vw_w = (a.vw==null)? wJ.vw_w: strLast(wJ.vw_w, a.vw);
+        a.lk_w = (a.lk==null)? wJ.lk_w: strLast(wJ.lk_w, a.lk);
+        a.cm_w = (a.cm==null)? wJ.cm_w: strLast(wJ.cm_w, a.cm);
+      }
+      if (tHour === 5 && tDate === 1) {
+        a.vw_m = strLen(wJ.vw_m +','+ ((a.vw==null)? '': a.vw), mLen);
+        a.lk_m = strLen(wJ.lk_m +','+ ((a.lk==null)? '': a.lk), mLen);
+        a.cm_m = strLen(wJ.cm_m +','+ ((a.cm==null)? '': a.cm), mLen);
+      } else {
+        a.vw_m = (a.vw==null)? wJ.vw_m: strLast(wJ.vw_m, a.vw);
+        a.lk_m = (a.lk==null)? wJ.lk_m: strLast(wJ.lk_m, a.lk);
+        a.cm_m = (a.cm==null)? wJ.cm_m: strLast(wJ.cm_m, a.cm);
+      }
     } else {
       done[1]++;
       a.date = Utilities.formatDate(new Date(yJ.snippet.publishedAt), 'JST', 'yyyy-MM-dd HH:mm:ss');
       a.vw_a = 0;
       a.vw_h = Array(hLen).join() + ((a.vw==null)? '': a.vw);
-      a.vw_d = Array(dLen).join();
-      a.vw_w = Array(wLen).join();
-      a.vw_m = Array(mLen).join();
+      a.vw_d = Array(dLen).join() + ((a.vw==null)? '': a.vw);
+      a.vw_w = Array(wLen).join() + ((a.vw==null)? '': a.vw);
+      a.vw_m = Array(mLen).join() + ((a.vw==null)? '': a.vw);
       a.lk_a = 0;
       a.lk_h = Array(hLen).join() + ((a.lk==null)? '': a.lk);
-      a.lk_d = Array(dLen).join();
-      a.lk_w = Array(wLen).join();
-      a.lk_m = Array(mLen).join();
+      a.lk_d = Array(dLen).join() + ((a.lk==null)? '': a.lk);
+      a.lk_w = Array(wLen).join() + ((a.lk==null)? '': a.lk);
+      a.lk_m = Array(mLen).join() + ((a.lk==null)? '': a.lk);
       a.cm_a = 0;
       a.cm_h = Array(hLen).join() + ((a.cm==null)? '': a.cm);
-      a.cm_d = Array(dLen).join();
-      a.cm_w = Array(wLen).join();
-      a.cm_m = Array(mLen).join();
+      a.cm_d = Array(dLen).join() + ((a.cm==null)? '': a.cm);
+      a.cm_w = Array(wLen).join() + ((a.cm==null)? '': a.cm);
+      a.cm_m = Array(mLen).join() + ((a.cm==null)? '': a.cm);
     }
-    if (tHour === 4) {
-      a.vw_d = strLen(wJ.vw_d +','+ ((a.vw==null)? '': a.vw), dLen);
-      a.lk_d = strLen(wJ.lk_d +','+ ((a.lk==null)? '': a.lk), dLen);
-      a.cm_d = strLen(wJ.cm_d +','+ ((a.cm==null)? '': a.cm), dLen);
-      const sub = strSub('D', a.vw_h, a.lk_h, a.cm_h);
-      a.vw_ad = (a.vw==null)? null: a.vw - sub[0];
-      a.lk_ad = (a.lk==null)? null: a.lk - sub[1];
-      a.cm_ad = (a.cm==null)? null: a.cm - sub[2];
-    }
-    if (tHour === 4 && tDay === 0) {
-      a.vw_w = strLen(wJ.vw_w +','+ ((a.vw==null)? '': a.vw), wLen);
-      a.lk_w = strLen(wJ.lk_w +','+ ((a.lk==null)? '': a.lk), wLen);
-      a.cm_w = strLen(wJ.cm_w +','+ ((a.cm==null)? '': a.cm), wLen);
-      const sub = strSub('W', a.vw_d, a.lk_d, a.cm_d);
-      a.vw_aw = (a.vw==null)? null: a.vw - sub[0];
-      a.lk_aw = (a.lk==null)? null: a.lk - sub[1];
-      a.cm_aw = (a.cm==null)? null: a.cm - sub[2];
-    }
-    if (tHour === 4 && nDate === 1) {
-      a.vw_m = strLen(wJ.vw_m +','+ ((a.vw==null)? '': a.vw), mLen);
-      a.lk_m = strLen(wJ.lk_m +','+ ((a.lk==null)? '': a.lk), mLen);
-      a.cm_m = strLen(wJ.cm_m +','+ ((a.cm==null)? '': a.cm), mLen);
-      const sub = strSub('M', a.vw_d, a.lk_d, a.cm_d);
-      a.vw_am = (a.vw==null)? null: a.vw - sub[0];
-      a.lk_am = (a.lk==null)? null: a.lk - sub[1];
-      a.cm_am = (a.cm==null)? null: a.cm - sub[2];
-    }
+    a.vw_ad = (a.vw==null)? null: strSub('D', a.vw_h);
+    a.lk_ad = (a.lk==null)? null: strSub('D', a.lk_h);
+    a.cm_ad = (a.cm==null)? null: strSub('D', a.cm_h);
+    a.vw_aw = (a.vw==null)? null: strSub('W', a.vw_d);
+    a.lk_aw = (a.lk==null)? null: strSub('W', a.lk_d);
+    a.cm_aw = (a.cm==null)? null: strSub('W', a.cm_d);
+    a.vw_am = (a.vw==null)? null: strSub('M', a.vw_d);
+    a.lk_am = (a.lk==null)? null: strSub('M', a.lk_d);
+    a.cm_am = (a.cm==null)? null: strSub('M', a.cm_d);
+
     wY.video_y.push(a);
 
     //video_z
@@ -480,6 +493,27 @@ function rHour(rc) {
       else if (f==='S') {
         a.pd_f = tLabel;
       }
+      if (tHour === 5) {
+        a.rn_d = strLen(wJ.rn_d +','+ ((a.rn==null)? '': a.rn), dLen);
+        a.rt_d = strLen(wJ.rt_d +','+ a.rt, dLen);
+      } else {
+        a.rn_d = strLast(wJ.rn_d, a.rn, false);
+        a.rt_d = strLast(wJ.rt_d, a.rt);
+      }
+      if (tHour === 5 && tDay === 1) {
+        a.rn_w = strLen(wJ.rn_w +','+ ((a.rn==null)? '': a.rn), wLen);
+        a.rt_w = strLen(wJ.rt_w +','+ a.rt, wLen);
+      } else {
+        a.rn_w = strLast(wJ.rn_w, a.rn, false);
+        a.rt_w = strLast(wJ.rt_w, a.rt);
+      }
+      if (tHour === 5 && tDate === 1) {
+        a.rn_m = strLen(wJ.rn_m +','+ ((a.rn==null)? '': a.rn), mLen);
+        a.rt_m = strLen(wJ.rt_m +','+ a.rt, mLen);
+      } else {
+        a.rn_m = strLast(wJ.rn_m, a.rn, false);
+        a.rt_m = strLast(wJ.rt_m, a.rt);
+      }
     } else {
       a.rt   = yJ.rt;
       a.rn_i = tLabel;
@@ -497,24 +531,13 @@ function rHour(rc) {
       a.pd_f = tLabel;
       a.pd_l = tLabel;
     }
-    if (tHour === 4) {
-      const sub = strSub('D', a.rt_h, a.rt_h, a.rt_h);
-      a.rn_d = strLen(wJ.rn_d +','+ strMin('D', a.rn_h), dLen);
-      a.rt_d = strLen(wJ.rt_d +','+ a.rt, dLen);
-      a.rt_ad = (a.rt === sub)? null: numR(a.rt - sub[0]);
-    }
-    if (tHour === 4 && tDay === 0) {
-      const sub = strSub('W', a.rt_d, a.rt_d, a.rt_d);
-      a.rn_w = strLen(wJ.rn_w +','+ strMin('W', a.rn_d), wLen);
-      a.rt_w = strLen(wJ.rt_w +','+ a.rt, wLen);
-      a.rt_aw = (a.rt === sub)? null: numR(a.rt - sub[0]);
-    }
-    if (tHour === 4 && nDate === 1) {
-      const sub = strSub('M', a.rt_d, a.rt_d, a.rt_d);
-      a.rn_m = strLen(wJ.rn_m +','+ strMin('M', a.rn_d), mLen);
-      a.rt_m = strLen(wJ.rt_m +','+ a.rt, mLen);
-      a.rt_am = (a.rt === sub)? null: numR(a.rt - sub[0]);
-    }
+    a.rt_ad = strSub('D', a.rt_h);
+    a.rt_aw = strSub('W', a.rt_d);
+    a.rt_am = strSub('M', a.rt_d);
+    a.rt_ad = (a.rt_ad)? a.rt_ad: null;
+    a.rt_aw = (a.rt_aw)? a.rt_aw: null;
+    a.rt_am = (a.rt_am)? a.rt_am: null;
+
     wZ.video_z.push(a);
 
     if (f!=='D' && wJ.flag!=='30'){Rank[a.rn][a.cat] = a.id;}
@@ -597,6 +620,33 @@ function rHour(rc) {
       a.vw_ah = (a.vw==null || wJ.vw==null)? null: a.vw - Number(wJ.vw);
       a.sb_ah = (a.sb==null || wJ.sb==null)? null: a.sb - Number(wJ.sb);
       a.vc_ah = (a.vc==null || wJ.vc==null)? null: a.vc - Number(wJ.vc);
+      if (tHour === 5) {
+        a.vw_d = strLen(wJ.vw_d +','+ ((a.vw==null)? '': a.vw), dLen);
+        a.sb_d = strLen(wJ.sb_d +','+ ((a.sb==null)? '': a.sb), dLen);
+        a.vc_d = strLen(wJ.vc_d +','+ ((a.vc==null)? '': a.vc), dLen);
+      } else {
+        a.vw_d = (a.vw==null)? wJ.vw_d: strLast(wJ.vw_d, a.vw);
+        a.sb_d = (a.sb==null)? wJ.sb_d: strLast(wJ.sb_d, a.sb);
+        a.vc_d = (a.vc==null)? wJ.vc_d: strLast(wJ.vc_d, a.vc);
+      }
+      if (tHour === 5 && tDay === 1) {
+        a.vw_w = strLen(wJ.vw_w +','+ ((a.vw==null)? '': a.vw), wLen);
+        a.sb_w = strLen(wJ.sb_w +','+ ((a.sb==null)? '': a.sb), wLen);
+        a.vc_w = strLen(wJ.vc_w +','+ ((a.vc==null)? '': a.vc), wLen);
+      } else {
+        a.vw_w = (a.vw==null)? wJ.vw_w: strLast(wJ.vw_w, a.vw);
+        a.sb_w = (a.sb==null)? wJ.sb_w: strLast(wJ.sb_w, a.sb);
+        a.vc_w = (a.vc==null)? wJ.vc_w: strLast(wJ.vc_w, a.vc);
+      }
+      if (tHour === 5 && tDate === 1) {
+        a.vw_m = strLen(wJ.vw_m +','+ ((a.vw==null)? '': a.vw), mLen);
+        a.sb_m = strLen(wJ.sb_m +','+ ((a.sb==null)? '': a.sb), mLen);
+        a.vc_m = strLen(wJ.vc_m +','+ ((a.vc==null)? '': a.vc), mLen);
+      } else {
+        a.vw_m = (a.vw==null)? wJ.vw_m: strLast(wJ.vw_m, a.vw);
+        a.sb_m = (a.sb==null)? wJ.sb_m: strLast(wJ.sb_m, a.sb);
+        a.vc_m = (a.vc==null)? wJ.vc_m: strLast(wJ.vc_m, a.vc);
+      }
     } else {
       a.date = Utilities.formatDate(new Date(yJ.snippet.publishedAt), 'JST', 'yyyy-MM-dd HH:mm:ss'),
       a.vw_h = Array(hLen).join() + ((a.vw==null)? '': a.vw);
@@ -612,33 +662,16 @@ function rHour(rc) {
       a.vc_w = Array(wLen).join();
       a.vc_m = Array(mLen).join();
     }
-    if (tHour === 4) {
-      a.vw_d = strLen(wJ.vw_d +','+ ((a.vw==null)? '': a.vw), dLen);
-      a.sb_d = strLen(wJ.sb_d +','+ ((a.sb==null)? '': a.sb), dLen);
-      a.vc_d = strLen(wJ.vc_d +','+ ((a.vc==null)? '': a.vc), dLen);
-      const sub = strSub('D', a.vw_h, a.sb_h, a.vc_h);
-      a.vw_ad = (a.vw==null)? null: a.vw - sub[0];
-      a.sb_ad = (a.sb==null)? null: a.sb - sub[1];
-      a.vc_ad = (a.vc==null)? null: a.vc - sub[2];
-    }
-    if (tHour === 4 && tDay === 0) {
-      a.vw_w = strLen(wJ.vw_w +','+ ((a.vw==null)? '': a.vw), wLen);
-      a.sb_w = strLen(wJ.sb_w +','+ ((a.sb==null)? '': a.sb), wLen);
-      a.vc_w = strLen(wJ.vc_w +','+ ((a.vc==null)? '': a.vc), wLen);
-      const sub = strSub('W', a.vw_d, a.sb_d, a.vc_d);
-      a.vw_aw = (a.vw==null)? null: a.vw - sub[0];
-      a.sb_aw = (a.sb==null)? null: a.sb - sub[1];
-      a.vc_aw = (a.vc==null)? null: a.vc - sub[2];
-    }
-    if (tHour === 4 && nDate === 1) {
-      a.vw_m = strLen(wJ.vw_m +','+ ((a.vw==null)? '': a.vw), mLen);
-      a.sb_m = strLen(wJ.sb_m +','+ ((a.sb==null)? '': a.sb), mLen);
-      a.vc_m = strLen(wJ.vc_m +','+ ((a.vc==null)? '': a.vc), mLen);
-      const sub = strSub('M', a.vw_d, a.sb_d, a.vc_d);
-      a.vw_am = (a.vw==null)? null: a.vw - sub[0];
-      a.sb_am = (a.sb==null)? null: a.sb - sub[1];
-      a.vc_am = (a.vc==null)? null: a.vc - sub[2];
-    }
+    a.vw_ad = (a.vw==null)? null: strSub('D', a.vw_h);
+    a.sb_ad = (a.sb==null)? null: strSub('D', a.sb_h);
+    a.vc_ad = (a.vc==null)? null: strSub('D', a.vc_h);
+    a.vw_aw = (a.vw==null)? null: strSub('W', a.vw_d);
+    a.sb_aw = (a.sb==null)? null: strSub('W', a.sb_d);
+    a.vc_aw = (a.vc==null)? null: strSub('W', a.vc_d);
+    a.vw_am = (a.vw==null)? null: strSub('M', a.vw_d);
+    a.sb_am = (a.sb==null)? null: strSub('M', a.sb_d);
+    a.vc_am = (a.vc==null)? null: strSub('M', a.vc_d);
+
     wY.channel_y.push(a);
 
     //channel_z
@@ -667,6 +700,27 @@ function rHour(rc) {
         a.pd_f = tLabel;
         a.pd_l = tLabel;
       }
+      if (tHour === 5) {
+        a.rn_d = strLen(wJ.rn_d +','+ a.rn, dLen);
+        a.rt_d = strLen(wJ.rt_d +','+ a.rt, dLen);
+      } else {
+        a.rn_d = strLast(wJ.rn_d, a.rn, false);
+        a.rt_d = strLast(wJ.rt_d, a.rt);
+      }
+      if (tHour === 5 && tDay === 1) {
+        a.rn_w = strLen(wJ.rn_w +','+ a.rn, wLen);
+        a.rt_w = strLen(wJ.rt_w +','+ a.rt, wLen);
+      } else {
+        a.rn_w = strLast(wJ.rn_w, a.rn, false);
+        a.rt_w = strLast(wJ.rt_w, a.rt);
+      }
+      if (tHour === 5 && tDate === 1) {
+        a.rn_m = strLen(wJ.rn_m +','+ a.rn, mLen);
+        a.rt_m = strLen(wJ.rt_m +','+ a.rt, mLen);
+      } else {
+        a.rn_m = strLast(wJ.rn_m, a.rn, false);
+        a.rt_m = strLast(wJ.rt_m, a.rt);
+      }
       done[0]++;
     } else {
       a.rn_b = Number(wJ.rn);
@@ -684,18 +738,6 @@ function rHour(rc) {
       a.pd_f = tLabel;
       a.pd_l = tLabel;
       done[1]++;
-    }
-    if (tHour === 4) {
-      a.rn_d = strLen(wJ.rn_d +','+ strMin('D', a.rn_h), dLen);
-      a.rt_d = strLen(wJ.rt_d +','+ a.rt, dLen);
-    }
-    if (tHour === 4 && tDay === 0) {
-      a.rn_w = strLen(wJ.rn_w +','+ strMin('W', a.rn_d), wLen);
-      a.rt_w = strLen(wJ.rt_w +','+ a.rt, wLen);
-    }
-    if (tHour === 4 && nDate === 1) {
-      a.rn_m = strLen(wJ.rn_m +','+ strMin('M', a.rn_m), mLen);
-      a.rt_m = strLen(wJ.rt_m +','+ a.rt, mLen);
     }
     wZ.channel_z.push(a);
   }
@@ -910,7 +952,7 @@ function rHour(rc) {
       wD = [];
       let rY = wpAPI(vURL, wY);
       let rZ = wpAPI(vURL, wZ);
-      console.log({'rY':rY.r.y.length, 'rZ':rZ.r.z.length});
+      console.log({'step':'vPost 必要リトライ数', 'rY':rY.r.y.length, 'rY_id':rY.r.y.join('　'), 'rZ':rZ.r.z.length, 'rZ_id':rZ.r.z.map(z => z.id).join('　')});
       data = rZ.r.z;
 
       console.log('vPost（処理結果）\nvideo_y : '+rY.y+' = '+(rY.t+rY.u+rY.f)+'（正常/変更なし/エラー：'+rY.t+' / '+rY.u+' / '+rY.f+'）\nvideo_z : '+rZ.z+' = '+(rZ.t+rZ.u+rZ.f)+'（正常/変更なし/エラー：'+rZ.t+' / '+rZ.u+' / '+rZ.f+'）');
@@ -943,7 +985,7 @@ function rHour(rc) {
       }
       let rY = wpAPI(vURL, wY);
       let rZ = wpAPI(vURL, wZ);
-      console.log({'rY':rY.r.y.length, 'rZ':rZ.r.z.length});
+      console.log({'step':'vRetry 再エラー数', 'rY':rY.r.y.length, 'rZ':rZ.r.z.length});
 
       console.log('vRetry（処理結果）\nvideo_y : '+rY.y+' = '+(rY.t+rY.u+rY.f)+'（正常/変更なし/エラー：'+rY.t+' / '+rY.u+' / '+rY.f+'）\nvideo_z : '+rZ.z+' = '+(rZ.t+rZ.u+rZ.f)+'（正常/変更なし/エラー：'+rZ.t+' / '+rZ.u+' / '+rZ.f+'）');
     } catch (e) {
@@ -1042,8 +1084,7 @@ function rHour(rc) {
       wD = [];
       let rY = wpAPI(cURL, wY);
       let rZ = wpAPI(cURL, wZ);
-      console.log({'rY':rY.r.y.length});
-      console.log({'rZ':rZ.r.z.length});
+      console.log({'step':'cPost エラー数', 'rY':rY.r.y.length, 'rZ':rZ.r.z.length});
       console.log('cPost（処理結果）\nchannel_y : '+rY.y+' = '+(rY.t+rY.u+rY.f)+'（正常/変更なし/エラー：'+rY.t+' / '+rY.u+' / '+rY.f+'）\nchannel_z : '+rZ.z+' = '+(rZ.t+rZ.u+rZ.f)+'（正常/変更なし/エラー：'+rZ.t+' / '+rZ.u+' / '+rZ.f+'）');
     } catch (e) {
       console.log('cPost\n' + e.message);

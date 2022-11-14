@@ -31,7 +31,7 @@ h3, h4, h5, h6, ul {margin: 0; font-size: 14px}
 header {z-index: 10; width: 100vw; position: sticky; position: -webkit-sticky; top: 0; box-shadow: rgba(0, 0, 0, 0.16) 0px 3px 6px, rgba(0, 0, 0, 0.23) 0px 3px 6px}
 
 section {width: 100%; max-width: 600px; min-width: 370px; margin: -45px auto 15px; padding: 45px 3px 0}
-section>h1, section>h2, article>h1, article>h2 header>h1, header>h2 {margin: 15px; font-size: 16px;}
+section>h1, section>h2, article>h1, article>h2, header>h1, header>h2 {margin: 15px; font-size: 16px;}
 section>nav {width: 100vw; height: 40px; background: #ddd; text-align: center; padding: 10px}
 section.navigation {order: 50} section.contents {order: 60}
 section.navigation, section.category, section.zone, section.contents {margin-top: 0; padding-top: 0}
@@ -44,6 +44,11 @@ article {width: 100%}
 article.featured-media {width: 1200px; height: 630px; font-family: 'Yusei Magic', sans-serif;}
 article.featured-media span {font-size: 60px}
 .featured-media>div {margin-top: 120px; margin-left: 160px;}
+
+.card {position: absolute; height: 200px; width: 100%; top: 100px}
+.menu1:hover~.menu1, .menu2:hover~.menu2, .menu3:hover~.menu3, .menu4:hover~.menu4 {display:unset; animation-name: a1; animation-duration: 0.2s; animation-fill-mode: both}
+.card:hover {display:unset;}
+@keyframes a1{0% {opacity:0;} 100% {opacity:1;}}
 
 .vs, .cs {text-align: center}
 table.vs, table.cs {width: 100%; margin: 30px 0}
@@ -92,9 +97,9 @@ div:has(.banner) {width: 100%; height: 140px; position: relative; overflow: hidd
 .heatmap tr:nth-child(-n+6) td {color: #eee}
 .heatmap td {padding: 0}
 
-.w2 {width: 20%} .w6 {width: 60%} .w8 {width: 80%} .w10 {width: 100%}
-.w20 {width: 20px} .w60 {width: 60px} .w90 {width: 90px} .w100 {width: 100px} .w160 {width: 160px} .w220 {width: 220px} .w320 {width: 320px}
-.h3 {height: 30px} .h4 {height: 40px} .h5 {height: 50px} .h6 {height: 60px} .h7 {height: 70px} .h9 {height: 90px} .h10 {height: 100px} .h43 {height: 430px}
+.w2 {width: 20%} .w4 {width: 40%} .w5 {width: 50%} .w6 {width: 60%} .w8 {width: 80%} .w10 {width: 100%}
+.wa {width: auto} .w20 {width: 20px} .w60 {width: 60px} .w90 {width: 90px} .w100 {width: 100px} .w160 {width: 160px} .w220 {width: 220px} .w320 {width: 320px}
+.ha {height: auto} .h3 {height: 30px} .h4 {height: 40px} .h5 {height: 50px} .h6 {height: 60px} .h7 {height: 70px} .h9 {height: 90px} .h10 {height: 100px} .h22 {height: 220px} .h30 {height: 300px} .h43 {height: 430px}
 .hm40 {max-height: 400px}
 .g10 {gap: 0 10px}
 .m3 {margin: 3px 0} .m5 {margin: 5px 0} .m10 {margin: 10px 0} .m15 {margin: 15px 0} .m20 {margin: 20px 0} .m30 {margin: 30px 0}

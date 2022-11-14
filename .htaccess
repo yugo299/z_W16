@@ -2,8 +2,11 @@ SetEnvIf Request_URI ".*" Ngx_Cache_NoCacheMode=off
 SetEnvIf Request_URI ".*" Ngx_Cache_AllCacheMode
 SetEnvIf Request_URI ".*" AllowRestApi
 RewriteEngine On
-RewriteCond %{HTTPS} !on
-RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [R=301,L]
+RewriteBase /
+# httpsに転送 & wwwなしに
+RewriteCond %{HTTPS} off [NC,OR]
+RewriteCond %{HTTP_HOST} ^www.ratio100\.com
+RewriteRule ^(.*)$ https://ratio100.com/$1 [R=301,L]
 # xmlrpc.phpへのアクセス無効化
 <Files xmlrpc.php>
 Order Allow,Deny
@@ -22,10 +25,10 @@ RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule . /index.php [L]
 </IfModule>
-
 # END WordPress
 RewriteEngine On
 RewriteBase /
+# 末尾スラッシュなしに
 RewriteRule ^(.*)/+$ $1 [R=301,L]
+# no-cache
 RewriteRule .* - [E=Cache-Control:no-cache]
-
