@@ -287,8 +287,8 @@ function vArguments(f) {
 
 function cArguments(f) {
 
-    done[0]++;
-  const wJ = wD[w];
+  done[0]++;
+  const wJ = data[w];
   const yJ = todo[y];
   let a = {};
 
@@ -437,11 +437,13 @@ function dArguments(i) {
 
   let a = {
     rt_ad: Math.round(strAdd('D', wJ.rt_h, wJ.pd_l)*10000)/10000,
+    vd: wJ.id,
     t_v: wJ.title,
     t_c: wJ.t_c,
     rn: strMin('D', wJ.rn_h),
     vw_ad: strAdd('D', wJ.vw_h, wJ.pd_l),
-    lk_ad: strAdd('D', wJ.lk_h, wJ.pd_l)
+    lk_ad: strAdd('D', wJ.lk_h, wJ.pd_l),
+    ch: wJ.ch
   }
 
   Ranking[wJ.cat].push(a);
@@ -673,7 +675,7 @@ function wpResult(rc) {
       done = [];
       todo = [].concat(data);
       while (todo.length) {
-        let vID = data.splice(0,50).map(x => x.id);
+        let vID = todo.splice(0,50).map(x => x.id);
         done = done.concat(ytChannel(vID.join()).items);
       }
       todo = [].concat(done).sort((a, b) => (a.id > b.id)? 1: -1);

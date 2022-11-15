@@ -5,12 +5,14 @@
 .c3 {background: linear-gradient(-15deg, #f3c, #606)} .t3 {color: #606}
 .c4 {background: linear-gradient(-15deg, #0c6, #360)} .t4 {color: #360}
 .c0 {background: linear-gradient(-15deg, #f96, #c30)} .t0 {color: #c30}
+.c7 {background: linear-gradient(150deg, rgb(255,51,187,0.8) -20%, rgb(153,0,153,0.9) 10%, rgb(153,0,153,0.9) 50%, rgb(255,51,187,0.8) 120%)}
 .c6 {background: var(--c6); color: var(--c1)}
 .c01 {color: #333}
-.b01 {background: #eee} .b02 {background: #ddd}
+.b01 {background: #eee} .b02 {background: #ddd} .b03 {background: rgba(30,0,30,0.9)}
+.sh {box-shadow: rgba(0,0,0,0.2) 0px 0px 10px, rgba(0,0,0,0.3) 0px 0px 10px}
 
 body { width: 100vw; background-color: #eee; margin: 0; color: #333; font-size: 14px}
-a {color: #c09} a:visited {color: #606} a:hover {color: #909}
+a {color: #b09; text-decoration: none} a:hover {color: #817; text-decoration: underline}
 .dm a {color: #ffc} .dm a:visited {color: #fc9} .dm a:hover {color: #f90}
 .external::after {font-family: "Font Awesome 6 Free"; content: '\f35d'; font-weight: 900}
 .dm * {color: #eee}
@@ -28,10 +30,31 @@ p:has(>cite) {width: 100%; text-align: right}
 div:has(iframe) {z-index: 2}
 h3, h4, h5, h6, ul {margin: 0; font-size: 14px}
 
-header {z-index: 10; width: 100vw; position: sticky; position: -webkit-sticky; top: 0; box-shadow: rgba(0, 0, 0, 0.16) 0px 3px 6px, rgba(0, 0, 0, 0.23) 0px 3px 6px}
+header {z-index: 10; width: 100vw; padding-right: 45px; display: flex; align-items: center; justify-content: center; position: sticky; position: -webkit-sticky; top: 0; box-shadow: rgba(0,0,0,0.2) 0px 0px 10px, rgba(0,0,0,0.3) 0px 0px 10px}
+header>h1, header>h2 {font-size: clamp(12px, 16px, 16px); white-space: nowrap}
+header>h1 span, header>h2 span {font-size: clamp(12px, 14px, 14px); font-weight: normal}
+
+.hamburger input, .hamburger label {position: fixed; z-index: 15}
+#btn0, #btn1, #btn2 {visibility: hidden; position: fixed; top:20px ; right: 20px}
+#btn1:checked~.btn0 {display: unset; top: 0; right: 0}
+#btn2:checked~.btn0 {display: unset; bottom: 20px; right: 10px}
+.btn0 {display: none} #btn1:checked~.btn0 {height: 40px; width: 40px} #btn2:checked~.btn0 {height: 50px; width: 50px}
+.btn1 {top: 0; right: 0; height: 40px; width: 40px; display: flex; justify-content: center; align-items: center}
+.btn2 {bottom: 20px; right: 10px; height: 50px; width: 50px; display: flex; justify-content: center; align-items: center; border-radius: 50%}
+.hamburger label span, .hamburger label span:before, .hamburger label span:after {position: absolute; content: ''; display: block; height: 3px; width: 20px; border-radius: 3px; background: #fff;}
+.hamburger label span:before {bottom: 8px} .hamburger label span:after {top: 8px}
+#btn1:checked~.btn1 span, #btn2:checked~.btn2 span {background: rgba(0,0,0,0)}
+#btn1:checked~.btn1 span::before, #btn2:checked~.btn2 span::before{bottom: 0; transform: rotate(45deg)}
+#btn1:checked~.btn1 span::after, #btn2:checked~.btn2 span::after {top: 0; transform: rotate(-45deg)}
+
+.hamburger h2 {padding: 5px 0; font-size: 14px}
+.hamburger .menu {display: none; position: fixed; width: 100%; left: 0}
+#btn1:checked~.menu {display:unset; top: 40px; animation-name: a1; animation-duration: 0.2s; animation-fill-mode: both}
+#btn2:checked~.menu {display:unset; bottom: 0px; animation-name: a1; animation-duration: 0.2s; animation-fill-mode: both}
+@keyframes a1{0% {opacity:0;} 100% {opacity:1;}}
 
 section {width: 100%; max-width: 600px; min-width: 370px; margin: -45px auto 15px; padding: 45px 3px 0}
-section>h1, section>h2, article>h1, article>h2, header>h1, header>h2 {margin: 15px; font-size: 16px;}
+section>h1, section>h2, article>h1, article>h2 {margin: 15px; font-size: 16px; color: #707}
 section>nav {width: 100vw; height: 40px; background: #ddd; text-align: center; padding: 10px}
 section.navigation {order: 50} section.contents {order: 60}
 section.navigation, section.category, section.zone, section.contents {margin-top: 0; padding-top: 0}
@@ -44,11 +67,6 @@ article {width: 100%}
 article.featured-media {width: 1200px; height: 630px; font-family: 'Yusei Magic', sans-serif;}
 article.featured-media span {font-size: 60px}
 .featured-media>div {margin-top: 120px; margin-left: 160px;}
-
-.card {position: absolute; height: 200px; width: 100%; top: 100px}
-.menu1:hover~.menu1, .menu2:hover~.menu2, .menu3:hover~.menu3, .menu4:hover~.menu4 {display:unset; animation-name: a1; animation-duration: 0.2s; animation-fill-mode: both}
-.card:hover {display:unset;}
-@keyframes a1{0% {opacity:0;} 100% {opacity:1;}}
 
 .vs, .cs {text-align: center}
 table.vs, table.cs {width: 100%; margin: 30px 0}
@@ -104,7 +122,7 @@ div:has(.banner) {width: 100%; height: 140px; position: relative; overflow: hidd
 .g10 {gap: 0 10px}
 .m3 {margin: 3px 0} .m5 {margin: 5px 0} .m10 {margin: 10px 0} .m15 {margin: 15px 0} .m20 {margin: 20px 0} .m30 {margin: 30px 0}
 .mc {margin-left: auto; margin-right: auto}
-.p0 {padding: 0} .p5 {padding: 5px} .p60 {padding: 60px} .p100 {padding: 100px} .p110 {padding-left: 110px}
+.p0 {padding: 0} .p5 {padding: 5px} .p10 {padding: 10px} .p60 {padding: 60px} .p100 {padding: 100px} .p110 {padding-left: 110px}
 .f14 {font-size: 14px} .f16 {font-size: 16px} .f24 {font-size: 24px} .f36 {font-size: 36px} .f45 {font-size: 45px}
 .o1 {order: 1} .o2 {order: 2} .o3 {order: 3}
 
@@ -128,6 +146,7 @@ div:has(.banner) {width: 100%; height: 140px; position: relative; overflow: hidd
 .wr {flex-wrap: wrap}
 .fe {justify-content: flex-end}
 .fs {justify-content: flex-start}
+.sa {justify-content: space-around}
 .se {justify-content: space-evenly}
 .sb {justify-content: space-between}
 .jc {justify-content: center}
@@ -145,3 +164,10 @@ div:has(.banner) {width: 100%; height: 140px; position: relative; overflow: hidd
 .lc.l2 {-webkit-line-clamp: 2}
 .fn {font-weight: normal} .fb {font-weight: bold}
 .ti-05 {text-indent: -0.5em;}
+
+.menu1:hover~.menu1, .menu2:hover~.menu2, .menu3:hover~.menu3, .menu4:hover~.menu4 {display:unset; animation-name: a1; animation-duration: 0.2s; animation-fill-mode: both}
+.card:hover {display:unset;}
+
+.ttt {color: #707; line-height: 30px; padding: 0 8px;}
+.bt1 {color: #eee; background: #808; padding: 0 8px; border-radius: 6px; height: 24px; line-height: 24px; margin: 0 4px; font-size: 14px}
+.bt2 {color: #eee; background: #b43;; padding: 0 8px; border-radius: 6px; height: 24px; line-height: 24px; margin: 0 4px; font-size: 14px}
