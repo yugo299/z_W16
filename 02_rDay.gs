@@ -28,7 +28,7 @@ const vURL = sURL + '/wp-json/ratio-zid/zid/video/';
 const cURL = sURL + '/wp-json/ratio-zid/zid/channel/';
 const authUser = 'syo-zid';
 const authPass = 'lpwN R9pX bviV fliz CZIo wV8W';
-const msKey = 'cb4064ed957644f485ca6ebe1ec96ce5';
+const msKey = 'daa6fb4c178945a499f80cacc5c16410';
 
 const CONSUMER_KEY = 'TaaTCR2HJ3hr5Tor5rDGfkhBs';
 const CONSUMER_SECRET = 'XfrWXBSiF0YCvLTN3JGXyK41wv8fo5PWdRhsG7RpIdWokRoIuv';
@@ -441,8 +441,8 @@ function dArguments(i) {
     t_v: wJ.title,
     t_c: wJ.t_c,
     rn: strMin('D', wJ.rn_h),
-    vw_ad: strAdd('D', wJ.vw_h, wJ.pd_l),
-    lk_ad: strAdd('D', wJ.lk_h, wJ.pd_l),
+    vw: strAdd('D', wJ.vw_h, wJ.pd_l),
+    lk: strAdd('D', wJ.lk_h, wJ.pd_l),
     ch: wJ.ch
   }
 
@@ -511,7 +511,7 @@ function strAdd(f, str, label) {
 
 function strMin(f, str) {
   let j = 0;
-  arr = str.split(',');
+  const arr = str.split(',').map(x => Number(x));
   if (f==='D') { j = arr.length-1-24 }
   else if (f==='W') { j = arr.length-1-7 }
   else if (f==='M') { j = arr.length-1-tDate }

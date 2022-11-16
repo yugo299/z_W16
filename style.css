@@ -36,11 +36,11 @@ header>h1 span, header>h2 span {font-size: clamp(12px, 14px, 14px); font-weight:
 
 .hamburger input, .hamburger label {position: fixed; z-index: 15}
 #btn0, #btn1, #btn2 {visibility: hidden; position: fixed; top:20px ; right: 20px}
-#btn1:checked~.btn0 {display: unset; top: 0; right: 0}
-#btn2:checked~.btn0 {display: unset; bottom: 20px; right: 10px}
+#btn1:checked~.btn0 {display: unset; top: 0; right: 5px}
+#btn2:checked~.btn0 {display: unset; bottom: 20px; right: 15px}
 .btn0 {display: none} #btn1:checked~.btn0 {height: 40px; width: 40px} #btn2:checked~.btn0 {height: 50px; width: 50px}
-.btn1 {top: 0; right: 0; height: 40px; width: 40px; display: flex; justify-content: center; align-items: center}
-.btn2 {bottom: 20px; right: 10px; height: 50px; width: 50px; display: flex; justify-content: center; align-items: center; border-radius: 50%}
+.btn1 {top: 0; right: 5px; height: 40px; width: 40px; display: flex; justify-content: center; align-items: center}
+.btn2 {bottom: 20px; right: 15px; height: 50px; width: 50px; display: flex; justify-content: center; align-items: center; border-radius: 50%}
 .hamburger label span, .hamburger label span:before, .hamburger label span:after {position: absolute; content: ''; display: block; height: 3px; width: 20px; border-radius: 3px; background: #fff;}
 .hamburger label span:before {bottom: 8px} .hamburger label span:after {top: 8px}
 #btn1:checked~.btn1 span, #btn2:checked~.btn2 span {background: rgba(0,0,0,0)}

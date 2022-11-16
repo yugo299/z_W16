@@ -108,7 +108,7 @@ function rUpdate() {
 
   /** ■■■■ 変数 ■■■■ */
   const apiKey = 'AIzaSyAqHRINTIP30Gw0C0WxL_2GMi7Y2np6i3M';
-  const msKey = 'cb4064ed957644f485ca6ebe1ec96ce5';
+  const msKey = 'daa6fb4c178945a499f80cacc5c16410';
 
   const sURL = 'https://ratio100.com';
   const oURL = sURL + '/wp-json/wp/v2/posts/';

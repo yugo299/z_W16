@@ -64,7 +64,7 @@ CREATE TABLE IF NOT EXISTS `video_z` (
   `flag` tinyint(2) unsigned NOT NULL DEFAULT 24,
   `rn` tinyint(3) unsigned DEFAULT NULL COMMENT 'rank',
   `rn_i` datetime DEFAULT NULL,
-  `rn_b` tinyint(3) unsigned DEFAULT 101,
+  `rn_b` tinyint(3) unsigned DEFAULT NULL,
   `rn_t` datetime DEFAULT NULL,
   `rn_h` text COLLATE utf8mb4_unicode_ci NOT NULL,
   `rn_d` text COLLATE utf8mb4_unicode_ci NOT NULL,
@@ -126,7 +126,7 @@ CREATE TABLE IF NOT EXISTS `channel_y` (
 CREATE TABLE IF NOT EXISTS `channel_z` (
   `id` varchar(24) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
   `rc` varchar(2) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'regionCode',
-  `rn_b` tinyint(3) unsigned DEFAULT 101,
+  `rn_b` tinyint(3) unsigned DEFAULT NULL,
   `rn_t` datetime DEFAULT NULL,
   `rn_h` text COLLATE utf8mb4_unicode_ci NOT NULL,
   `rn_d` text COLLATE utf8mb4_unicode_ci NOT NULL,
@@ -737,73 +737,11 @@ FROM video_z AS z
 	LEFT JOIN channel_y AS c ON y.ch = c.id
 ORDER BY CASE WHEN rn IS NULL THEN 1 ELSE 0 END, rn
 
---■■■■ MEMO ■■■■
+--■■■■ カラムの値をデフォルトに戻す ■■■■
+UPDATE test
+SET c_char = DEFAULT(c_char), c_null=DEFAULT(c_null);
 
-LIMIT 10;
-
-
-ALTER VIEW video_00 AS
-SELECT * FROM
-(SELECT
-	count(*),
-	z.rc AS rc,
-	z.cat AS cat,
-	SUM(NVL(z.rt, 0)) AS rt
-FROM
-	video_z AS z
-GROUP BY rc, cat WITH ROLLUP) AS t
-ORDER BY cat ASC;
-
-ALTER VIEW a_88 AS
-SELECT * FROM
-( SELECT
-	count(*),
-	z.id AS id,
-	z.rc AS rc,
-	z.cat AS cat,
-	MAX(z.flag) AS flag,
-	MAX(y.ch) AS ch,
-	MAX(y.date) AS date,
-	MAX(y.dur) AS dur,
-	MAX(y.link) AS link,
-	MAX(y.vw) AS vw,
-	MAX(y.vw_h) AS vw_h,
-	MAX(y.vw_ah) AS vw_ah,
-	MAX(y.lk) AS lk,
-	MAX(y.lk_h) AS lk_h,
-	MAX(y.lk_ah) AS lk_ah,
-	MAX(y.cm) AS cm,
-	MAX(y.cm_h) AS cm_h,
-	MAX(y.cm_ah) AS cm_ah,
-	MIN(z.rn) AS rn,
-	MAX(z.rn_i) AS rn_i,
-	MIN(z.rn_b) AS rn_b,
-	MAX(z.rn_t) AS rn_t,
-	MAX(z.rn_h) AS rn_h,
-	SUM(NVL(z.rt, 0)) AS rt,
-	MAX(z.rt_h) AS rt_h,
-	MAX(z.rt_ah) AS rt_ah,
-	MAX(z.pd) AS pd,
-	MAX(z.pd_f) AS pd_f,
-	MAX(z.pd_l) AS pd_l,
-	MAX(z.pd_b) AS pd_b,
-	MAX(z.pd_s) AS pd_s,
-	MAX(z.pd_e) AS pd_e
-FROM
-	video_z AS z
-	LEFT JOIN video_y AS y ON z.id = y.id
-GROUP BY id, rc, cat WITH ROLLUP
-) AS t
-ORDER BY id, rc, cat ASC;
-
-ALTER VIEW video_00 AS
-SELECT * FROM
-(SELECT
-	count(*),
-	z.rc AS rc,
-	z.cat AS cat,
-	SUM(NVL(z.rt, 0)) AS rt
-FROM
-	video_z AS z
-GROUP BY rc, cat WITH ROLLUP) AS t
-ORDER BY cat ASC;
+UPDATE channel_y SET vw_h = '', vw_d = '', vw_w = '', vw_m = '', sb_h = '', sb_d = '', sb_w = '', sb_m = '', vc_h = '', vc_d = '', vc_w = '', vc_m = '';
+UPDATE channel_z SET rn_b = NULL, rn_t = NULL, rn_h = '', rn_d = '', rn_w = '', rn_m = '', rt_h = '', rt_d = '', rt_w = '', rt_m = '', pd = 0, pd_n = 0, pd_f = NULL, pd_l = NULL;
+UPDATE video_y SET vw_h = '', vw_d = '', vw_w = '', vw_m = '', lk_h = '', lk_d = '', lk_w = '', lk_m = '', cm_h = '', cm_d = '', cm_w = '', cm_m = '';
+UPDATE video_z SET rn_b = NULL, rn_t = NULL, rn_h = '', rn_d = '', rn_w = '', rn_m = '', rt_h = '', rt_d = '', rt_w = '', rt_m = '', pd = 0, pd_f = NULL, pd_l = NULL;

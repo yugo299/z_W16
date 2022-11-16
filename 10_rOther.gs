@@ -1,10 +1,10 @@
 function fOther() {
 
-  //let a = {status:'future',date:'2022-10-20T16:00:00'}
+  //let a = {'a':1,'b':2}//{title:'【速報】YouTube急上昇 映画とアニメ【11月13日2時集計】'}
   //let a = {video_y: {idddd:'QNqD-vWkea0'}}
   //let id = 'UCzy1nQFnKpacpu1E3uRMMVw';
 
-  //let r = wpAPI(pURL+11);
+  let r = wpAPI(zURL+'24/jp',a);
   //r.unshift(['id','rc','cat','flag','rn','num']);
   //ssWrite(xSheet,r);
 
@@ -16,19 +16,18 @@ function fOther() {
   //ytChannel();
   //ytActivities();
   //ytPopular();
-  //wpPage(4);
+  //wpPage(6);
   //wpScreenshot();
-  wpStats('jp');
+  //wpStats('jp');
   //r = wpImage();
 
-  //r = ytChannel(id)
-
-  //console.log(r);
+  //r = ytChannel(id);
+  console.log(r);
 }
 
 //■■■■ 変数 ■■■■
 const apiKey = 'AIzaSyBWiGrLeScNunJ1mY5QBACE4zrYGwZpO1E';
-const msKey = 'cb4064ed957644f485ca6ebe1ec96ce5';
+const msKey = 'daa6fb4c178945a499f80cacc5c16410';
 const gglKey = '768432540662-e3ojid05lncv56houo6bvimmhhckq6ut.apps.googleusercontent.com';
 const rFile = SpreadsheetApp.openById('1WsUl5TYWxcE4ltAisWPja9fkqb5hd48uvAeT-r5HrQ4');
 const fSheet = rFile.getSheetByName('F');
