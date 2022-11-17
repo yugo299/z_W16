@@ -436,7 +436,7 @@ function dArguments(i) {
   }
 
   let a = {
-    rt_ad: Math.round(strAdd('D', wJ.rt_h, wJ.pd_l)*10000)/10000,
+    rt: Math.round(strAdd('D', wJ.rt_h, wJ.pd_l)*10000)/10000,
     vd: wJ.id,
     t_v: wJ.title,
     t_c: wJ.t_c,
@@ -754,7 +754,7 @@ function wpResult(rc) {
       for (let i=0; i<cNo.length; i++) { Ranking[cNo[i]] = []; }
       for (let i=0; i<wD.length; i++) { dArguments(i); }
       for (let i=0; i<cNo.length; i++) {
-        Ranking[cNo[i]].sort((a, b) => (a.rt_ad < b.rt_ad)? 1: -1);
+        Ranking[cNo[i]].sort((a, b) => (a.rt < b.rt)? 1: -1);
         Top.push(Ranking[cNo[i]][0].t_c.replace(/(チャンネル|ちゃんねる|channel|Channel)/g, ''));
       }
       console.log({ranking:r,drop:d});

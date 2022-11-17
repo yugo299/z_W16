@@ -591,7 +591,7 @@ SELECT
 	y.date AS date,
 	y.dur AS dur,
 	y.des AS des,
-	y.img AS img,
+	c.img AS img,
 	y.vw AS vw,
 	y.vw_ah AS vw_ah,
 	y.lk AS lk,
@@ -650,6 +650,7 @@ SELECT
 	y.vw AS vw,
 	y.sb AS sb,
 	y.img AS img,
+	z.pd_n AS pd_n,
 	c.rc AS rc
 FROM (
 	SELECT
@@ -661,6 +662,7 @@ FROM (
 		LEFT JOIN video_y AS vy ON vz.vd = vy.id GROUP BY ch, rc
 	) AS c
 	LEFT JOIN	channel_y AS y ON y.id = c.ch
+	LEFT JOIN	channel_z AS z ON y.id = z.id
 ORDER BY rt DESC
 
 --■■■■ a_78 : チャンネル-詳細（個別ページ用） ■■■■
@@ -707,7 +709,9 @@ SELECT
 	y.cm AS cm,
 	y.date AS date,
 	y.dur AS dur,
-	y.img AS img
+	z.pd AS pd,
+	y.img AS img,
+	c.img AS logo
 FROM (SELECT * FROM video_z ORDER BY rn DESC) AS z
 	LEFT JOIN video_y AS y ON z.id = y.id
 	LEFT JOIN channel_y AS c ON y.ch = c.id
