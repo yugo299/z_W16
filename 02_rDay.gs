@@ -581,11 +581,8 @@ function wpResult(rc) {
   const now = Utilities.formatDate(new Date(), 'JST', 'yyyy-MM-dd HH:mm:ss').replace(' ','T');
 
   time = new Date(Utilities.formatDate(new Date(), 'Etc/GMT+14', 'yyyy-MM-dd'));
-  if (time.getDay()!==0) {
-    time = new Date(time.getTime() + (7-time.getDay()) * (1000*60*60*24));
-  }
-  time = String(time.getFullYear()-2000) + String((time.getMonth()+1<10)? '0'+(time.getMonth()+1): time.getMonth()+1);
-  let week = Number(time + '40');
+  if (time.getDay()!==0) { time = new Date(time.getTime() + (7-time.getDay()) * (1000*60*60*24)); }
+  let week = Number(Utilities.formatDate(time, 'Etc/GMT+14', 'yyMM') + '40');
 
   time = Utilities.formatDate(new Date(),'JST','yyyy-MM-dd HH:') + '00:00';
   time = new Date(time).getTime();
@@ -643,8 +640,7 @@ function wpResult(rc) {
   t = 0;
   step_va();
   if (t===3) {
-    //return
-    console.log('【途中終了】エラー回数超過\nvArguments')
+    return console.log('【途中終了】エラー回数超過\nvArguments')
   }
 
   function step_vp() { //vPost
@@ -664,8 +660,7 @@ function wpResult(rc) {
   t = 0;
   step_vp();
   if (t===3) {
-    //return
-    console.log('【途中終了】エラー回数超過\nvPost')
+    return console.log('【途中終了】エラー回数超過\nvPost')
   }
 
   function step_ca() { //cArguments
@@ -717,8 +712,7 @@ function wpResult(rc) {
   t = 0;
   step_ca();
   if (t===3) {
-    //return
-    console.log('【途中終了】エラー回数超過\ncArg')
+    return console.log('【途中終了】エラー回数超過\ncArg')
   }
 
   function step_cp() { //cPost
@@ -738,8 +732,7 @@ function wpResult(rc) {
   t = 0;
   step_cp();
   if (t===3) {
-    //return
-    console.log('【途中終了】エラー回数超過\ncPost')
+    return console.log('【途中終了】エラー回数超過\ncPost')
   }
 
   function step_da() { //dArguments
@@ -754,7 +747,11 @@ function wpResult(rc) {
       for (let i=0; i<cNo.length; i++) { Ranking[cNo[i]] = []; }
       for (let i=0; i<wD.length; i++) { dArguments(i); }
       for (let i=0; i<cNo.length; i++) {
-        Ranking[cNo[i]].sort((a, b) => (a.rt < b.rt)? 1: -1);
+        Ranking[cNo[i]].sort((a, b) => {
+          if (!a.rt) { return 1; }
+          else if (!b.rt) { return -1; }
+          else { return (a.rt < b.rt)? 1: -1; }
+        });
         Top.push(Ranking[cNo[i]][0].t_c.replace(/(チャンネル|ちゃんねる|channel|Channel)/g, ''));
       }
       console.log({ranking:r,drop:d});

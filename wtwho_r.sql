@@ -712,7 +712,7 @@ SELECT
 	z.pd AS pd,
 	y.img AS img,
 	c.img AS logo
-FROM (SELECT * FROM video_z ORDER BY rn DESC) AS z
+FROM video_z AS z
 	LEFT JOIN video_y AS y ON z.id = y.id
 	LEFT JOIN channel_y AS c ON y.ch = c.id
 GROUP BY vd, rc, cat WITH ROLLUP
@@ -734,11 +734,12 @@ SELECT
 	y.lk AS lk,
 	z.rn AS rn,
 	z.cat AS cat,
-	v.rn_b AS rn_b
-FROM video_z AS z
-	LEFT JOIN ( SELECT id, rc, MIN(rn_b) AS rn_b FROM video_z GROUP BY id, rc ) AS v ON v.id = z.id AND v.rc = z.rc
-	LEFT JOIN video_y AS y ON v.id = y.id
-	LEFT JOIN channel_y AS c ON y.ch = c.id
+	v.rn_b AS rn_b,
+	v.rt AS rt
+FROM ( SELECT id, rc, flag, cat, rn FROM ( SELECT id, rc, flag, cat, rn, RANK() OVER (PARTITION BY id, rc ORDER BY rn ASC) AS num FROM video_z ) AS v_n WHERE v_n.num = 1 ) AS z
+	LEFT JOIN ( SELECT id, rc, MIN(rn_b) AS rn_b, SUM(rt) AS rt FROM video_z GROUP BY id, rc ) AS v ON v.id = z.id AND v.rc = z.rc
+	LEFT JOIN video_y AS y ON y.id = z.id
+	LEFT JOIN channel_y AS c ON c.id = y.ch
 ORDER BY CASE WHEN rn IS NULL THEN 1 ELSE 0 END, rn
 
 --■■■■ カラムの値をデフォルトに戻す ■■■■

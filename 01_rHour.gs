@@ -172,6 +172,7 @@ function rHour(rc) {
   const today = Utilities.formatDate(new Date(), 'Etc/GMT-4', 'yyyy-MM-dd');
   const tDate = new Date(today).getDate();
   const tDay = new Date(today).getDay();
+  const tMonth = new Date(today).getMonth()+1;
   const bDate = new Date(Utilities.formatDate(new Date(), 'Etc/GMT+14', 'yyyy-MM-dd')).getDate();
 
   const tLabel = Utilities.formatDate(new Date(), 'JST', 'yyyy-MM-dd HH:') + '00:00';
@@ -221,8 +222,12 @@ function rHour(rc) {
   }
 
   function strLen(str, len) {
-    str = Array(len).join() + str.replace(/(undefined|null|NULL|NaN)/g, '');
+    str = str.replace(/(undefined|null|NULL|NaN)/g, '');
     let arr = str.split(',').map(x=>(x==='')? x: Number(x));
+    if (arr.length < len) {
+      console.log('エラー ==> strLen\narr : '+arr.length);
+      arr = Array(len).concat(arr);
+    }
     return arr.slice(arr.length-len).join()
   }
 
@@ -1156,7 +1161,7 @@ function rHour(rc) {
       }
       console.log('カテゴリ別ランキング速報アップデート : '+tLabel);
     } catch (e) {
-      console.log('Flash\n' + e.message);
+      console.log('カテゴリ別ランキング速報アップデート\n' + e.message);
       err = e;
     }
     finally {
@@ -1173,34 +1178,29 @@ function rHour(rc) {
   function step_re() { //日次ランキング結果アップデート
     err = {};
     try {
-      const id = Utilities.formatDate(new Date(), 'Etc/GMT-4', 'yyMMdd')
-      data = wpAPI(pURL+id);
-      let a = {ranking:{}, still:{}, new:{}, drop:{}};
-      const flag = Number(data.excerpt.raw);
-      const h = (tHour+19) % 24;
+      data = JSON.parse(wpAPI(pURL+5).content.raw);
+      const flag = data[rc].f;
+      let arg = {stats:[]};
+
+      if (tHour===5 && data[rc].f===4) { //期間別集計記事IDの更新
+        data[rc].d = Utilities.formatDate(new Date(), 'Etc/GMT-4', 'yyMMdd');
+        if (tDay === 1) {
+          ts = new Date(Utilities.formatDate(new Date(), 'Etc/GMT-4', 'yyyy-MM-dd'));
+          ts = Utilities.formatDate(new Date(ts.getTime() + (7-ts.getDay()) * (1000*60*60*24)), 'Etc/GMT-4', 'yyMM');
+          ts = Number(ts + '40');
+          do { done = wpAPI(pURL+(++ts)); } while (done.tags.includes(52));
+          data[rc].w = ts;
+        }
+        if (tDate === 1) {
+          data[rc].m = Utilities.formatDate(new Date(), 'Etc/GMT-4', 'yyMM00');
+          if (tMonth === 1) {
+            data[rc].y = Utilities.formatDate(new Date(), 'Etc/GMT-4', 'yy0000');
+          }
+        }
+      }
 
       if (tHour !== flag) {
-        if (tHour === 5 || data.content.raw === '') {
-          for (let i=0; i<cNo.length; i++) {
-            a.still[cNo[i]] = Array(24).fill(0);
-            a.new[cNo[i]] = Array(24).fill(0);
-            a.drop[cNo[i]] = Array(24).fill(0);
-          }
-        } else { a = JSON.parse(data.content.raw); }
-
-        for (let i=0; i<cNo.length; i++) {
-          a.still[cNo[i]][h] = Still[cNo[i]];
-          a.new[cNo[i]][h]   = New[cNo[i]];
-          a.drop[cNo[i]][h]  = Drop[cNo[i]];
-        }
-        let arg = {
-          excerpt: String(tHour),
-          content: JSON.stringify(a)
-        }
-        console.log(wpAPI(pURL+id, arg));
-
         const type = {'61':'vw', '62':'lk', '63':'cm'}
-        arg = {stats:[]}
 
         for (let i=0; i<cNo.length; i++) {
           let a = { date:today, rc:rc, cat:cNo[i], type:'st'};
@@ -1220,15 +1220,17 @@ function rHour(rc) {
             arg.stats.push(a);
           })
         }
-        console.log({step:'stats', date:today, hour:tHour, r:wpAPI(aURL, arg)});
+        console.log({step:'日次ランキング結果アップデート(sql)', date:today, hour:tHour, r:wpAPI(aURL, arg)});
 
-        console.log('日次ランキング結果アップデート : '+tLabel+'\nid : '+id);
+        data[rc].f =tHour;
+        arg = {content: JSON.stringify(data)}
+        console.log({step:'日次ランキング用フラグアップデート(post)', r: wpAPI(pURL+5, arg)});
 
-      } else { console.log('実施済み : 日次ランキング結果アップデート\nid : '+id) }
+      } else { console.log('実施済み : 日次ランキング結果アップデート\nflag : '+data[rc].f) }
       data = [];
 
     } catch (e) {
-      console.log('Flash\n' + e.message);
+      console.log('日次ランキング結果アップデート\n' + e.message);
       err = e;
     }
     finally {

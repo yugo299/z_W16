@@ -7,8 +7,6 @@ RewriteBase /
 RewriteCond %{HTTPS} off [NC,OR]
 RewriteCond %{HTTP_HOST} ^www.ratio100\.com
 RewriteRule ^(.*)$ https://ratio100.com/$1 [R=301,L]
-# English リライトルール
-RewriteRule ^(en)(\/)(.*)$ https://ratio100.com/$3/?rc=$1 [L]
 # xmlrpc.phpへのアクセス無効化
 <Files xmlrpc.php>
 Order Allow,Deny
