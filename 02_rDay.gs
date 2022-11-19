@@ -12,7 +12,7 @@ const cName = [
   'エンタメ',
   'ニュースと政治',
   'ハウツーとスタイル',
-  '科学と技術'
+  '科学とテクノロジー'
 ];
 
 const hLen = 72;
@@ -549,7 +549,7 @@ function strSub(f, str) {
   else if (f==='W') { j = arr.length-1-7 }
   else {f==='M'} { j = arr.length-1-bDate }
 
-  for (let i=j; i<arr.length-1; i++) {
+  for (let i=j; i<arr.length; i++) {
     if (arr[i]!=='') { j = i; break; }
     if (i===arr.length-1) { j = arr.length-1 }
   }

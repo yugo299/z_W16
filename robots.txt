@@ -1,5 +1,19 @@
 User-agent: *
 Disallow: /link/*
 Disallow: */channel/%*
+Disallow: */video/movie-anime*
+Disallow: */video/car-bike-train*
+Disallow: */video/music*
+Disallow: */video/pets-animals*
+Disallow: */video/sports*
+Disallow: */video/game*
+Disallow: */video/blog*
+Disallow: */video/comedy*
+Disallow: */video/entame*
+Disallow: */video/news-politics*
+Disallow: */video/howto-style*
+Disallow: */video/science-tech*
+Disallow: */trending/flash*
+Disallow: /other*
 
 Sitemap: https://ratio100.com/sitemap_index.xml

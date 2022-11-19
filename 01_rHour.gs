@@ -114,7 +114,7 @@ function rHour(rc) {
     'エンタメ',
     'ニュースと政治',
     'ハウツーとスタイル',
-    '科学と技術'
+    '科学とテクノロジー'
   ];
   const cTitle = [
     '映画とアニメ',
@@ -128,7 +128,7 @@ function rHour(rc) {
     'カテゴリ:エンタメ',
     'ニュースと政治',
     'ハウツーとスタイル',
-    '科学と技術'
+    '科学とテクノロジー'
   ];
   const cSlug = [
     'movie-anime',
@@ -242,9 +242,9 @@ function rHour(rc) {
     const arr = str.split(',');
     if (f==='D') { j = arr.length-1-24 }
     else if (f==='W') { j = arr.length-1-7 }
-    else {f==='M'} { j = arr.length-1-bDate }
+    else if (f==='M') { j = arr.length-1-bDate }
 
-    for (let i=j; i<arr.length-1; i++) {
+    for (let i=j; i<arr.length; i++) {
       if (arr[i]!=='') { j = i; break; }
       if (i===arr.length-1) { j = arr.length-1 }
     }
@@ -408,7 +408,7 @@ function rHour(rc) {
       arr[arr.length-1] = (a.cm==null)? '': a.cm;
       a.cm_h = strLen(wJ.cm_h +','+ arr.join(), hLen);
 
-      a.cm_ah = (a.cm==null || wJ.cm==null || Number(wJ.flag)===30)? null: a.cm - Number(wJ.cm);
+      a.vw_ah = (a.vw==null || wJ.vw==null || Number(wJ.flag)===30)? null: a.vw - Number(wJ.vw);
       a.lk_ah = (a.lk==null || wJ.lk==null || Number(wJ.flag)===30)? null: a.lk - Number(wJ.lk);
       a.cm_ah = (a.cm==null || wJ.cm==null || Number(wJ.flag)===30)? null: a.cm - Number(wJ.cm);
       if (f==='S') {

@@ -47,13 +47,16 @@ header>h1 span, header>h2 span {font-size: clamp(12px, 14px, 14px); font-weight:
 #btn1:checked~.btn1 span::before, #btn2:checked~.btn2 span::before{bottom: 0; transform: rotate(45deg)}
 #btn1:checked~.btn1 span::after, #btn2:checked~.btn2 span::after {top: 0; transform: rotate(-45deg)}
 
-.hamburger h2 {padding: 5px 0; font-size: 14px}
-.hamburger .menu {display: none; position: fixed; width: 100%; left: 0}
-#btn1:checked~.menu {display:unset; top: 40px; animation-name: a1; animation-duration: 0.2s; animation-fill-mode: both}
-#btn2:checked~.menu {display:unset; bottom: 0px; animation-name: a1; animation-duration: 0.2s; animation-fill-mode: both}
-@keyframes a1{0% {opacity:0;} 100% {opacity:1;}}
+.hamburger h3 {padding: 5px 0}
+.hamburger h3>a, .hamburger h3>a:visited {color: #eee;} .hamburger h3>a:hover {color: #ffc}
+.hamburger .menu {display: none; position: fixed; width: 100%; left: 0; padding: 10px 20px; grid-template-areas: "a b e" "a b f" "a c g" "a d g"; justify-content: space-evenly; gap: 6px 10px; white-space: nowrap}
+#btn1:checked~.menu {display: grid; top: 40px; animation-name: a1; animation-duration: 0.2s; animation-fill-mode: both}
+#btn2:checked~.menu {display: grid; bottom: 0px; animation-name: a1; animation-duration: 0.2s; animation-fill-mode: both}
+@keyframes a1{0% {opacity: 0} 100% {opacity: 1}}
+.hamburger li {text-indent: 6px}
+.hamburger li>p {color: #ccc}
 
-section {width: 100%; max-width: 600px; min-width: 370px; margin: -45px auto 15px; padding: 45px 3px 0}
+section {width: 100%; max-width: 600px; min-width: 370px; margin: 15px auto; padding: 0 3px}
 section>h1, section>h2, article>h1, article>h2 {margin: 15px; font-size: 16px; color: #707}
 section>nav {width: 100vw; height: 40px; background: #ddd; text-align: center; padding: 10px}
 section.navigation {order: 50} section.contents {order: 60}
@@ -76,7 +79,7 @@ table.vs, table.cs {width: 100%; margin: 30px 0}
 .vs img {height: 81px; object-fit: cover; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); -webkit-transform: translate(-50%, -50%); -ms-transform: translate(-50%, -50%)}
 .cs div:has(img) {width: 70px; height: 60px; margin: 5px 0}
 .cs img {height: 60px; width: 60px; margin: 0 auto; border-radius: 50%}
-.vs .r25 {width: calc((100% - 108px) * 0.25)}
+.vs .r25 {width: calc((100% - 108px) * 0.25)} .vs .r20 {width: calc((100% - 108px) * 0.20)} .vs .r40 {width: calc((100% - 108px) * 0.40)}
 .cs .r20 {width: calc((100% - 70px) * 0.20)} .cs .r30 {width: calc((100% - 70px) * 0.30)}
 .vs .lc {padding-left: 110px} .cs .lc {padding-left: 80px}
 .vs th .c01 {width: 108px} .cs th .c01 {width: 90px}
@@ -111,7 +114,7 @@ div:has(.banner) {width: 100%; height: 140px; position: relative; overflow: hidd
 .heatmap tr:nth-child(even) td {background: #ddd}
 .heatmap td {width: calc((100% - 190px) / 24)}
 .heatmap tbody th {width: 140px}
-.heatmap tbody td:nth-child(2) {width: 50px}
+.heatmap tbody td:nth-child(2) {width: 50px; padding: 0 8px;}
 .heatmap tr:nth-child(-n+6) td {color: #eee}
 .heatmap td {padding: 0}
 
@@ -168,27 +171,33 @@ div:has(.banner) {width: 100%; height: 140px; position: relative; overflow: hidd
 .menu1:hover~.menu1, .menu2:hover~.menu2, .menu3:hover~.menu3, .menu4:hover~.menu4 {display: unset; animation-name: a1; animation-duration: 0.2s; animation-fill-mode: both}
 .card:hover {display:unset;}
 
-.ttt {color: #707; line-height: 30px; padding: 0 8px;}
-
-[class*="head-"] {margin: 0 4px; border-style: solid; border-width: 2px; border-radius: 8px; padding: 2px 8px 0; box-sizing: content-box; height: 20px; line-height: 20px; font-size: 13px}
 [class*="tag-"] {margin: 0 4px; border-style: solid; border-width: 2px; border-radius: 8px; padding: 2px 8px 0; box-sizing: content-box; height: 20px; line-height: 20px; font-size: 13px}
 [class*="btn-"] {margin: 8px 4px; border-style: solid; border-width: 4px; border-radius: 3px; padding: 6px 20px 4px; box-sizing: content-box; height: 20px; line-height: 20px; font-weight: bold}
-[class*="card-"] {margin:4px; border-style: solid; border-width: 4px; border-radius: 3px; padding: 6px 20px 4px; box-sizing: content-box; font-weight: bold}
-[class*="-01"] {background: #444; border-color: #444; color: #eee} [class*="-02"] {background: #eee; border-color: #444; color: #444}
-[class*="-11"] {background: #808; border-color: #808; color: #eee} [class*="-12"] {background: #eee; border-color: #808; color: #808}
-[class*="-21"] {background: #b43; border-color: #b43; color: #eee} [class*="-22"] {background: #eee; border-color: #b43; color: #b43}
+[class*="card-"] {margin:4px; border-style: solid; border-width: 4px; border-radius: 3px; padding: 6px; box-sizing: content-box; font-weight: bold}
+[class*="head-"] {width: 80%; margin: auto; ; border-width: 2px 0; border-style: solid; padding: 8px 0}
+[class*="-01"] {background: #444; border-color: #444; color: #eee} [class*="-02"] {background: #eee; border-color: #444; color: #444} [class*="-03"] {border-color: #444; color: #333}
+[class*="-11"] {background: #808; border-color: #808; color: #eee} [class*="-12"] {background: #eee; border-color: #808; color: #808} [class*="-13"] {border-color: #808; color: #333}
+[class*="-21"] {background: #b43; border-color: #b43; color: #eee} [class*="-22"] {background: #eee; border-color: #b43; color: #b43} [class*="-23"] {border-color: #b43; color: #333}
 a:hover:has([class*="tag-"]), a:hover:has([class*="cta-"]), a:hover:has([class*="card-"]) {text-decoration: none}
 
 [class*="edge-"] {position: absolute}
-.edge-t {top: 0; left: 0; height: 10px; width: 100%; background: linear-gradient(#eee 20%, rgb(0,0,0,0))}
-.edge-b {bottom: 0; left: 0; height: 10px; width: 100%; background: linear-gradient(rgb(0,0,0,0), #eee 80%)}
-.edge-l {top: 0; left: 0; height: 100%; width: 10px; background: linear-gradient(90deg, #eee 20%, rgb(0,0,0,0))}
-.edge-r {top: 0; right: 0; height: 100%; width: 10px; background: linear-gradient(90deg, rgb(0,0,0,0), #eee 80%)}
+.edge-t {top: 0; left: 0; height: 10px; width: 100%; background: linear-gradient(#eee 20%, transparent)}
+.edge-b {bottom: 0; left: 0; height: 10px; width: 100%; background: linear-gradient(transparent, #eee 80%)}
+.edge-l {top: 0; left: 0; height: 100%; width: 10px; background: linear-gradient(90deg, #eee 20%, transparent)}
+.edge-r {top: 0; right: 0; height: 100%; width: 10px; background: linear-gradient(90deg, transparent, #eee 80%)}
 
-.home .logo img {height: 30px; width: 30px; border-radius: 50%}
-.home .logo {margin: 6px 3px 10px; border-width: 2px; height: 30px; width: 30px; background: #ddd}
+#home .logo img {height: 30px; width: 30px; border-radius: 50%}
+#home .logo {margin: 6px 3px; border-width: 2px; height: 30px; width: 30px; background: #ddd}
+#home section:nth-child(odd) h2>a {color: #707}
+#home section:nth-child(even) h2>a {color: #822}
 
-#category ul {display: grid; grid-template-columns: 1fr 1fr 1fr; width: fit-content; padding: 0 8px 6px}
+#category ul {display: grid; grid-template-columns: 1fr 1fr 1fr; width: 100%; padding: 0 8px 6px}
 
-#channel-video a>div>div {display: grid; grid-template-rows: 1fr 1fr; grid-template-columns: 1fr 1fr; width: fit-content}
-#channel-video h3>div {width: 80%; margin: auto; ; border-width: 2px 0; border-style: solid; border-color: #b43; padding: 8px 0}
+#channel-video>div {width: 98%; margin-right: auto;}
+#channel-video li {width: 50%}
+#channel-video a>div>div, #stats a>div>div, #results a>div>div {display: grid; grid-template-columns: 1fr 1fr; width: 100%; padding: 0 10%; justify-items: center}
+
+#results>table, #stats>table {width: 98%; margin-right: auto}
+#home #results tbody th, #home #stats tbody th {width: 30%}
+#home #results tbody td, #home #stats tbody td {width: 35%}
+#home #result [class*="head-"], #home #stats [class*="head-"] {padding: 4px 0;}
