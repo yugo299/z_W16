@@ -173,7 +173,10 @@ function rHour(rc) {
   const tDate = new Date(today).getDate();
   const tDay = new Date(today).getDay();
   const tMonth = new Date(today).getMonth()+1;
-  const bDate = new Date(Utilities.formatDate(new Date(), 'Etc/GMT+14', 'yyyy-MM-dd')).getDate();
+
+  ts = new Date(new Date().getTime() - 86400000);
+  const yesterday = Utilities.formatDate(ts, 'Etc/GMT-4', 'yyyy-MM-dd 04:00:00');
+  const bDate = new Date(Utilities.formatDate(ts, 'Etc/GMT-4', 'yyyy-MM-dd')).getDate();
 
   const tLabel = Utilities.formatDate(new Date(), 'JST', 'yyyy-MM-dd HH:') + '00:00';
   ts = new Date(tLabel).getTime() - (1000 * 60 * 60);
@@ -224,10 +227,7 @@ function rHour(rc) {
   function strLen(str, len) {
     str = str.replace(/(undefined|null|NULL|NaN)/g, '');
     let arr = str.split(',').map(x=>(x==='')? x: Number(x));
-    if (arr.length < len) {
-      console.log('エラー ==> strLen\narr : '+arr.length);
-      arr = Array(len).concat(arr);
-    }
+    if (arr.length < len) { arr = Array(len).concat(arr); }
     return arr.slice(arr.length-len).join()
   }
 
@@ -281,7 +281,7 @@ function rHour(rc) {
 
   function arrPeriod(pd) {
     const now = new Date(tLabel);
-    const before = new Date(pd);
+    const before = (pd)? new Date(pd): new Date(yesterday);
     let val = now.getTime() - before.getTime();
     val = Math.round((val%86400000)/3600000);
     return Array(val);
@@ -399,11 +399,22 @@ function rHour(rc) {
     }
     if (wJ) {
       done[0]++;
-      const array = arrPeriod(wJ.pd_l);
+      const array = (wJ.flag==='24')? []: arrPeriod(wJ.pd_l);
+      if ((array.length===0 || array.length>1) && Number(wJ.flag)<24) { console.log({m:'要確認', id:a.id, len:array.length, pd_l:wJ.pd_l, tHour:tHour}); }
+
+if (a.id==='r9H3EEX0_SE' && cat===1) { console.log('0: a.vw_h\n'+wJ.vw_h); console.log({'0: array':array}) }
 
       let arr = array.fill(numLast(wJ.vw_h));
+
+if (a.id==='r9H3EEX0_SE' && cat==1) { console.log({'1: arr':arr}) }
+
       arr[arr.length-1] = (a.vw==null)? '': a.vw;
+
+if (a.id==='r9H3EEX0_SE' && cat==1) { console.log({'2: arr':arr}) }
+
       a.vw_h = strLen(wJ.vw_h +','+ arr.join(), hLen);
+
+if (a.id==='r9H3EEX0_SE' && cat==1) { console.log('3: a.vw_h\n'+a.vw_h) }
 
       arr = array.fill(numLast(wJ.lk_h));
       arr[arr.length-1] = (a.lk==null)? '': a.lk;
@@ -477,7 +488,14 @@ function rHour(rc) {
     a.lk_am = (a.lk==null)? null: strSub('M', a.lk_d);
     a.cm_am = (a.cm==null)? null: strSub('M', a.cm_d);
 
-    wY.video_y.push(a);
+    let i = wY.video_y.findIndex(x => x.id === a.id);
+    if (~i && f!=='S') { wY.video_y.unshift(a); }
+    else { wY.video_y.push(a); }
+
+    if (a.id==='r9H3EEX0_SE' && cat==1) {
+      console.log({m:'モニタリング（前） : r9H3EEX0_SE', wJ:wJ});
+      console.log({m:'モニタリング（y） : r9H3EEX0_SE', arg:a});
+    }
 
     //video_z
     a = {
@@ -556,11 +574,15 @@ function rHour(rc) {
     a.rt_ad = strSub('D', a.rt_h);
     a.rt_aw = strSub('W', a.rt_d);
     a.rt_am = strSub('M', a.rt_d);
-    a.rt_ad = (a.rt_ad)? a.rt_ad: null;
-    a.rt_aw = (a.rt_aw)? a.rt_aw: null;
-    a.rt_am = (a.rt_am)? a.rt_am: null;
+    a.rt_ad = (a.rt_ad)? Math.round(a.rt_ad*10000)/10000: null;
+    a.rt_aw = (a.rt_aw)? Math.round(a.rt_aw*10000)/10000: null;
+    a.rt_am = (a.rt_am)? Math.round(a.rt_am*10000)/10000: null;
 
     wZ.video_z.push(a);
+
+    if (a.id==='r9H3EEX0_SE' && cat==1) {
+      console.log({m:'モニタリング（z） : r9H3EEX0_SE', arg:a});
+    }
 
     if (f!=='D' && wJ.flag!=='30'){Rank[a.rn][a.cat] = a.id;}
     if (a.flag!==tHour && a.flag!==24) { console.log(a); }
@@ -635,7 +657,8 @@ function rHour(rc) {
       vc: yJ.statistics.videoCount,
     }
     if (wJ.date!=null) {
-      const array = arrPeriod(wJ.pd_l);
+      const array = (wJ.flag==='24')? []: arrPeriod(wJ.pd_l);
+      if (array.length>1 && Number(wJ.flag)<24) { console.log({m:'要確認', id:a.id, len:array.length, pd_l:wJ.pd_l, tHour:tHour}); }
 
       let arr = array.fill(numLast(wJ.vw_h));
       arr[arr.length-1] = (a.vw==null)? '': a.vw;
@@ -1182,23 +1205,6 @@ function rHour(rc) {
       const flag = data[rc].f;
       let arg = {stats:[]};
 
-      if (tHour===5 && data[rc].f===4) { //期間別集計記事IDの更新
-        data[rc].d = Utilities.formatDate(new Date(), 'Etc/GMT-4', 'yyMMdd');
-        if (tDay === 1) {
-          ts = new Date(Utilities.formatDate(new Date(), 'Etc/GMT-4', 'yyyy-MM-dd'));
-          ts = Utilities.formatDate(new Date(ts.getTime() + (7-ts.getDay()) * (1000*60*60*24)), 'Etc/GMT-4', 'yyMM');
-          ts = Number(ts + '40');
-          do { done = wpAPI(pURL+(++ts)); } while (done.tags.includes(52));
-          data[rc].w = ts;
-        }
-        if (tDate === 1) {
-          data[rc].m = Utilities.formatDate(new Date(), 'Etc/GMT-4', 'yyMM00');
-          if (tMonth === 1) {
-            data[rc].y = Utilities.formatDate(new Date(), 'Etc/GMT-4', 'yy0000');
-          }
-        }
-      }
-
       if (tHour !== flag) {
         const type = {'61':'vw', '62':'lk', '63':'cm'}
 
@@ -1224,7 +1230,7 @@ function rHour(rc) {
 
         data[rc].f =tHour;
         arg = {content: JSON.stringify(data)}
-        console.log({step:'日次ランキング用フラグアップデート(post)', r: wpAPI(pURL+5, arg)});
+        console.log({step:'日次ランキング用フラグアップデート(post)', r: wpAPI(pURL+5, arg).content.raw});
 
       } else { console.log('実施済み : 日次ランキング結果アップデート\nflag : '+data[rc].f) }
       data = [];

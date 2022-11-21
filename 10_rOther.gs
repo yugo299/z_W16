@@ -1,5 +1,6 @@
 function fOther() {
 
+  //let a = {content: JSON.stringify({jp: {f: 11, y: {b:210000, n:220000}, m: {b:221000, n:221100}, w: {b:211141, n:221142}, d: {b:211118, n:221119}}})}
   //let a = {'a':1,'b':2}//{title:'【速報】YouTube急上昇 映画とアニメ【11月13日2時集計】'}
   //let a = {video_y: {idddd:'QNqD-vWkea0'}}
   //let id = 'UCzy1nQFnKpacpu1E3uRMMVw';

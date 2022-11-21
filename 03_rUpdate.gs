@@ -221,8 +221,8 @@ function rUpdate() {
     }
 
     tw[0] = '『レシオ！』のYouTube急上昇ランキング速報\n'+hour+'時は #'+cName[tNo[i]]+' カテゴリのトップ10\n\n▼100位までのランキング▼\nratio100.com/'+cNo[tNo[i]]+'\n\n'+rank[1]+'\n\n'+rank[4]+'\n\n'+yt[1];
-    tw[1] = '100位までのランキング\nratio100.com/'+cNo[tNo[i]]+'\n\n'+rank[2]+'\n\n'+rank[5]+'\n\n'+rank[7]+'\n\n'+rank[9]+'\n\n'+yt[2];
-    tw[2] = '100位までのランキング\nratio100.com/'+cNo[tNo[i]]+'\n\n'+rank[3]+'\n\n'+rank[6]+'\n\n'+rank[8]+'\n\n'+rank[10]+'\n\n'+yt[3];
+    tw[1] = '▼ランキングTOP100▼\nratio100.com/'+cNo[tNo[i]]+'\n\n'+rank[2]+'\n\n'+rank[5]+'\n\n'+rank[7]+'\n\n'+rank[9]+'\n\n'+yt[2];
+    tw[2] = '▼ランキングTOP100▼\nratio100.com/'+cNo[tNo[i]]+'\n\n'+rank[3]+'\n\n'+rank[6]+'\n\n'+rank[8]+'\n\n'+rank[10]+'\n\n'+yt[3];
 
     for (let i=0; i<tw.length; i++) {
       console.log('文字数 : '+strCount(tw[i])+'\n'+tw[i]);
