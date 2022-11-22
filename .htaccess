@@ -10,6 +10,8 @@ RewriteRule ^(.*)$ https://ratio100.com/$1 [R=301,L]
 # video/channel ID4桁リダイレクト
 RewriteRule video\/....$ https://ratio100.com/youtube/video [R=301,L]
 RewriteRule channel\/....$ https://ratio100.com/youtube/channel [R=301,L]
+# search console 参考のリダイレクト
+RewriteRule ^{}$ https://ratio100.com [R=301,L]
 # カテゴリ別ランキング リライト
 RewriteRule ^(jp|us|gb)\/.*\/(movie-anime|car-bike-train|music|pets-animals|sports|game|blog|comedy|entame|news-politics|howto-style|science-tech)$ https://ratio100.com/youtube/trending/$2?rc=$1 [L]
 # xmlrpc.phpへのアクセス無効化

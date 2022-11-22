@@ -578,6 +578,28 @@ FROM (
 	LEFT JOIN video_y AS y ON z.vd = y.id
 GROUP BY ch, rc
 
+--■■■■ a_09 : チャンネル-レシオ（直近1ヶ月ランクイン動画数） ■■■■
+ALTER VIEW a_09 AS
+SELECT
+	y.ch AS ch,
+	v.rc AS rc,
+	SUM(v.num) AS vc,
+	c.sb AS sb,
+	c.img AS img,
+	c.title AS t_c,
+	0 AS rn,
+	0 AS cat
+FROM (
+	SELECT vd, rc, cat, rn, num FROM (
+		SELECT vd, rc, cat, rn, rn_i, RANK() OVER (PARTITION BY vd, rc ORDER BY rn ASC) AS num FROM (
+			SELECT id AS vd, rc, cat, rn, rn_i FROM video_z WHERE rn_i > NOW() - INTERVAL 1 MONTH
+		) AS z_rn
+	) AS z WHERE num = 1
+) AS v
+	LEFT JOIN video_y AS y ON v.vd = y.id
+	LEFT JOIN channel_y AS c ON c.id = y.ch
+GROUP BY ch, rc
+
 --■■■■ a_11 : 急上昇ランキング（トップ/カテゴリ別） ■■■■
 ALTER VIEW a_11 AS
 SELECT

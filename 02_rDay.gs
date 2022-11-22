@@ -100,7 +100,7 @@ function authCallback (request) {
   return client.authCallback(request)
 }
 
-/** ■■■■ 関数 ■■■■ */
+/** ■■■■ SS/WP/MS関数 ■■■■ */
 function ssData() {
   const sRow = fSheet.getLastRow();
   const sCol = fSheet.getLastColumn();
@@ -142,15 +142,128 @@ function msSubmit(list) {
   return {list:arguments.urlList.length, res:Json}
 }
 
+/** ■■■■ YouTube関数 ■■■■ */
+function ytVideo(id) {
+
+  const part = 'snippet,contentDetails,statistics';
+  const vfields = 'items(id,snippet(title,description,publishedAt,thumbnails(medium(url),default(url)),tags,channelId,channelTitle),contentDetails(duration),statistics(viewCount,likeCount,commentCount))';
+  const filter = '?part='+part+'&id='+id+'&maxResults=50&fields='+vfields+'&key='+apiKey;
+
+  const url = 'https://youtube.googleapis.com/youtube/v3/videos' + filter;
+
+  const options = {"muteHttpExceptions" : true,};
+  const resJson = JSON.parse(UrlFetchApp.fetch(url, options).getContentText());
+
+  return resJson
+}
+
+function ytChannel(id) {
+
+  const part = 'snippet,statistics';
+  const cfields = 'items(id,snippet(title,description,publishedAt,thumbnails(medium(url),default(url)),customUrl),statistics(viewCount,subscriberCount,videoCount))';
+  const filter = '?part='+part+'&id='+id+'&maxResults=50&fields='+cfields+'&key='+apiKey;
+
+  const url = 'https://youtube.googleapis.com/youtube/v3/channels' + filter;
+
+  const options = {"muteHttpExceptions" : true,};
+  const resJson = JSON.parse(UrlFetchApp.fetch(url, options).getContentText());
+
+  return resJson
+}
+
+/** ■■■■ 文字列,数値操作 ■■■■ */
+function imgVideo(str) {
+  const regexp = /(.*\/vi\/)([\w\_\-]+)(.*)/;
+  str = str.replace(regexp, '$2');
+  return str
+}
+
+function imgChannel(str) {
+  const regexp = /(.*\.com\/)([\w\/\_\-\_]+)(=s.*)/;
+  str = str.replace(regexp, '$2');
+  return str
+}
+
+function strAdd(f, str, label) {
+  let j = 0;
+  arr = str.split(',');
+  if (f==='D') { j = arr.length-1-24 }
+  else if (f==='W') { j = arr.length-1-7 }
+  else if (f==='M') { j = arr.length-1-bDate }
+
+  for (let i=j; i<arr.length-1; i++) {
+    if (arr[i]!=='') { j = i; break; }
+    if (i===arr.length-1) { j = arr.length-1 }
+  }
+
+  const t = (label)? Math.round((time-new Date(label).getTime())/(1000*60*60)): 0;
+  val = (arr.length-1-t>j)? (arr[arr.length-1-t]-arr[j]): 0;
+  if (val<arr[arr.length-1-t]*(-10)) {
+    val = (arr.length-1-t>j+1)? (arr[arr.length-1-t]-arr[j+1]): 0;
+    console.log({'エラー':arr[arr.length-1-t], f:f, label:label, now:arr[arr.length-1-t], before:arr[j+1], spare:arr[j+1], val:val, str:str});
+  }
+  return val
+}
+
+function strMin(f, str) {
+  let j = 0;
+  const arr = str.split(',').map(x => Number(x));
+  if (f==='D') { j = arr.length-1-24 }
+  else if (f==='W') { j = arr.length-1-7 }
+  else if (f==='M') { j = arr.length-1-tDate }
+
+  val = 100;
+  for (let i=j; i<arr.length-1; i++) {
+    if (!arr[i]) { continue; }
+    else if (arr[i]<val) { val = arr[i] }
+  }
+
+  return val
+}
+
+function strLen(str, len) {
+  str = Array(len).join() + str.replace(/(undefined|null|NULL|NaN)/g, '');
+  let arr = str.split(',').map(x=>(x==='')? x: Number(x));
+  return arr.slice(arr.length-len).join()
+}
+
+function strLast(str, val, f = true) {
+  let arr = str.split(',');
+  if (f) { arr[arr.length-1] = val; }
+  else {
+    if (!arr[arr.length-1] && !val) { arr[arr.length-1] = ''; }
+    else if (!arr[arr.length-1]) { arr[arr.length-1] = val; }
+    else if (arr[arr.length-1] && val) { arr[arr.length-1] = Math.min(val, arr[arr.length-1]); }
+  }
+  return arr.join();
+}
+
+function strSub(f, str) {
+  let j = 0;
+  const arr = str.split(',');
+  if (f==='D') { j = arr.length-1-24 }
+  else if (f==='W') { j = arr.length-1-7 }
+  else {f==='M'} { j = arr.length-1-bDate }
+
+  for (let i=j; i<arr.length; i++) {
+    if (arr[i]!=='') { j = i; break; }
+    if (i===arr.length-1) { j = arr.length-1 }
+  }
+
+  return arr[arr.length-1] - arr[j];
+}
+
+/** ■■■■ 主要関数 ■■■■ */
 function rsRange(f, id) {
   let range = [];
   id = String(id);
 
   if (f==='W') {
-    d = (new Date('20'+id.slice(0,2)+'-'+id.slice(2,4)+'-'+id.slice(4)).getDay()+6) % 7;
-    const mon = new Date('20'+id.slice(0,2)+'-'+id.slice(2,4)+'-'+id.slice(4)).getTime() - 86400000*d;
+    d = new Date('20'+id.slice(0,2)+'-'+id.slice(2,4)+'-'+((bDate<10)? '0'+bDate: bDate));
+    const mon = (d.getDay()+6) % 7;
+    d = d.getTime() - 86400000 * mon;
     for (let i=0; i<7; i++) {
-      range.push(Number(Utilities.formatDate(new Date(mon + 86400000 * i), 'Etc/GMT'+(Number('-4')-1), 'yyMMdd')));
+      range.push(Number(Utilities.formatDate(new Date(d + 86400000 * i), 'Etc/GMT'+(Number('-4')-1), 'yyMMdd')));
     }
   }
   else if (f==='M') {
@@ -210,9 +323,11 @@ function rsSummarize(array) {
 
 function rsPublish(f, id) {
   let dd = now;
+  id = String(id);
   if (f==='W') {
-    d = (new Date('20'+id.slice(0,2)+'-'+id.slice(2,4)+'-'+id.slice(4)).getDay()+6) % 7;
-    d = new Date('20'+id.slice(0,2)+'-'+id.slice(2,4)+'-'+id.slice(4)).getTime() - 86400000*d;
+    d = new Date('20'+id.slice(0,2)+'-'+id.slice(2,4)+'-'+((bDate<10)? '0'+bDate: bDate));
+    let mon = (d.getDay()+6) % 7;
+    d = d.getTime() - 86400000 * mon;
     dd = Utilities.formatDate(new Date(d), 'Etc/GMT'+(Number('-4')-1), 'yyyy-MM-dd 04:30:07').replace(' ','T');
   } else if (f==='M') {
     dd = '20'+id.slice(0,2)+'-'+id.slice(2,4)+'-01T04:30:12'
@@ -546,15 +661,22 @@ function rArguments(f, id) {
   for (let i=0; i<cNo.length; i++) { Ranking[cNo[i]] = []; }
 
   const range = rsRange(f, id);
+  if (f!=='Y') { console.log(range); }
   wpAPI(rURL, range).forEach(arg => {
-    const a = JSON.parse(arg).rc.ranking;
-    for (let i=0; i<cNo.length; i++) {
-      Ranking[cNo[i]].push(a[cNo[i]]);
-      Top.push(Ranking[cNo[i]][0].t_c.replace(/(チャンネル|ちゃんねる|channel|Channel)/g, ''));
+    if (!(arg==='' || !arg)) {
+      const j = JSON.parse(arg);
+      if (j.rc && j.rc.ranking) {
+        const a = j.rc.ranking;
+        for (let i=0; i<cNo.length; i++) {
+          Ranking[cNo[i]].push(a[cNo[i]]);
+          Top.push(Ranking[cNo[i]][0].t_c.replace(/(チャンネル|ちゃんねる|channel|Channel)/g, ''));
+        }
+      }
     }
   });
-
+  if (f!=='W') { console.log('モニタリング① : Week/n'+JSON.stringify(Ranking)); }
   for (let i=0; i<cNo.length; i++) { Ranking[cNo[i]] = rsSummarize(Ranking[cNo[i]]); }
+  if (f!=='W') { console.log('モニタリング② : Week/n'+JSON.stringify(Ranking)); }
 
   const prefix = 'YouTube急上昇ランキング '+tName[rc][f]+'まとめ【'+''+'】各カテゴリのレシオ1位のチャンネルはこちら［';
   const suffix = '］『レシオ！』ではYouTube急上昇ランキングをリアルタイム集計';
@@ -581,117 +703,6 @@ function rArguments(f, id) {
   };
 
   return wpAPI(pURL+id, arg);
-}
-
-/** ■■■■ YouTube関数 ■■■■ */
-function ytVideo(id) {
-
-  const part = 'snippet,contentDetails,statistics';
-  const vfields = 'items(id,snippet(title,description,publishedAt,thumbnails(medium(url),default(url)),tags,channelId,channelTitle),contentDetails(duration),statistics(viewCount,likeCount,commentCount))';
-  const filter = '?part='+part+'&id='+id+'&maxResults=50&fields='+vfields+'&key='+apiKey;
-
-  const url = 'https://youtube.googleapis.com/youtube/v3/videos' + filter;
-
-  const options = {"muteHttpExceptions" : true,};
-  const resJson = JSON.parse(UrlFetchApp.fetch(url, options).getContentText());
-
-  return resJson
-}
-
-function ytChannel(id) {
-
-  const part = 'snippet,statistics';
-  const cfields = 'items(id,snippet(title,description,publishedAt,thumbnails(medium(url),default(url)),customUrl),statistics(viewCount,subscriberCount,videoCount))';
-  const filter = '?part='+part+'&id='+id+'&maxResults=50&fields='+cfields+'&key='+apiKey;
-
-  const url = 'https://youtube.googleapis.com/youtube/v3/channels' + filter;
-
-  const options = {"muteHttpExceptions" : true,};
-  const resJson = JSON.parse(UrlFetchApp.fetch(url, options).getContentText());
-
-  return resJson
-}
-
-/** ■■■■ 文字列,数値操作 ■■■■ */
-function imgVideo(str) {
-  const regexp = /(.*\/vi\/)([\w\_\-]+)(.*)/;
-  str = str.replace(regexp, '$2');
-  return str
-}
-
-function imgChannel(str) {
-  const regexp = /(.*\.com\/)([\w\/\_\-\_]+)(=s.*)/;
-  str = str.replace(regexp, '$2');
-  return str
-}
-
-function strAdd(f, str, label) {
-  let j = 0;
-  arr = str.split(',');
-  if (f==='D') { j = arr.length-1-24 }
-  else if (f==='W') { j = arr.length-1-7 }
-  else if (f==='M') { j = arr.length-1-bDate }
-
-  for (let i=j; i<arr.length-1; i++) {
-    if (arr[i]!=='') { j = i; break; }
-    if (i===arr.length-1) { j = arr.length-1 }
-  }
-
-  const t = (label)? Math.round((time-new Date(label).getTime())/(1000*60*60)): 0;
-  val = (arr.length-1-t>j)? (arr[arr.length-1-t]-arr[j]): 0;
-  if (val<0 && val<arr[j]*(-9)) {
-    val = (arr.length-1-t>j+1)? (arr[arr.length-1-t]-arr[j+1]): 0;
-    console.log({'エラー':arr[arr.length-1-t], f:f, label:label, now:arr[arr.length-1-t], before:arr[j+1], spare:arr[j+1], val:val, str:str});
-  }
-  return val
-}
-
-function strMin(f, str) {
-  let j = 0;
-  const arr = str.split(',').map(x => Number(x));
-  if (f==='D') { j = arr.length-1-24 }
-  else if (f==='W') { j = arr.length-1-7 }
-  else if (f==='M') { j = arr.length-1-tDate }
-
-  val = 100;
-  for (let i=j; i<arr.length-1; i++) {
-    if (!arr[i]) { continue; }
-    else if (arr[i]<val) { val = arr[i] }
-  }
-
-  return val
-}
-
-function strLen(str, len) {
-  str = Array(len).join() + str.replace(/(undefined|null|NULL|NaN)/g, '');
-  let arr = str.split(',').map(x=>(x==='')? x: Number(x));
-  return arr.slice(arr.length-len).join()
-}
-
-function strLast(str, val, f = true) {
-  let arr = str.split(',');
-  if (f) { arr[arr.length-1] = val; }
-  else {
-    if (!arr[arr.length-1] && !val) { arr[arr.length-1] = ''; }
-    else if (!arr[arr.length-1]) { arr[arr.length-1] = val; }
-    else if (arr[arr.length-1] && val) { arr[arr.length-1] = Math.min(val, arr[arr.length-1]); }
-  }
-  return arr.join();
-}
-
-function strSub(f, str) {
-  let j = 0;
-  const arr = str.split(',');
-  if (f==='D') { j = arr.length-1-24 }
-  else if (f==='W') { j = arr.length-1-7 }
-  else {f==='M'} { j = arr.length-1-bDate }
-
-  for (let i=j; i<arr.length; i++) {
-    if (arr[i]!=='') { j = i; break; }
-    if (i===arr.length-1) { j = arr.length-1 }
-  }
-
-  return arr[arr.length-1] - arr[j];
 }
 
 function rDay(rc) {
@@ -1046,7 +1057,7 @@ function wpDay(rc) {
     }
   }
   t = 0;
-  step_wk();
+  //step_wk();
   if (t===3) {
     return console.log('【途中終了】エラー回数超過\narg : ウィークリーランキング')
   }
@@ -1080,7 +1091,9 @@ function wpResult(rc) {
     err = {};
     try {
       let res = rArguments('W', list[rc].w.n);
-      res.conetnt = '文字数 ( 全体 : ' + rc + ' ) = ( ' + res.conetnt.raw.length + ' : ' + JSON.parse(res.conetnt.raw)[rc].length + ' )';
+      const r = res.content.raw;
+      console.log(JSON.parse(r));
+      res.content = '文字数 ( 全体 : ' + rc + ' ) = ( ' + r.length + ' : ' + JSON.stringify(JSON.parse(r)[rc]).length + ' )';
       console.log({'完了':'週間ランキングの更新（'+rc+'）', res:res});
     } catch (e) {
       console.log('週間ランキングの更新\n' + e.message);
@@ -1096,42 +1109,46 @@ function wpResult(rc) {
     return console.log('【途中終了】エラー回数超過\n週間ランキングの更新')
   }
 
-  function step_w() { //月間ランキングの更新
+  function step_m() { //月間ランキングの更新
     err = {};
     try {
       let res = rArguments('M', list[rc].m.n);
-      res.conetnt = '文字数 ( 全体 : ' + rc + ' ) = ( ' + res.conetnt.raw.length + ' : ' + JSON.parse(res.conetnt.raw)[rc].length + ' )';
+      const r = res.content.raw;
+      console.log(JSON.parse(r));
+      res.content = '文字数 ( 全体 : ' + rc + ' ) = ( ' + r.length + ' : ' + JSON.stringify(JSON.parse(r)[rc]).length + ' )';
       console.log({'完了':'月間ランキングの更新（'+rc+'）', res:res});
     } catch (e) {
       console.log('月間ランキングの更新\n' + e.message);
       err = e;
     }
     finally {
-      if('message' in err && ++t < 3){ step_w() }
+      if('message' in err && ++t < 3){ step_m() }
     }
   }
   t = 0;
-  step_w();
+  step_m();
   if (t===3) {
     return console.log('【途中終了】エラー回数超過\n月間ランキングの更新')
   }
 
-  function step_w() { //年間ランキングの更新
+  function step_y() { //年間ランキングの更新
     err = {};
     try {
       let res = rArguments('Y', list[rc].y.n);
-      res.conetnt = '文字数 ( 全体 : ' + rc + ' ) = ( ' + res.conetnt.raw.length + ' : ' + JSON.parse(res.conetnt.raw)[rc].length + ' )';
+      const r = res.content.raw;
+      console.log(JSON.parse(r));
+      res.content = '文字数 ( 全体 : ' + rc + ' ) = ( ' + r.length + ' : ' + JSON.stringify(JSON.parse(r)[rc]).length + ' )';
       console.log({'完了':'年間ランキングの更新（'+rc+'）', res:res});
     } catch (e) {
       console.log('年間ランキングの更新\n' + e.message);
       err = e;
     }
     finally {
-      if('message' in err && ++t < 3){ step_w() }
+      if('message' in err && ++t < 3){ step_y() }
     }
   }
   t = 0;
-  step_w();
+  step_y();
   if (t===3) {
     return console.log('【途中終了】エラー回数超過\n年間ランキングの更新')
   }
@@ -1160,7 +1177,7 @@ function wpResult(rc) {
         }
       }
       arg = {content: list}
-      console.log({'完了':'期間別集計記事IDの更新（'+rc+'）', res:JSON.parse(wpAPI(pURL+5, arg).content.raw)});
+      console.log({'完了':'期間別集計記事IDの更新（'+rc+'）', res:JSON.stringify(JSON.parse(wpAPI(pURL+5, arg).content.raw))});
     } catch (e) {
       console.log('arg : 期間別集計記事IDの更新\n' + e.message);
       err = e;

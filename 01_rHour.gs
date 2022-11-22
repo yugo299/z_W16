@@ -402,19 +402,19 @@ function rHour(rc) {
       const array = (wJ.flag==='24')? []: arrPeriod(wJ.pd_l);
       if ((array.length===0 || array.length>1) && Number(wJ.flag)<24) { console.log({m:'要確認', id:a.id, len:array.length, pd_l:wJ.pd_l, tHour:tHour}); }
 
-if (a.id==='r9H3EEX0_SE' && cat===1) { console.log('0: a.vw_h\n'+wJ.vw_h); console.log({'0: array':array}) }
+if (a.id==='PiZ-iDSkTCk') { console.log('0: a.vw_h\n'+wJ.vw_h); console.log({'0: array':array}) }
 
       let arr = array.fill(numLast(wJ.vw_h));
 
-if (a.id==='r9H3EEX0_SE' && cat==1) { console.log({'1: arr':arr}) }
+if (a.id==='PiZ-iDSkTCk') { console.log({'1: arr':arr}) }
 
       arr[arr.length-1] = (a.vw==null)? '': a.vw;
 
-if (a.id==='r9H3EEX0_SE' && cat==1) { console.log({'2: arr':arr}) }
+if (a.id==='PiZ-iDSkTCk' && cat==1) { console.log({'2: arr':arr}) }
 
       a.vw_h = strLen(wJ.vw_h +','+ arr.join(), hLen);
 
-if (a.id==='r9H3EEX0_SE' && cat==1) { console.log('3: a.vw_h\n'+a.vw_h) }
+if (a.id==='PiZ-iDSkTCk' && cat==1) { console.log('3: a.vw_h\n'+a.vw_h) }
 
       arr = array.fill(numLast(wJ.lk_h));
       arr[arr.length-1] = (a.lk==null)? '': a.lk;
@@ -492,9 +492,9 @@ if (a.id==='r9H3EEX0_SE' && cat==1) { console.log('3: a.vw_h\n'+a.vw_h) }
     if (~i && f!=='S') { wY.video_y.unshift(a); }
     else { wY.video_y.push(a); }
 
-    if (a.id==='r9H3EEX0_SE' && cat==1) {
-      console.log({m:'モニタリング（前） : r9H3EEX0_SE', wJ:wJ});
-      console.log({m:'モニタリング（y） : r9H3EEX0_SE', arg:a});
+    if (a.id==='PiZ-iDSkTCk') {
+      console.log({m:'モニタリング（前） : PiZ-iDSkTCk', wJ:wJ});
+      console.log({m:'モニタリング（y） : PiZ-iDSkTCk', arg:a});
     }
 
     //video_z
@@ -580,8 +580,8 @@ if (a.id==='r9H3EEX0_SE' && cat==1) { console.log('3: a.vw_h\n'+a.vw_h) }
 
     wZ.video_z.push(a);
 
-    if (a.id==='r9H3EEX0_SE' && cat==1) {
-      console.log({m:'モニタリング（z） : r9H3EEX0_SE', arg:a});
+    if (a.id==='PiZ-iDSkTCk') {
+      console.log({m:'モニタリング（z） : PiZ-iDSkTCk', arg:a});
     }
 
     if (f!=='D' && wJ.flag!=='30'){Rank[a.rn][a.cat] = a.id;}
