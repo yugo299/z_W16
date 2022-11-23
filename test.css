@@ -1,0 +1,24 @@
+.table-of-contents input, .table-of-contents label {position: fixed; z-index: 15}
+#btn {position: fixed; top:100px ; right: 100px}
+
+.btn {bottom: 20px; left: 15px; height: 50px; width: 50px; display: flex; justify-content: center; align-items: center; border-radius: 50%}
+.table-of-contents label span, .table-of-contents label span:before, .table-of-contents label span:after {position: absolute; content: ''; display: block; height: 3px; width: 16px; border-radius: 3px; background: #fff;}
+.table-of-contents label span {right: 13px}
+.table-of-contents label span:before {bottom: 8px} .table-of-contents label span:after {top: 8px}
+#btn:checked~.btn span {background: rgba(0,0,0,0)}
+#btn:checked~.btn span::before {bottom: 0; transform: rotate(45deg); width: 20px; left: -6px}
+#btn:checked~.btn span::after {top: 0; transform: rotate(-45deg); width: 20px; left: -6px}
+
+.table-of-contents label .dot, .table-of-contents label .dot:before, .table-of-contents label .dot:after {width: 5px; height: 5px}
+.table-of-contents label .dot {left: 13px}
+#btn:checked~.btn .dot:before, #btn:checked~.btn .dot:after {background: transparent}
+
+.table-of-contents h3 {padding: 5px 0}
+.table-of-contents h3>a, .table-of-contents h3>a:visited {color: #eee;} .table-of-contents h3>a:hover {color: #ffc}
+.table-of-contents .menu {display: none; position: fixed; width: 100%; left: 0; padding: 10px 20px; grid-template-areas: "a b e" "a b f" "a c g" "a d g"; justify-content: space-evenly; gap: 6px 10px; white-space: nowrap}
+#btn:checked~.menu {display: grid; top: 40px; animation-name: a1; animation-duration: 0.2s; animation-fill-mode: both}
+#btn~.menu {display: grid; top: 40px; animation-name: a2; animation-duration: 1.2s; animation-fill-mode: both}
+@keyframes a1{0% {opacity: 0} 100% {opacity: 1}}
+@keyframes a2{0% {opacity: 1} 100% {opacity: 0}}
+.table-of-contents li {text-indent: 6px}
+.table-of-contents li>p {color: #ccc}

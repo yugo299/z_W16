@@ -35,24 +35,40 @@ header>h1, header>h2 {font-size: clamp(12px, 16px, 16px); white-space: nowrap}
 header>h1 span, header>h2 span {font-size: clamp(12px, 14px, 14px); font-weight: normal}
 
 .hamburger input, .hamburger label {position: fixed; z-index: 15}
-#btn0, #btn1, #btn2 {visibility: hidden; position: fixed; top:20px ; right: 20px}
-#btn1:checked~.btn0 {display: unset; top: 0; right: 5px}
-#btn2:checked~.btn0 {display: unset; bottom: 20px; right: 15px}
-.btn0 {display: none} #btn1:checked~.btn0 {height: 40px; width: 40px} #btn2:checked~.btn0 {height: 50px; width: 50px}
-.btn1 {top: 0; right: 5px; height: 40px; width: 40px; display: flex; justify-content: center; align-items: center}
-.btn2 {bottom: 20px; right: 15px; height: 50px; width: 50px; display: flex; justify-content: center; align-items: center; border-radius: 50%}
+[id*="radio-"] {visibility: hidden; position: fixed; top:20px ; right: 20px}
+#radio-1:checked~.radio-0 {display: unset; top: 0; right: 5px}
+#radio-2:checked~.radio-0 {display: unset; bottom: 20px; right: 15px}
+#radio-3:checked~.radio-0 {display: unset; bottom: 20px; left: 15px}
+.radio-0 {display: none}
+#radio-1:checked~.radio-0 {height: 40px; width: 40px}
+#radio-2:checked~.radio-0, #radio-3:checked~.radio-0 {height: 50px; width: 50px}
+
+[class*="radio-"] {display: flex; justify-content: center; align-items: center}
+.radio-1 {top: 0; right: 5px; height: 40px; width: 40px}
+.radio-2 {bottom: 20px; right: 15px; height: 50px; width: 50px; border-radius: 50%}
+.radio-3 {bottom: 20px; left: 15px; height: 50px; width: 50px; border-radius: 50%}
+
 .hamburger label span, .hamburger label span:before, .hamburger label span:after {position: absolute; content: ''; display: block; height: 3px; width: 20px; border-radius: 3px; background: #fff;}
+.hamburger .bar {right: 13px} .hamburger .bar, .hamburger .bar::before, .hamburger .bar::after {width: 16px;}
+.hamburger .dot {left: 13px} .hamburger .dot, .hamburger .dot::before, .hamburger .dot::after {width: 5px; height: 5px}
+
 .hamburger label span:before {bottom: 8px} .hamburger label span:after {top: 8px}
-#btn1:checked~.btn1 span, #btn2:checked~.btn2 span {background: rgba(0,0,0,0)}
-#btn1:checked~.btn1 span::before, #btn2:checked~.btn2 span::before{bottom: 0; transform: rotate(45deg)}
-#btn1:checked~.btn1 span::after, #btn2:checked~.btn2 span::after {top: 0; transform: rotate(-45deg)}
+#radio-1:checked~.radio-1 span, #radio-2:checked~.radio-2 span, #radio-3:checked~.radio-3 span, #radio-3:checked~.radio-3 .dot:before, #radio-3:checked~.radio-3 .dot:after {background: transparent}
+#radio-1:checked~.radio-1 span::before, #radio-2:checked~.radio-2 span::before{bottom: 0; transform: rotate(45deg)}
+#radio-1:checked~.radio-1 span::after, #radio-2:checked~.radio-2 span::after {top: 0; transform: rotate(-45deg)}
+#radio-3:checked~.radio-3 span::before {bottom: 0; transform: rotate(45deg); width: 20px; left: -6px}
+#radio-3:checked~.radio-3 span::after {top: 0; transform: rotate(-45deg); width: 20px; left: -6px}
 
 .hamburger h3 {padding: 5px 0}
 .hamburger h3>a, .hamburger h3>a:visited {color: #eee;} .hamburger h3>a:hover {color: #ffc}
-.hamburger .menu {display: none; position: fixed; width: 100%; left: 0; padding: 10px 20px; grid-template-areas: "a b e" "a b f" "a c g" "a d g"; justify-content: space-evenly; gap: 6px 10px; white-space: nowrap}
-#btn1:checked~.menu {display: grid; top: 40px; animation-name: a1; animation-duration: 0.2s; animation-fill-mode: both}
-#btn2:checked~.menu {display: grid; bottom: 0px; animation-name: a1; animation-duration: 0.2s; animation-fill-mode: both}
-@keyframes a1{0% {opacity: 0} 100% {opacity: 1}}
+.hamburger .menu-1 {grid-template-areas: "a b e" "a b f" "a c g" "a d g" "h h h"; justify-content: space-evenly; gap: 6px 10px; white-space: nowrap}
+.hamburger [class*="menu-"] {display: none; position: fixed; width: 100%; left: 0; padding: 10px 20px; animation-name: a-2; animation-duration: 0.2s; animation-fill-mode: both}
+#radio-1:checked~.menu-1 {display: grid; top: 40px; animation-name: a-1}
+#radio-2:checked~.menu-1 {display: grid; bottom: 0px; animation-name: a-1}
+#radio-3:checked~.menu-2 {display: grid; bottom: 0px; animation-name: a-1}
+@keyframes a-1{0% {opacity: 0} 100% {opacity: 1}}
+@keyframes a-2{0% {opacity: 1} 100% {opacity: 0}}
+.hamburger .g-h {display: none} #radio-2:checked~.menu-1 .g-h {display: unset}
 .hamburger li {text-indent: 6px}
 .hamburger li>p {color: #ccc}
 

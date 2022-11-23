@@ -49,7 +49,7 @@ const bDate = new Date(Utilities.formatDate(new Date(), 'Etc/GMT'+(Number('-4')-
 
 d = new Date(new Date(Utilities.formatDate(new Date(), 'Etc/GMT'+(Number('-4')-1), 'yyyy-MM-dd')).getTime() - 86400000);
 const day = d.getDay()+60;
-const id = Utilities.formatDate(d, 'Etc/GMT'+'-4', 'yyMMdd');
+const tID = Utilities.formatDate(d, 'Etc/GMT'+'-4', 'yyMMdd');
 const today = Utilities.formatDate(d, 'Etc/GMT'+'-4', 'yyyy年M月d日');
 const publish = Utilities.formatDate(new Date(), 'JST', 'yyyy-MM-dd') + 'T05:30:00';
 const middle = Utilities.formatDate(new Date(), 'JST', 'yyyy-MM-dd') + 'T04:00:00';
@@ -253,7 +253,7 @@ function strSub(f, str) {
   return arr[arr.length-1] - arr[j];
 }
 
-/** ■■■■ 主要関数 ■■■■ */
+/** ■■■■ rs関数 ■■■■ */
 function rsRange(f, id) {
   let range = [];
   id = String(id);
@@ -337,6 +337,67 @@ function rsPublish(f, id) {
   return dd
 }
 
+function rsTitle(f, id) {
+  id = String(id);
+  if (f==='W') { return '第' + id.slice(5) + '週'; }
+  else if (f==='M') { return Number(id.slice(2, 4)) + '月'; }
+  else if (f==='Y') { return '20' + id.slice(0, 2) + '年'; }
+}
+
+function rsTerm(f, id) {
+  id = String(id);
+  if (f==='W') { return id.slice(2,4) + '月第' + id.slice(5) + '週'; }
+  else if (f==='M') { return '20' + id.slice(0,2) + '年' + Number(id.slice(2,4)) + '月'; }
+  else if (f==='Y') { return '20' + id.slice(0,2) + '年'; }
+}
+
+function rsOpen(f, id) {
+
+  let tContent = wpAPI(rURL, id)[0];
+  if (!(tContent==='' || !tContent)) { tContent = JSON.parse(tContent); }
+  else { tContent = {}; }
+
+  let sContent = wpAPI(rURL, id)[0];
+  if (!(sContent==='' || !sContent)) { sContent = JSON.parse(sContent); }
+  else { sContent = {}; }
+
+  let arg = {};
+  for (let i=0; i<cNo.length; i++) { arg[cNo[i]] = []; }
+
+  const tExcerpt = 'YouTube急上昇ランキング '+tName[rc][f]+'まとめ【'+rsTerm(f, id)+'】準備中';
+  const sExcerpt = 'YouTube急上昇ランキング '+tName[rc][f]+'ヒートマップ【'+rsTerm(f, id)+'】準備中';
+
+  tContent[rc] = { title: tExcerpt, des: tExcerpt, ranking: arg };
+  sContent[rc] = { title: sExcerpt, des: sExcerpt };
+
+  let term = 56;
+  if (f==='M') { term = 55; }
+  else if (f==='Y') { term = 53; }
+
+  d = rsPublish(f, id)
+
+  const tArg = {
+    date: d,
+    status: (d<now)? 'publish': 'future',
+    title: rsTitle(f, id),
+    content: JSON.stringify(tContent),
+    excerpt: excerpt,
+    adfgsfdfeatured_media: 107,
+    comment_status: 'open',
+    ping_status: 'open',
+    sticky: false,
+    categories: [4],
+    tags: [70,73,74,78,79,59,term]
+  };
+
+  let sArg = tArg;
+  sArg.content = JSON.stringify(sContent)
+  sArg.categories = [6];
+
+  return {trending: wpAPI(pURL+id, tArg), stats: wpAPI(pURL+(id+50), sArg)};
+}
+
+/** ■■■■ Arg関数 ■■■■ */
 function vArguments(f) {
   const wJ = data[w];
   const yJ = todo[y];
@@ -402,57 +463,59 @@ function vArguments(f) {
   }
 
   //video_y
-  a = {
-    id: yJ.id,
-    ch: yJ.snippet.channelId,
-    title: yJ.snippet.title,
-    dur: yJ.contentDetails.duration,
-    des: yJ.snippet.description,
-    tags: (yJ.snippet.tags)? yJ.snippet.tags.join(): '',
-    img: imgVideo(yJ.snippet.thumbnails.medium.url),
-    vw: yJ.statistics.viewCount,
-    lk: yJ.statistics.likeCount,
-    cm: yJ.statistics.commentCount
-  }
-  done[0]++;
-  a.vw_h = strLen(wJ.vw_h + Array(25).fill(a.vw).join(), hLen);
-  a.lk_h = strLen(wJ.lk_h + Array(25).fill(a.lk).join(), hLen);
-  a.cm_h = strLen(wJ.cm_h + Array(25).fill(a.cm).join(), hLen);
-  a.vw_d = strLen(wJ.vw_d +','+ ((a.vw==null)? '': a.vw), dLen);
-  a.lk_d = strLen(wJ.lk_d +','+ ((a.lk==null)? '': a.lk), dLen);
-  a.cm_d = strLen(wJ.cm_d +','+ ((a.cm==null)? '': a.cm), dLen);
-  if (tDay === 1) {
-    a.vw_w = strLen(wJ.vw_w +','+ ((a.vw==null)? '': a.vw), wLen);
-    a.lk_w = strLen(wJ.lk_w +','+ ((a.lk==null)? '': a.lk), wLen);
-    a.cm_w = strLen(wJ.cm_w +','+ ((a.cm==null)? '': a.cm), wLen);
-  } else {
-    a.vw_w = (a.vw==null)? wJ.vw_w: strLast(wJ.vw_w, a.vw);
-    a.lk_w = (a.lk==null)? wJ.lk_w: strLast(wJ.lk_w, a.lk);
-    a.cm_w = (a.cm==null)? wJ.cm_w: strLast(wJ.cm_w, a.cm);
-  }
-  if (tDate === 1) {
-    a.vw_m = strLen(wJ.vw_m +','+ ((a.vw==null)? '': a.vw), mLen);
-    a.lk_m = strLen(wJ.lk_m +','+ ((a.lk==null)? '': a.lk), mLen);
-    a.cm_m = strLen(wJ.cm_m +','+ ((a.cm==null)? '': a.cm), mLen);
-  } else {
-    a.vw_m = (a.vw==null)? wJ.vw_m: strLast(wJ.vw_m, a.vw);
-    a.lk_m = (a.lk==null)? wJ.lk_m: strLast(wJ.lk_m, a.lk);
-    a.cm_m = (a.cm==null)? wJ.cm_m: strLast(wJ.cm_m, a.cm);
-  }
-  a.vw_ad = null;
-  a.lk_ad = null;
-  a.cm_ad = null;
-  a.vw_ad = (a.vw==null)? null: strSub('D', a.vw_h);
-  a.lk_ad = (a.lk==null)? null: strSub('D', a.lk_h);
-  a.cm_ad = (a.cm==null)? null: strSub('D', a.cm_h);
-  a.vw_aw = (a.vw==null)? null: strSub('W', a.vw_d);
-  a.lk_aw = (a.lk==null)? null: strSub('W', a.lk_d);
-  a.cm_aw = (a.cm==null)? null: strSub('W', a.cm_d);
-  a.vw_am = (a.vw==null)? null: strSub('M', a.vw_d);
-  a.lk_am = (a.lk==null)? null: strSub('M', a.lk_d);
-  a.cm_am = (a.cm==null)? null: strSub('M', a.cm_d);
+  if (!~wD.findIndex(x => x.id===wJ.id)) {
+    a = {
+      id: yJ.id,
+      ch: yJ.snippet.channelId,
+      title: yJ.snippet.title,
+      dur: yJ.contentDetails.duration,
+      des: yJ.snippet.description,
+      tags: (yJ.snippet.tags)? yJ.snippet.tags.join(): '',
+      img: imgVideo(yJ.snippet.thumbnails.medium.url),
+      vw: yJ.statistics.viewCount,
+      lk: yJ.statistics.likeCount,
+      cm: yJ.statistics.commentCount
+    }
+    done[0]++;
+    a.vw_h = strLen(wJ.vw_h +','+ Array(24).fill(a.vw).join(), hLen);
+    a.lk_h = strLen(wJ.lk_h +','+ Array(24).fill(a.lk).join(), hLen);
+    a.cm_h = strLen(wJ.cm_h +','+ Array(24).fill(a.cm).join(), hLen);
+    a.vw_d = strLen(wJ.vw_d +','+ ((a.vw==null)? '': a.vw), dLen);
+    a.lk_d = strLen(wJ.lk_d +','+ ((a.lk==null)? '': a.lk), dLen);
+    a.cm_d = strLen(wJ.cm_d +','+ ((a.cm==null)? '': a.cm), dLen);
+    if (tDay === 1) {
+      a.vw_w = strLen(wJ.vw_w +','+ ((a.vw==null)? '': a.vw), wLen);
+      a.lk_w = strLen(wJ.lk_w +','+ ((a.lk==null)? '': a.lk), wLen);
+      a.cm_w = strLen(wJ.cm_w +','+ ((a.cm==null)? '': a.cm), wLen);
+    } else {
+      a.vw_w = (a.vw==null)? wJ.vw_w: strLast(wJ.vw_w, a.vw);
+      a.lk_w = (a.lk==null)? wJ.lk_w: strLast(wJ.lk_w, a.lk);
+      a.cm_w = (a.cm==null)? wJ.cm_w: strLast(wJ.cm_w, a.cm);
+    }
+    if (tDate === 1) {
+      a.vw_m = strLen(wJ.vw_m +','+ ((a.vw==null)? '': a.vw), mLen);
+      a.lk_m = strLen(wJ.lk_m +','+ ((a.lk==null)? '': a.lk), mLen);
+      a.cm_m = strLen(wJ.cm_m +','+ ((a.cm==null)? '': a.cm), mLen);
+    } else {
+      a.vw_m = (a.vw==null)? wJ.vw_m: strLast(wJ.vw_m, a.vw);
+      a.lk_m = (a.lk==null)? wJ.lk_m: strLast(wJ.lk_m, a.lk);
+      a.cm_m = (a.cm==null)? wJ.cm_m: strLast(wJ.cm_m, a.cm);
+    }
+    a.vw_ad = null;
+    a.lk_ad = null;
+    a.cm_ad = null;
+    a.vw_ad = (a.vw==null)? null: strSub('D', a.vw_h);
+    a.lk_ad = (a.lk==null)? null: strSub('D', a.lk_h);
+    a.cm_ad = (a.cm==null)? null: strSub('D', a.cm_h);
+    a.vw_aw = (a.vw==null)? null: strSub('W', a.vw_d);
+    a.lk_aw = (a.lk==null)? null: strSub('W', a.lk_d);
+    a.cm_aw = (a.cm==null)? null: strSub('W', a.cm_d);
+    a.vw_am = (a.vw==null)? null: strSub('M', a.vw_d);
+    a.lk_am = (a.lk==null)? null: strSub('M', a.lk_d);
+    a.cm_am = (a.cm==null)? null: strSub('M', a.cm_d);
 
-  wY.video_y.push(a);
+    wY.video_y.push(a);
+  }
 
   //video_z
   a = {
@@ -463,8 +526,8 @@ function vArguments(f) {
     rn: null,
     rt: wJ.rt
   }
-  a.rn_h = strLen(wJ.rn_h + Array(25), hLen);
-  a.rt_h = strLen(wJ.rt_h + Array(25).fill(a.rt), hLen);
+  a.rn_h = strLen(wJ.rn_h +','+ Array(24), hLen);
+  a.rt_h = strLen(wJ.rt_h +','+ Array(24).fill(a.rt), hLen);
   a.rn_d = strLen(wJ.rn_d +',', dLen);
   a.rt_d = strLen(wJ.rt_d +','+ a.rt, dLen);
   if (tDay === 1) {
@@ -560,9 +623,9 @@ function cArguments(f) {
     sb: yJ.statistics.subscriberCount,
     vc: yJ.statistics.videoCount,
   }
-  a.vw_h = strLen(wJ.vw_h + Array(25).fill(a.vw).join(), hLen);
-  a.sb_h = strLen(wJ.sb_h + Array(25).fill(a.sb).join(), hLen);
-  a.vc_h = strLen(wJ.vc_h + Array(25).fill(a.vc).join(), hLen);
+  a.vw_h = strLen(wJ.vw_h +','+ Array(24).fill(a.vw).join(), hLen);
+  a.sb_h = strLen(wJ.sb_h +','+ Array(24).fill(a.sb).join(), hLen);
+  a.vc_h = strLen(wJ.vc_h +','+ Array(24).fill(a.vc).join(), hLen);
   a.vw_d = strLen(wJ.vw_d +','+ ((a.vw==null)? '': a.vw), dLen);
   a.sb_d = strLen(wJ.sb_d +','+ ((a.sb==null)? '': a.sb), dLen);
   a.vc_d = strLen(wJ.vc_d +','+ ((a.vc==null)? '': a.vc), dLen);
@@ -607,8 +670,8 @@ function cArguments(f) {
     rn: null,
     rt: wJ.rt
   }
-  a.rn_h = strLen(wJ.rn_h + Array(25), hLen);
-  a.rt_h = strLen(wJ.rt_h + Array(25).fill(a.rt), hLen);
+  a.rn_h = strLen(wJ.rn_h +','+ Array(24), hLen);
+  a.rt_h = strLen(wJ.rt_h +','+ Array(24).fill(a.rt), hLen);
   a.rn_d = strLen(wJ.rn_d +',', dLen);
   a.rt_d = strLen(wJ.rt_d +',', dLen);
   if (tDay === 1) {
@@ -661,50 +724,52 @@ function rArguments(f, id) {
   for (let i=0; i<cNo.length; i++) { Ranking[cNo[i]] = []; }
 
   const range = rsRange(f, id);
-  if (f!=='Y') { console.log(range); }
+  let cnt = 0;
+  if (f!=='Y') { console.log({term:f,range:range}); }
   wpAPI(rURL, range).forEach(arg => {
     if (!(arg==='' || !arg)) {
-      const j = JSON.parse(arg);
-      if (j.rc && j.rc.ranking) {
-        const a = j.rc.ranking;
+      const a = JSON.parse(arg);
+      if (a[rc] && a[rc].ranking) {
         for (let i=0; i<cNo.length; i++) {
-          Ranking[cNo[i]].push(a[cNo[i]]);
+          Ranking[cNo[i]].push(a[rc].ranking[cNo[i]]);
           Top.push(Ranking[cNo[i]][0].t_c.replace(/(チャンネル|ちゃんねる|channel|Channel)/g, ''));
         }
       }
-    }
+    } else { console.log('未実施分 ( '+ (++cnt) + ' )'); }
   });
-  if (f!=='W') { console.log('モニタリング① : Week/n'+JSON.stringify(Ranking)); }
+  if (f==='W') { console.log('モニタリング① : Week\n'+JSON.stringify(Ranking)); }
   for (let i=0; i<cNo.length; i++) { Ranking[cNo[i]] = rsSummarize(Ranking[cNo[i]]); }
-  if (f!=='W') { console.log('モニタリング② : Week/n'+JSON.stringify(Ranking)); }
+  if (f==='W') { console.log('モニタリング② : Week\n'+JSON.stringify(Ranking)); }
 
-  const prefix = 'YouTube急上昇ランキング '+tName[rc][f]+'まとめ【'+''+'】各カテゴリのレシオ1位のチャンネルはこちら［';
+  const prefix = 'YouTube急上昇ランキング '+tName[rc][f]+'まとめ【'+rsTerm(f, id)+'】各カテゴリのレシオ1位のチャンネルはこちら［';
   const suffix = '］『レシオ！』ではYouTube急上昇ランキングをリアルタイム集計';
-  const excerpt = 'YouTube急上昇 '+tName[rc][f]+'ランキング ' + '';
+  const excerpt = 'YouTube急上昇 ' + tName[rc][f] + 'ランキング ' + rsTerm(f, id);
 
   let content = wpAPI(rURL, id)[0];
   content = (content)? JSON.parse(content): {};
   content[rc] = { title: excerpt, des: prefix + Top.join() + suffix, ranking: Ranking }
 
-  d = rsPublish(f, id);
+  const step = (range[range.length-1]===tID)? 52: 59;
+  let term = 56;
+  if (f==='M') { term = 55; }
+  else if (f==='Y') { term = 53; }
 
-  arg = {
-    date: d,
-    status: (d<now)? 'publish': 'future',
-    title: bDate+'日',
+  let arg = {
+    title: rsTitle(f, id),
     content: JSON.stringify(content),
     excerpt: excerpt,
-    adfgsfdfeatured_media: 107,
-    comment_status: 'open',
-    ping_status: 'open',
-    sticky: false,
-    categories: [4],
-    tags: [70,73,74,78,79,52,57]
+    //adfgsfdfeatured_media: 107,
+    //comment_status: 'open',
+    //ping_status: 'open',
+    //sticky: false,
+    //categories: [4],
+    tags: [70,73,74,78,79,step,term]
   };
 
   return wpAPI(pURL+id, arg);
 }
 
+/** ■■■■ メイン関数 ■■■■ */
 function rDay(rc) {
 
   /** ■■■■ 実行判定 ■■■■ */
@@ -733,7 +798,8 @@ function wpDay(rc) {
       data = wpAPI(vURL+'30/'+rc).sort((a,b) => {
         if (a.id === b.id) { return (a.cat > b.cat)? 1: -1 }
         else { return (a.id > b.id)? 1: -1 }
-      })
+      });
+      wD = wpAPI(vURL+'24/'+rc);
 
       wY = {video_y:[]};
       wZ = {video_z:[]};
@@ -939,7 +1005,7 @@ function wpDay(rc) {
       const suffix = '］『レシオ！』ではYouTube急上昇ランキングをリアルタイム集計、1時間ごとに最新情報をお届け。';
       const excerpt = 'YouTube急上昇 レシオ！デイリーランキング ' + today;
 
-      let content = wpAPI(rURL, id)[0];
+      let content = wpAPI(rURL, tID)[0];
       content = (content)? JSON.parse(content): {};
       content[rc] = { title: excerpt, des: prefix + Top.join() + suffix, ranking: Ranking }
 
@@ -975,7 +1041,7 @@ function wpDay(rc) {
   function step_rn() { //デイリーランキング更新
     err = {};
     try {
-      const resR = wpAPI(pURL+id, arg);
+      const resR = wpAPI(pURL+tID, arg);
       console.log({m:'デイリーランキング更新', resR:resR});
     } catch (e) {
       console.log('デイリーランキング更新\n' + e.message);
@@ -1153,27 +1219,30 @@ function wpResult(rc) {
     return console.log('【途中終了】エラー回数超過\n年間ランキングの更新')
   }
 
-  function step_id() { //期間別集計記事IDの更新
+  function step_id() { //期間別集計記事IDの更新, 新規分記事公開
     err = {};
     try {
       list = JSON.parse(wpAPI(pURL+5).content.raw);
 
       list[rc].d.b = list[rc].d.n;
-      list[rc].d.n = Utilities.formatDate(new Date(), 'Etc/GMT-4', 'yyMMdd');
+      list[rc].d.n = Utilities.formatDate(new Date(), 'Etc/GMT'+(Number('-4')-1), 'yyMMdd');
       if (tDay === 1) {
-        ts = new Date(Utilities.formatDate(new Date(), 'Etc/GMT-4', 'yyyy-MM-dd'));
-        ts = Utilities.formatDate(new Date(ts.getTime() + (7-ts.getDay()) * (1000*60*60*24)), 'Etc/GMT-4', 'yyMM');
+        ts = new Date(Utilities.formatDate(new Date(), 'Etc/GMT'+'-4', 'yyyy-MM-dd'));
+        ts = Utilities.formatDate(new Date(ts.getTime() + (7-ts.getDay()) * (1000*60*60*24)), 'Etc/GMT'+'-4', 'yyMM');
         ts = Number(ts + '40');
         do { done = wpAPI(pURL+(++ts)); } while (done.tags.includes(52));
         list[rc].w.b = list[rc].w.n;
         list[rc].w.n = ts;
+        console.log({'記事公開':list[rc].w.n, res:rsOpen('W',list[rc].w.n)});
       }
       if (tDate === 1) {
         list[rc].m.b = list[rc].m.n;
-        list[rc].m.n = Utilities.formatDate(new Date(), 'Etc/GMT-4', 'yyMM00');
+        list[rc].m.n = Utilities.formatDate(new Date(), 'Etc/GMT'+'-4', 'yyMM00');
+        console.log({'記事公開':list[rc].m.n, res:rsOpen('M',list[rc].m.n)});
         if (tMonth === 1) {
           list[rc].y.b = list[rc].y.n;
-          list[rc].y.n = Utilities.formatDate(new Date(), 'Etc/GMT-4', 'yy0000');
+          list[rc].y.n = Utilities.formatDate(new Date(), 'Etc/GMT'+'-4', 'yy0000');
+          console.log({'記事公開':list[rc].y.n, res:rsOpen('Y',list[rc].y.n)});
         }
       }
       arg = {content: list}
@@ -1232,7 +1301,7 @@ function wpFlash(rc) {
   const p1 = Utilities.formatDate(time, 'JST', 'yyyy-MM-dd') +'T'+'00:00:10';
   const p2 = Utilities.formatDate(time, 'JST', 'yyyy-MM-dd') +'T'+hour+':00:10';
   const now = Utilities.formatDate(time, 'JST', 'yyyy-MM-dd HH:mm:ss').replace(' ','T');
-  const parent = Utilities.formatDate(time, 'Etc/GMT-4', 'yyMMdd');
+  const parent = Utilities.formatDate(time, 'Etc/GMT'+'-4', 'yyMMdd');
   const date = Utilities.formatDate(time, 'JST', 'M月d日');
   const day = time.getDay()+60;
 
@@ -1339,7 +1408,7 @@ function wpFlash(rc) {
       console.log(res);
 
       let tw = Array(4);
-      let url = Utilities.formatDate(time, 'Etc/GMT-4', 'dd/');
+      let url = Utilities.formatDate(time, 'Etc/GMT'+'-4', 'dd/');
       url = 'ratio100.com/' + url + slug[id];
       tweet = '#YouTube #急上昇 #まとめサイト\n『レシオ！』の速報\n'+url+'\n\n▼各カテゴリ急上昇ランキング1位は▼\n▼以下のチャンネルの動画です！▼';
 

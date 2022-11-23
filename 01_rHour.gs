@@ -402,7 +402,7 @@ function rHour(rc) {
       const array = (wJ.flag==='24')? []: arrPeriod(wJ.pd_l);
       if ((array.length===0 || array.length>1) && Number(wJ.flag)<24) { console.log({m:'要確認', id:a.id, len:array.length, pd_l:wJ.pd_l, tHour:tHour}); }
 
-if (a.id==='PiZ-iDSkTCk') { console.log('0: a.vw_h\n'+wJ.vw_h); console.log({'0: array':array}) }
+if (a.id==='PiZ-iDSkTCk') { console.log('0: wJ.vw_h\n'+wJ.vw_h); console.log({'0: array':array}) }
 
       let arr = array.fill(numLast(wJ.vw_h));
 

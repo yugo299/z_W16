@@ -161,7 +161,7 @@ function rUpdate() {
     tr = wpAPI(sURL+'/wp-json/ratio-zid/zid/trending/');
 
     let title = 'YouTube急上昇 本日ランクインのチャンネル(' + tr.c + ')をピックアップ';
-    let prefix = 'YouTube急上昇 本日は'+tr.v+'のチャンネルの動画が各カテゴリTop100にランクイン。獲得レシオ上位のチャンネルはこちら［';
+    let prefix = 'YouTube急上昇 本日は'+tr.c+'のチャンネルの動画が各カテゴリTop100にランクイン。獲得レシオ上位のチャンネルはこちら［';
     let suffix = '］『レシオ！』ではYouTube急上昇ランキングをリアルタイム集計、1時間ごとに最新情報をお届け。';
     let excerpt = prefix + tr.channel.map(x => x = x.title).join().replace(/(チャンネル|ちゃんねる|channel|Channel)/g, '') + suffix;
 
