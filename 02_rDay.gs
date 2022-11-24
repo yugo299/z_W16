@@ -71,7 +71,7 @@ let r = 0;
 d = 0;
 let t = 0;
 let time = 0;
-let rc = 'jp'
+let rc = 'jp';
 
 /** ■■■■ Twitter関数 ■■■■ */
 
@@ -295,7 +295,7 @@ function rsSummarize(array) {
       let arg = {};
       if (~i) {
         arg = list[i];
-        arg.rt += a.rt;
+        arg.rt = (Math.round(arg.rt + a.rt)*10000)/10000;
         arg.rn = Math.min(arg.rn, a.rn);
         arg.vw += a.vw;
         arg.lk += a.lk;
@@ -732,14 +732,14 @@ function rArguments(f, id) {
       if (a[rc] && a[rc].ranking) {
         for (let i=0; i<cNo.length; i++) {
           Ranking[cNo[i]].push(a[rc].ranking[cNo[i]]);
-          Top.push(Ranking[cNo[i]][0].t_c.replace(/(チャンネル|ちゃんねる|channel|Channel)/g, ''));
+          Top.push(a[rc].ranking[cNo[i]][0].t_c.replace(/(チャンネル|ちゃんねる|channel|Channel)/g, ''));
         }
       }
     } else { console.log('未実施分 ( '+ (++cnt) + ' )'); }
   });
-  if (f==='W') { console.log('モニタリング① : Week\n'+JSON.stringify(Ranking)); }
+  if (f==='W') { console.log('モニタリング① : Week (rArgments)\n'+JSON.stringify(Ranking)); }
   for (let i=0; i<cNo.length; i++) { Ranking[cNo[i]] = rsSummarize(Ranking[cNo[i]]); }
-  if (f==='W') { console.log('モニタリング② : Week\n'+JSON.stringify(Ranking)); }
+  if (f==='W') { console.log('モニタリング② : Week (rArgments)\n'+JSON.stringify(Ranking)); }
 
   const prefix = 'YouTube急上昇ランキング '+tName[rc][f]+'まとめ【'+rsTerm(f, id)+'】各カテゴリのレシオ1位のチャンネルはこちら［';
   const suffix = '］『レシオ！』ではYouTube急上昇ランキングをリアルタイム集計';
@@ -1087,45 +1087,6 @@ function wpDay(rc) {
   step_ms();
   if (t===3) {
     return console.log('【途中終了】エラー回数超過\nIndexNow送信')
-  }
-
-  function step_wk() { //arg : ウィークリーランキング
-    err = {};
-    try {
-      let a = {};
-      do { a = wpAPI(pURL+(++week)); } while (a.tags.includes(52))
-
-      week = String(week);
-      const title = '20'+week.slice(0,2)+'年'+Number(week.slice(2,4))+'月 第'+(Number(week.slice(4))-40)+'週';
-
-      arg = {
-        date: middle,
-        status: 'publish',
-        title: title,
-        content: '集計中',
-        //excerpt: excerpt,
-        featured_media: 107,
-        comment_status: 'open',
-        ping_status: 'open',
-        sticky: false,
-        categories: [4],
-        tags: [70,73,74,78,79,59,56]
-      };
-
-      console.log(wpAPI(pURL+week, arg));
-      console.log('完了 : ウィークリーランキング');
-    } catch (e) {
-      console.log('arg : ウィークリーランキング\n' + e.message);
-      err = e;
-    }
-    finally {
-      if('message' in err && ++t < 3){ step_wk() }
-    }
-  }
-  t = 0;
-  //step_wk();
-  if (t===3) {
-    return console.log('【途中終了】エラー回数超過\narg : ウィークリーランキング')
   }
 
   function step_e() { //終了処理

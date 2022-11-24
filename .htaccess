@@ -14,6 +14,12 @@ RewriteRule channel\/....$ https://ratio100.com/youtube/channel [R=301,L]
 RewriteRule ^{}$ https://ratio100.com [R=301,L]
 # カテゴリ別ランキング リライト
 RewriteRule ^(jp|us|gb)\/.*\/(movie-anime|car-bike-train|music|pets-animals|sports|game|blog|comedy|entame|news-politics|howto-style|science-tech)$ https://ratio100.com/youtube/trending/$2?rc=$1 [L]
+# リダイレクト 過去404エラー履歴
+RewriteRule ^view-source.$ https://blog.with2.net/link/?id=2093058&cid=1002 [R=301,L]
+RewriteRule ^misc/ajax.js$ https://blogmura.com/profiles/11152365?p_cid=11152365 [R=301,L]
+RewriteRule ^apple-touch-icon https://blog.with2.net/link/?id=2093058&cid=1002 [R=301,L]
+RewriteRule ^.wp- https://blogmura.com/profiles/11152365?p_cid=11152365 [R=301,L]
+RewriteRule ^(?!wp-json)wp-.... https://blog.with2.net/link/?id=2093058&cid=1002 [R=301,L]
 # xmlrpc.phpへのアクセス無効化
 <Files xmlrpc.php>
 Order Allow,Deny

@@ -60,17 +60,21 @@ header>h1 span, header>h2 span {font-size: clamp(12px, 14px, 14px); font-weight:
 #radio-3:checked~.radio-3 span::after {top: 0; transform: rotate(-45deg); width: 20px; left: -6px}
 
 .hamburger h3 {padding: 5px 0}
-.hamburger h3>a, .hamburger h3>a:visited {color: #eee;} .hamburger h3>a:hover {color: #ffc}
-.hamburger .menu-1 {grid-template-areas: "a b e" "a b f" "a c g" "a d g" "h h h"; justify-content: space-evenly; gap: 6px 10px; white-space: nowrap}
+.hamburger h3>a, .hamburger h3>a:visited, .hamburger .g-h>a, .hamburger .g-h>.a:visited {color: #eee}
+.hamburger h3>a:hover, .hamburger .g-h>.a:hover {color: #ffc}
+.hamburger h3+p {color: #ccc}
+.hamburger .menu-1 {grid-template-areas: "a b" "a c" "a d" "a e" "a f" "a g" "h h"; justify-content: space-evenly; gap: 6px 10px; white-space: nowrap}
 .hamburger [class*="menu-"] {display: none; position: fixed; width: 100%; left: 0; padding: 10px 20px; animation-name: a-2; animation-duration: 0.2s; animation-fill-mode: both}
 #radio-1:checked~.menu-1 {display: grid; top: 40px; animation-name: a-1}
 #radio-2:checked~.menu-1 {display: grid; bottom: 0px; animation-name: a-1}
 #radio-3:checked~.menu-2 {display: grid; bottom: 0px; animation-name: a-1}
 @keyframes a-1{0% {opacity: 0} 100% {opacity: 1}}
 @keyframes a-2{0% {opacity: 1} 100% {opacity: 0}}
-.hamburger .g-h {display: none} #radio-2:checked~.menu-1 .g-h {display: unset}
+.hamburger .g-h {display: none} #radio-2:checked~.menu-1 .g-h {display: unset; padding: 6px 0}
+.hamburger .g-h p {font-weight: bold}
 .hamburger li {text-indent: 6px}
-.hamburger li>p {color: #ccc}
+
+.hamburger .row li:nth-child(n+2)::before {content: '/ '}
 
 section {width: 100%; max-width: 600px; min-width: 370px; margin: 15px auto; padding: 0 3px}
 section>h1, section>h2, article>h1, article>h2 {margin: 15px; font-size: 16px; color: #707}
@@ -90,7 +94,7 @@ article.featured-media span {font-size: 60px}
 .vs, .cs {text-align: center}
 table.vs, table.cs {width: 100%; margin: 30px 0}
 .vs tbody tr, .cs tbody tr {display: flex; justify-content: flex-end; flex-wrap: wrap; position: relative; padding: 5px; content-visibility: auto; contain-intrinsic-size: 70px}
-.vs th, .cs th {position: -webkit-sticky; position: sticky; top: 0; z-index: 1}
+.vs th, .cs th {position: -webkit-sticky; position: sticky; top: 0}
 .vs div:has(img) {width: 108px; height: 60px; margin: 5px 0; position: relative; overflow: hidden}
 .vs img {height: 81px; object-fit: cover; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); -webkit-transform: translate(-50%, -50%); -ms-transform: translate(-50%, -50%)}
 .cs div:has(img) {width: 70px; height: 60px; margin: 5px 0}
