@@ -85,7 +85,7 @@ function rHour(rc) {
   const fHour  = data[1][rCol[rc]-1];
   let ts = new Date(Utilities.formatDate(new Date(), 'JST', 'yyyy-MM-dd HH:mm'));
   const tHour = ts.getHours();
-  if (fHour===tHour) { return console.log('実施済み') }
+  if (~~fHour===tHour) { return console.log('実施済み') }
 
   //■■■■ 変数 ■■■■
   const ratio = [,
@@ -384,6 +384,8 @@ function rHour(rc) {
       return done[0]++;
     }
 
+    const array = (f==='N' || wJ.flag==='24')? []: arrPeriod(wJ.pd_l);
+
     //video_y
     a = {
       id: yJ.id,
@@ -399,22 +401,11 @@ function rHour(rc) {
     }
     if (wJ) {
       done[0]++;
-      const array = (wJ.flag==='24')? []: arrPeriod(wJ.pd_l);
-      if ((array.length===0 || array.length>1) && Number(wJ.flag)<24) { console.log({m:'要確認', id:a.id, len:array.length, pd_l:wJ.pd_l, tHour:tHour}); }
-
-if (a.id==='PiZ-iDSkTCk') { console.log('0: wJ.vw_h\n'+wJ.vw_h); console.log({'0: array':array}) }
+      //if ((array.length===0 || array.length>1) && Number(wJ.flag)<24) { console.log({m:'要確認', id:a.id, len:array.length, pd_l:wJ.pd_l, tHour:tHour}); }
 
       let arr = array.fill(numLast(wJ.vw_h));
-
-if (a.id==='PiZ-iDSkTCk') { console.log({'1: arr':arr}) }
-
       arr[arr.length-1] = (a.vw==null)? '': a.vw;
-
-if (a.id==='PiZ-iDSkTCk' && cat==1) { console.log({'2: arr':arr}) }
-
       a.vw_h = strLen(wJ.vw_h +','+ arr.join(), hLen);
-
-if (a.id==='PiZ-iDSkTCk' && cat==1) { console.log('3: a.vw_h\n'+a.vw_h) }
 
       arr = array.fill(numLast(wJ.lk_h));
       arr[arr.length-1] = (a.lk==null)? '': a.lk;
@@ -515,7 +506,6 @@ if (a.id==='PiZ-iDSkTCk' && cat==1) { console.log('3: a.vw_h\n'+a.vw_h) }
       a.pd_l = wJ.pd_l;
       a.rt = (yJ.rt==null)? Number(wJ.rt): numR(Number(wJ.rt) + yJ.rt);
 
-      const array = arrPeriod(wJ.pd_l);
       let arr = array.fill(numLast(wJ.rn_h));
       arr[arr.length-1] = (wJ.rn==null)? '': wJ.rn;
       a.rn_h = strLen(wJ.rn_h +','+ arr.join(), hLen);
@@ -645,6 +635,8 @@ if (a.id==='PiZ-iDSkTCk' && cat==1) { console.log('3: a.vw_h\n'+a.vw_h) }
       return done[2]++
     }
 
+    const array = (wJ.flag==='24')? []: arrPeriod(wJ.pd_l);
+
     //channel_y
     a = {
       id: yJ.id,
@@ -657,7 +649,6 @@ if (a.id==='PiZ-iDSkTCk' && cat==1) { console.log('3: a.vw_h\n'+a.vw_h) }
       vc: yJ.statistics.videoCount,
     }
     if (wJ.date!=null) {
-      const array = (wJ.flag==='24')? []: arrPeriod(wJ.pd_l);
       if (array.length>1 && Number(wJ.flag)<24) { console.log({m:'要確認', id:a.id, len:array.length, pd_l:wJ.pd_l, tHour:tHour}); }
 
       let arr = array.fill(numLast(wJ.vw_h));
@@ -740,7 +731,6 @@ if (a.id==='PiZ-iDSkTCk' && cat==1) { console.log('3: a.vw_h\n'+a.vw_h) }
       a.pd_f = wJ.pd_f;
       a.pd_l = wJ.pd_l;
 
-      const array = arrPeriod(wJ.pd_l);
       let arr = array.fill(numLast(wJ.rn_h));
       arr[arr.length-1] = (wJ.rn==null)? '': wJ.rn;
       a.rn_h = strLen(wJ.rn_h +','+ arr.join(), hLen);

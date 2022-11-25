@@ -318,6 +318,7 @@ function rsSummarize(array) {
   });
 
   list.sort((a,b) => (a.rt<b.rt)? 1: -1);
+  Top.push(list[0].t_c.replace(/(チャンネル|ちゃんねる|channel|Channel)/g, ''));
   return list.slice(0,200);
 }
 
@@ -693,8 +694,9 @@ function cArguments(f) {
 
 function dArguments(i) {
   const wJ = wD[i];
+  let a = {};
   if (wJ.flag==='24') {
-    let a = {
+    a = {
       id: wJ.id,
       rc: wJ.rc,
       cat: wJ.cat,
@@ -703,8 +705,7 @@ function dArguments(i) {
     Drop.video_z.push(a);
     d++;
   }
-
-  let a = {
+  a = {
     rt: Math.round(strAdd('D', wJ.rt_h, wJ.pd_l)*10000)/10000,
     vd: wJ.id,
     t_v: wJ.title,
@@ -714,6 +715,8 @@ function dArguments(i) {
     lk: strAdd('D', wJ.lk_h, wJ.pd_l),
     ch: wJ.ch
   }
+
+  if (a.vd==='zF7m8EvRI00') { console.log({'モニタリング':'cArgments', wj:wJ, arg:a}); }
 
   Ranking[wJ.cat].push(a);
   r++;
@@ -730,16 +733,12 @@ function rArguments(f, id) {
     if (!(arg==='' || !arg)) {
       const a = JSON.parse(arg);
       if (a[rc] && a[rc].ranking) {
-        for (let i=0; i<cNo.length; i++) {
-          Ranking[cNo[i]].push(a[rc].ranking[cNo[i]]);
-          Top.push(a[rc].ranking[cNo[i]][0].t_c.replace(/(チャンネル|ちゃんねる|channel|Channel)/g, ''));
-        }
+        for (let i=0; i<cNo.length; i++) { Ranking[cNo[i]].push(a[rc].ranking[cNo[i]]); }
       }
     } else { console.log('未実施分 ( '+ (++cnt) + ' )'); }
   });
-  if (f==='W') { console.log('モニタリング① : Week (rArgments)\n'+JSON.stringify(Ranking)); }
   for (let i=0; i<cNo.length; i++) { Ranking[cNo[i]] = rsSummarize(Ranking[cNo[i]]); }
-  if (f==='W') { console.log('モニタリング② : Week (rArgments)\n'+JSON.stringify(Ranking)); }
+  Top.sort(() => Math.random()-0.5);
 
   const prefix = 'YouTube急上昇ランキング '+tName[rc][f]+'まとめ【'+rsTerm(f, id)+'】各カテゴリのレシオ1位のチャンネルはこちら［';
   const suffix = '］『レシオ！』ではYouTube急上昇ランキングをリアルタイム集計';
@@ -1368,6 +1367,7 @@ function wpFlash(rc) {
       let res = wpAPI(pURL+(id+20), arg);
       console.log(res);
 
+      /*
       let tw = Array(4);
       let url = Utilities.formatDate(time, 'Etc/GMT'+'-4', 'dd/');
       url = 'ratio100.com/' + url + slug[id];
@@ -1381,6 +1381,7 @@ function wpFlash(rc) {
         tID = res.data.id;
         console.log(res);
       }
+      */
 
     } catch (e) {
       console.log('速報（31～35,Twitter）\n' + e.message);

@@ -64,7 +64,7 @@ header>h1 span, header>h2 span {font-size: clamp(12px, 14px, 14px); font-weight:
 .hamburger h3>a:hover, .hamburger .g-h>.a:hover {color: #ffc}
 .hamburger h3+p {color: #ccc}
 .hamburger .menu-1 {grid-template-areas: "a b" "a c" "a d" "a e" "a f" "a g" "h h"; justify-content: space-evenly; gap: 6px 10px; white-space: nowrap}
-.hamburger [class*="menu-"] {display: none; position: fixed; width: 100%; left: 0; padding: 10px 20px; animation-name: a-2; animation-duration: 0.2s; animation-fill-mode: both}
+.hamburger [class*="menu-"] {display: none; z-index: 10; position: fixed; width: 100%; left: 0; padding: 10px 20px; animation-name: a-2; animation-duration: 0.2s; animation-fill-mode: both}
 #radio-1:checked~.menu-1 {display: grid; top: 40px; animation-name: a-1}
 #radio-2:checked~.menu-1 {display: grid; bottom: 0px; animation-name: a-1}
 #radio-3:checked~.menu-2 {display: grid; bottom: 0px; animation-name: a-1}
