@@ -47,13 +47,15 @@ const tDate = d.getDate();
 const tDay = d.getDay();
 const bDate = new Date(Utilities.formatDate(new Date(), 'Etc/GMT'+(Number('-4')-1), 'yyyy-MM-dd')).getDate() - 1;
 
-d = new Date(new Date(Utilities.formatDate(new Date(), 'Etc/GMT'+(Number('-4')-1), 'yyyy-MM-dd')).getTime() - 86400000);
+//d = new Date(new Date(Utilities.formatDate(new Date(), 'Etc/GMT'+(Number('-4')-1), 'yyyy-MM-dd')).getTime() - 86400000);
+d = new Date(new Date(Utilities.formatDate(new Date(), 'Etc/GMT'+'-4', 'yyyy-MM-dd')).getTime());
 const day = d.getDay()+60;
 const tID = Utilities.formatDate(d, 'Etc/GMT'+'-4', 'yyMMdd');
 const today = Utilities.formatDate(d, 'Etc/GMT'+'-4', 'yyyy年M月d日');
 const publish = Utilities.formatDate(new Date(), 'Etc/GMT'+'-4', 'yyyy-MM-dd') + 'T05:30:00';
-const middle = Utilities.formatDate(new Date(), 'JST', 'yyyy-MM-dd') + 'T04:00:00';
-const now = Utilities.formatDate(new Date(), 'JST', 'yyyy-MM-dd HH:mm:ss').replace(' ','T');
+const middle = Utilities.formatDate(new Date(), 'Etc/GMT'+'-9', 'yyyy-MM-dd') + 'T04:00:00';
+const now = Utilities.formatDate(new Date(), 'Etc/GMT'+'-9', 'yyyy-MM-dd HH:mm:ss').replace(' ','T');
+const tLabel = Utilities.formatDate(new Date(), 'Etc/GMT'+'-9', 'yyyy-MM-dd HH:00:00').replace(' ','T');
 
 let wY = {};
 let wZ = {};
@@ -70,7 +72,6 @@ let Top = [];
 let r = 0;
 d = 0;
 let t = 0;
-let time = 0;
 let rc = 'jp';
 
 /** ■■■■ Twitter関数 ■■■■ */
@@ -185,8 +186,11 @@ function imgChannel(str) {
 }
 
 function strAdd(f, str, label) {
+  let val = 0;
   let j = 0;
-  arr = str.split(',');
+  let ts = (label)? Math.round((new Date(tLabel).getTime()-new Date(label).getTime())/(1000*60*60)): 0;
+
+  let arr = str.split(',').map(x => (x==='')? '': Number(x));
   if (f==='D') { j = arr.length-1-((tHour+23-4)%24+1) }
   else if (f==='W') { j = arr.length-1-7 }
   else if (f==='M') { j = arr.length-1-bDate }
@@ -195,13 +199,11 @@ function strAdd(f, str, label) {
     if (arr[i]!=='') { j = i; break; }
     if (i===arr.length-1) { j = arr.length-1 }
   }
-
-  const t = (label)? Math.round((time-new Date(label).getTime())/(1000*60*60)): 0;
-  val = (arr.length-1-t>j)? (arr[arr.length-1-t]-arr[j]): 0;
-  if (val<arr[arr.length-1-t]*(-10)) {
-    val = (arr.length-1-t>j+1)? (arr[arr.length-1-t]-arr[j+1]): 0;
-    console.log({'エラー':arr[arr.length-1-t], f:f, label:label, now:arr[arr.length-1-t], before:arr[j+1], spare:arr[j+1], val:val, str:str});
+  for (let i=arr.length-1-ts; i>=j; i--) {
+    if (arr[i]==='') { continue; }
+    else { val = arr[arr.length-1-ts]-arr[j]; }
   }
+  //if (arr[arr.length-1]==='') {console.log({'エラー':d, f:f, label:label, str:str});}
   return val
 }
 
@@ -239,8 +241,9 @@ function strLast(str, val, f = true) {
 }
 
 function strSub(f, str) {
+  let val = 0;
   let j = 0;
-  const arr = str.split(',');
+  const arr = str.split(',').map(x => (x==='')? '': Number(x));
   if (f==='D') { j = arr.length-1-24 }
   else if (f==='W') { j = arr.length-1-7 }
   else {f==='M'} { j = arr.length-1-bDate }
@@ -249,8 +252,12 @@ function strSub(f, str) {
     if (arr[i]!=='') { j = i; break; }
     if (i===arr.length-1) { j = arr.length-1 }
   }
-
-  return arr[arr.length-1] - arr[j];
+  for (let i=arr.length-1; i>=j; i--) {
+    if (arr[i]==='') { continue; }
+    else { val = arr[arr.length-1]-arr[j]; }
+  }
+  //if (arr[arr.length-1]==='') {console.log({'エラー':d, f:f, label:label, str:str});}
+  return val
 }
 
 /** ■■■■ rs関数 ■■■■ */
@@ -694,6 +701,7 @@ function cArguments(f) {
 
 function dArguments(i) {
   const wJ = wD[i];
+  d = wJ.id;
   let a = {
     rt: Math.round(strAdd('D', wJ.rt_h, wJ.pd_l)*10000)/10000,
     vd: wJ.id,
@@ -777,14 +785,6 @@ function rDay(rc) {
 }
 
 function wpDrop(rc) {
-
-  /** ■■■■ 変数 ■■■■ */
-  time = new Date(Utilities.formatDate(new Date(), 'Etc/GMT+14', 'yyyy-MM-dd'));
-  if (time.getDay()!==0) { time = new Date(time.getTime() + (7-time.getDay()) * (1000*60*60*24)); }
-  let week = Number(Utilities.formatDate(time, 'Etc/GMT+14', 'yyMM') + '40');
-
-  time = Utilities.formatDate(new Date(),'JST','yyyy-MM-dd HH:') + '00:00';
-  time = new Date(time).getTime();
 
   function step_va() { //vArguments
     err = {};
@@ -1239,7 +1239,7 @@ function wpResult(rc, f) {
         }
       }
       arg = {content: list};
-      console.log({'期間別集計記事IDの更新':'before（'+rc+'）',arg:arg});
+      console.log({'期間別集計記事IDの更新':'before（'+rc+'）',arg:arg.content[rc]});
       console.log({'期間別集計記事IDの更新':'after（'+rc+'）', res:JSON.stringify(JSON.parse(wpAPI(pURL+5, arg).content.raw))});
     } catch (e) {
       console.log('arg : 期間別集計記事IDの更新\n' + e.message);
@@ -1250,7 +1250,7 @@ function wpResult(rc, f) {
     }
   }
   t = 0;
-  step_id();
+  if (tHour===4) { step_id(); }
   if (t===3) {
     return console.log('【途中終了】エラー回数超過\n期間別集計記事IDの更新')
   }
@@ -1281,8 +1281,8 @@ function wpFlash(rc) {
   /** ■■■■ 変数 ■■■■ */
   const zone = {'11':'朝', '12':'昼', '13':'夕方', '14':'夜'};
   const slug = {'11':'morning', '12':'afternoon', '13':'evening', '14':'night'};
-  const time = new Date();
-  let hour = time.getHours();
+  const ts = new Date();
+  let hour = ts.getHours();
   let id = 0;
   if (hour===7) { id = 11; }
   else if (hour===12) { id = 12; }
@@ -1292,12 +1292,12 @@ function wpFlash(rc) {
   const fm = 100 + id;
   if (hour===7) { hour = '07';}
 
-  const p1 = Utilities.formatDate(time, 'JST', 'yyyy-MM-dd') +'T'+'00:00:10';
-  const p2 = Utilities.formatDate(time, 'JST', 'yyyy-MM-dd') +'T'+hour+':00:10';
-  const now = Utilities.formatDate(time, 'JST', 'yyyy-MM-dd HH:mm:ss').replace(' ','T');
-  const parent = Utilities.formatDate(time, 'Etc/GMT'+'-4', 'yyMMdd');
-  const date = Utilities.formatDate(time, 'JST', 'M月d日');
-  const day = time.getDay()+60;
+  const p1 = Utilities.formatDate(ts, 'JST', 'yyyy-MM-dd') +'T'+'00:00:10';
+  const p2 = Utilities.formatDate(ts, 'JST', 'yyyy-MM-dd') +'T'+hour+':00:10';
+  const now = Utilities.formatDate(ts, 'JST', 'yyyy-MM-dd HH:mm:ss').replace(' ','T');
+  const parent = Utilities.formatDate(ts, 'Etc/GMT'+'-4', 'yyMMdd');
+  const date = Utilities.formatDate(ts, 'JST', 'M月d日');
+  const day = ts.getDay()+60;
 
   let Ranking = {};
   let Title = '';
@@ -1359,7 +1359,7 @@ function wpFlash(rc) {
         categories: [4],
         tags: [70,73,74,78,51,day]
       }
-      if (!time.getHours()) { arg.date = p1; }
+      if (!ts.getHours()) { arg.date = p1; }
 
       let res = wpAPI(pURL+id, arg);
       res.content = res.content.raw.length;
@@ -1403,7 +1403,7 @@ function wpFlash(rc) {
 
       /*
       let tw = Array(4);
-      let url = Utilities.formatDate(time, 'Etc/GMT'+'-4', 'dd/');
+      let url = Utilities.formatDate(ts, 'Etc/GMT'+'-4', 'dd/');
       url = 'ratio100.com/' + url + slug[id];
       tweet = '#YouTube #急上昇 #まとめサイト\n『レシオ！』の速報\n'+url+'\n\n▼各カテゴリ急上昇ランキング1位は▼\n▼以下のチャンネルの動画です！▼';
 
