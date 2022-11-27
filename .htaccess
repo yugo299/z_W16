@@ -15,13 +15,13 @@ RewriteRule ^(jp|us|gb)\/.*\/(movie-anime|car-bike-train|music|pets-animals|spor
 # リダイレクト search consoleの404エラー
 RewriteRule ^{}$ https://ratio100.com [R=301,L]
 # リダイレクト 過去404エラー履歴
-# RewriteRule ^view-source.$ https://blogmura.com/profiles/11152365?p_cid=11152365 [R=301,L]
-# RewriteRule ^misc/ajax.js$ https://blogmura.com/profiles/11152365?p_cid=11152365 [R=301,L]
-# RewriteRule ^apple-touch-icon https://blogmura.com/profiles/11152365?p_cid=11152365 [R=301,L]
-# RewriteRule ^.wp- https://blogmura.com/profiles/11152365?p_cid=11152365 [R=301,L]
-# RewriteRule ^(?!wp-json)wp-.... https://blogmura.com/profiles/11152365?p_cid=11152365 [R=301,L]
-# RewriteRule ^\.env$ https://blogmura.com/profiles/11152365?p_cid=11152365 [R=301,L]
-# RewriteRule ^vendor\/ https://blogmura.com/profiles/11152365?p_cid=11152365 [R=301,L]
+RewriteRule ^view-source.$ https://blogmura.com/profiles/11152365?p_cid=11152365 [R=301,L]
+RewriteRule ^misc/ajax.js$ https://blogmura.com/profiles/11152365?p_cid=11152365 [R=301,L]
+RewriteRule ^apple-touch-icon https://blogmura.com/profiles/11152365?p_cid=11152365 [R=301,L]
+RewriteRule ^.wp- https://blogmura.com/profiles/11152365?p_cid=11152365 [R=301,L]
+RewriteRule ^(?!wp-json)wp-.... https://blogmura.com/profiles/11152365?p_cid=11152365 [R=301,L]
+RewriteRule ^\.env$ https://blogmura.com/profiles/11152365?p_cid=11152365 [R=301,L]
+RewriteRule ^vendor\/ https://blogmura.com/profiles/11152365?p_cid=11152365 [R=301,L]
 # xmlrpc.phpへのアクセス無効化
 <Files xmlrpc.php>
 Order Allow,Deny

@@ -41,8 +41,9 @@ const fSheet = rFile.getSheetByName('F');
 const rCol = {jp:2};
 let data = ssData();
 
-let d = new Date(Utilities.formatDate(new Date(), 'Etc/GMT'+'-4', 'yyyy-MM-dd HH:mm:ss'));
+let d = new Date(Utilities.formatDate(new Date(), 'Etc/GMT'+'-9', 'yyyy-MM-dd HH:mm:ss'));
 const tHour = d.getHours();
+d = new Date(Utilities.formatDate(new Date(), 'Etc/GMT'+'-4', 'yyyy-MM-dd HH:mm:ss'));
 const tDate = d.getDate();
 const tDay = d.getDay();
 const bDate = new Date(Utilities.formatDate(new Date(), 'Etc/GMT'+(Number('-4')-1), 'yyyy-MM-dd')).getDate() - 1;
@@ -186,7 +187,7 @@ function imgChannel(str) {
 }
 
 function strAdd(f, str, label) {
-  let val = 0;
+  let val = null;
   let j = 0;
   let ts = (label)? Math.round((new Date(tLabel).getTime()-new Date(label).getTime())/(1000*60*60)): 0;
 
@@ -241,7 +242,7 @@ function strLast(str, val, f = true) {
 }
 
 function strSub(f, str) {
-  let val = 0;
+  let val = null;
   let j = 0;
   const arr = str.split(',').map(x => (x==='')? '': Number(x));
   if (f==='D') { j = arr.length-1-24 }
@@ -406,85 +407,38 @@ function rsOpen(f, id) {
 }
 
 /** ■■■■ Arg関数 ■■■■ */
-function vArguments(f) {
+function vArguments() {
   const wJ = data[w];
   const yJ = todo[y];
   let a = {};
 
-  if (wJ.ban!=null) { //非公開化 or BAN
-    a = {
-      id: wJ.id,
-      img: wJ.img,
-      vw: null,
-      lk: null,
-      cm: null,
-      vw_h: strLen(wJ.vw_h +','),
-      vw_d: strLen(wJ.vw_d +','),
-      vw_w: strLen(wJ.vw_w +','),
-      vw_m: strLen(wJ.vw_m +','),
-      lk_h: strLen(wJ.lk_h +','),
-      lk_d: strLen(wJ.lk_d +','),
-      lk_w: strLen(wJ.lk_w +','),
-      lk_m: strLen(wJ.lk_m +','),
-      cm_h: strLen(wJ.cm_h +','),
-      cm_d: strLen(wJ.cm_d +','),
-      cm_w: strLen(wJ.cm_w +','),
-      cm_m: strLen(wJ.cm_m +','),
-      vw_ah: null,
-      vw_ad: null,
-      vw_aw: null,
-      vw_am: null,
-      lk_ah: null,
-      lk_ad: null,
-      lk_aw: null,
-      lk_am: null,
-      cm_ah: null,
-      cm_ad: null,
-      cm_aw: null,
-      cm_am: null,
-    }
-    wY.video_y.push(a);
-    a = {
-      id: wJ.id,
-      rc: wJ.rc,
-      cat: wJ.cat,
-      flag: 24,
-      rn: null,
-      rt: wJ.rt,
-      rn_b: wJ.rn_b,
-      rn_t: wJ.rn_t,
-      rn_h: strLen(wJ.rn_h +','),
-      rn_d: strLen(wJ.rn_d +','),
-      rn_w: strLen(wJ.rn_w +','),
-      rn_m: strLen(wJ.rn_m +','),
-      rt_h: strLen(wJ.rt_h +','),
-      rt_d: strLen(wJ.rt_d +','),
-      rt_w: strLen(wJ.rt_w +','),
-      rt_m: strLen(wJ.rt_m +','),
-      rt_ah: null,
-      rt_ad: null,
-      rt_aw: null,
-      rt_am: null,
-    }
-    wZ.video_z.push(a);
-    return done[2]++;
-  }
-
   //video_y
-  if (!~wD.findIndex(x => x.id===wJ.id)) {
-    a = {
-      id: yJ.id,
-      ch: yJ.snippet.channelId,
-      title: yJ.snippet.title,
-      dur: yJ.contentDetails.duration,
-      des: yJ.snippet.description,
-      tags: (yJ.snippet.tags)? yJ.snippet.tags.join(): '',
-      img: imgVideo(yJ.snippet.thumbnails.medium.url),
-      vw: yJ.statistics.viewCount,
-      lk: yJ.statistics.likeCount,
-      cm: yJ.statistics.commentCount
+  if (!~wD.findIndex(x => x.id===wJ.id) || wJ.ban!=null) {
+    if (wJ.ban==null) {
+      a = {
+        id: yJ.id,
+        ch: yJ.snippet.channelId,
+        title: yJ.snippet.title,
+        dur: yJ.contentDetails.duration,
+        des: yJ.snippet.description,
+        tags: (yJ.snippet.tags)? yJ.snippet.tags.join(): '',
+        img: imgVideo(yJ.snippet.thumbnails.medium.url),
+        vw: yJ.statistics.viewCount,
+        lk: yJ.statistics.likeCount,
+        cm: yJ.statistics.commentCount
+      }
+      done[0]++;
     }
-    done[0]++;
+    else { //非公開化 or BAN
+      a = {
+        id: wJ.id,
+        vw: wJ.vw,
+        lk: wJ.lk,
+        cm: wJ.cm
+      }
+      return done[2]++;
+    }
+
     a.vw_h = strLen(wJ.vw_h +','+ Array(24).fill(a.vw).join(), hLen);
     a.lk_h = strLen(wJ.lk_h +','+ Array(24).fill(a.lk).join(), hLen);
     a.cm_h = strLen(wJ.cm_h +','+ Array(24).fill(a.cm).join(), hLen);
@@ -530,7 +484,7 @@ function vArguments(f) {
     id: wJ.id,
     rc: wJ.rc,
     cat: wJ.cat,
-    flag: (f==='D')? 30: 70,
+    flag: (wJ.ban==null)? 30: 30, //ウィークリー更新作成後に70にする
     rn: null,
     rt: wJ.rt
   }
@@ -774,14 +728,161 @@ function rDay(rc) {
   /** ■■■■ 実行判定 ■■■■ */
   const f1 = data[1][rCol[rc]-1];
   const f2 = data[2][rCol[rc]-1];
-  console.log({rc:rc,f1:f1,f2:f2,});
-  console.log({'!(f1*10%10)':!(f1*10%10),'!(f2*10%10)':!(f2*10%10)})
+  console.log({rc:rc,f1:f1,f2:f2,tHour:tHour});
+  console.log({'wpDay':!(f1*10%10),'wpDrop':(f2==='Go'),'wpResult':!(f2*10%10)})
 
   if (f1===7 || f1===12 || f1===16 || f1===20) { wpFlash(rc); }
   else if (!(f1*10%10)) { wpDay(rc, f1); }
   else if (f2==='Go') { wpDrop(rc); }
   else if (!(f2*10%10)) { wpResult(rc, f2); }
   else { console.log('実施対象外'); }
+}
+
+function wpDay(rc, f) {
+
+  function step_da() { //WP情報取得, Ranking作成(dArguments)
+    err = {};
+    try {
+      wD = wpAPI(vURL +'25/'+rc);
+      Ranking = {};
+      Top = [];
+      Drop = {video_z:[]};
+      r = 0;
+      for (let i=0; i<cNo.length; i++) { Ranking[cNo[i]] = []; }
+      for (let i=0; i<wD.length; i++) { dArguments(i); }
+      for (let i=0; i<cNo.length; i++) {
+        Ranking[cNo[i]].sort((a, b) => {
+          if (!a.rt) { return 1; }
+          else if (!b.rt) { return -1; }
+          else { return (a.rt < b.rt)? 1: -1; }
+        });
+        Top.push(Ranking[cNo[i]][0].t_c.replace(/(チャンネル|ちゃんねる|channel|Channel)/g, ''));
+      }
+      console.log({ranking:r,drop:d});
+    } catch (e) {
+      console.log('WP情報取得, Ranking作成(dArguments)\n' + e.message);
+      err = e;
+    }
+    finally {
+      if('message' in err && ++t < 3){ step_da() }
+    }
+  }
+  t = 0;
+  step_da();
+  if (t===3) {
+    return console.log('【途中終了】エラー回数超過\nWP情報取得, Ranking作成(dArguments)')
+  }
+
+  function step_ar() { //arg : デイリーランキング
+    err = {};
+    try {
+      const prefix = 'YouTube急上昇ランキング デイリーまとめ【'+today+'】各カテゴリのレシオ1位のチャンネルはこちら［';
+      const suffix = '］『レシオ！』ではYouTube急上昇ランキングをリアルタイム集計、1時間ごとに最新情報をお届け。';
+      const excerpt = 'YouTube急上昇 レシオ！デイリーランキング ' + today + ((tHour!==4)? '(集計中)': '');
+
+      let content = wpAPI(rURL, tID)[0];
+      content = (content)? JSON.parse(content): {};
+      content[rc] = { title: excerpt, des: prefix + Top.join() + suffix, ranking: Ranking }
+
+      arg = {
+        date: publish,
+        status: (publish<now)? 'publish': 'future',
+        title: bDate+'日',
+        content: JSON.stringify(content),
+        excerpt: excerpt,
+        featured_media: 107,
+        comment_status: 'open',
+        ping_status: 'open',
+        sticky: false,
+        categories: [4],
+        tags: [70,73,74,78,79,52,57,day]
+      };
+
+      console.log('arg : デイリーランキング\n' + excerpt);
+    } catch (e) {
+      console.log('arg : デイリーランキング\n' + e.message);
+      err = e;
+    }
+    finally {
+      if('message' in err && ++t < 3){ step_ar() }
+    }
+  }
+  t = 0;
+  step_ar();
+  if (t===3) {
+    return console.log('【途中終了】エラー回数超過\narg : デイリーランキング')
+  }
+
+  function step_rn() { //デイリーランキング更新
+    err = {};
+    try {
+      const resR = wpAPI(pURL+tID, arg);
+      console.log({m:'デイリーランキング更新', resR:resR});
+    } catch (e) {
+      console.log('デイリーランキング更新\n' + e.message);
+      err = e;
+    }
+    finally {
+      if('message' in err && ++t < 3){ step_rn() }
+    }
+  }
+  t = 0;
+  step_rn();
+  if (t===3) {
+    return console.log('【途中終了】エラー回数超過\nデイリーランキング更新')
+  }
+
+  function step_ms() { //IndexNow送信
+    err = {};
+    try {
+      Channel = [];
+      Video = [];
+      for (let i=0; i<cNo.length; i++) {
+        for (let j=0; j<7; j++) {
+          let url = 'https://ratio100.com/youtube/channel/' + Ranking[cNo[i]][j].ch;
+          Channel.push(url);
+          url = 'https://ratio100.com/youtube/video/' + Ranking[cNo[i]][j].vd;
+          Video.push(url);
+        }
+      }
+      msSubmit(Channel);
+      console.log('IndexNow送信 : '+Channel.length+'件');
+      console.log(Channel.join('\n'));
+      console.log('Google Indexing用 : '+Video.length+'件');
+      console.log(Video.join('\n'));
+    } catch (e) {
+      console.log('IndexNow送信\n' + e.message);
+      err = e;
+    }
+    finally {
+      if('message' in err && ++t < 3){ step_ms() }
+    }
+  }
+  t = 0;
+  if (f===4) { step_ms(); }
+  if (t===3) {
+    return console.log('【途中終了】エラー回数超過\nIndexNow送信')
+  }
+
+  function step_e() { //終了処理
+    err = {};
+    try {
+      fSheet.getRange(2, rCol[rc]).setValue(f+0.1);
+      console.log('■■■■■■■■■■ 実行完了 : wpDay ■■■■■■■■■■');
+    } catch (e) {
+      console.log('終了処理\n' + e.message);
+      err = e;
+    }
+    finally {
+      if('message' in err && ++t < 3){ step_e() }
+    }
+  }
+  t = 0;
+  step_e();
+  if (t===3) {
+    return console.log('【途中終了】エラー回数超過\n終了処理')
+  }
+
 }
 
 function wpDrop(rc) {
@@ -821,7 +922,7 @@ function wpDrop(rc) {
 
         cat = data[w].cat;
         if (!cat) {console.log('Drop動画のArg作成 : カテゴリ『0』エラー\nid : '+data[w].id)}
-        vArguments('D');
+        vArguments();
         w++;
         if (f==='D') { y++; }
       }
@@ -958,7 +1059,7 @@ function wpDrop(rc) {
       wD = wpAPI(vURL +'25/'+rc);
       d = 0;
       wpAPI(vURL +'25/'+rc).forEach(wJ => { if (wJ.flag === '24') { d++; } });
-      if (d) console.log('■■■■ Dropアップデート漏れ ■■■■/n'+d+'件');
+      console.log('■■■■ Dropアップデート漏れ ■■■■/n'+d+'件');
 
     } catch (e) {
       console.log('Dropアップデート\n' + e.message);
@@ -978,153 +1079,6 @@ function wpDrop(rc) {
     err = {};
     try {
       fSheet.getRange(3, rCol[rc]).setValue(tDate);
-      console.log('■■■■■■■■■■ 実行完了 : wpDay ■■■■■■■■■■');
-    } catch (e) {
-      console.log('終了処理\n' + e.message);
-      err = e;
-    }
-    finally {
-      if('message' in err && ++t < 3){ step_e() }
-    }
-  }
-  t = 0;
-  step_e();
-  if (t===3) {
-    return console.log('【途中終了】エラー回数超過\n終了処理')
-  }
-
-}
-
-function wpDay(rc, f) {
-
-  function step_da() { //WP情報取得, Ranking作成(dArguments)
-    err = {};
-    try {
-      wD = wpAPI(vURL +'25/'+rc);
-      Ranking = {};
-      Top = [];
-      Drop = {video_z:[]};
-      r = 0;
-      for (let i=0; i<cNo.length; i++) { Ranking[cNo[i]] = []; }
-      for (let i=0; i<wD.length; i++) { dArguments(i); }
-      for (let i=0; i<cNo.length; i++) {
-        Ranking[cNo[i]].sort((a, b) => {
-          if (!a.rt) { return 1; }
-          else if (!b.rt) { return -1; }
-          else { return (a.rt < b.rt)? 1: -1; }
-        });
-        Top.push(Ranking[cNo[i]][0].t_c.replace(/(チャンネル|ちゃんねる|channel|Channel)/g, ''));
-      }
-      console.log({ranking:r,drop:d});
-    } catch (e) {
-      console.log('WP情報取得, Ranking作成(dArguments)\n' + e.message);
-      err = e;
-    }
-    finally {
-      if('message' in err && ++t < 3){ step_da() }
-    }
-  }
-  t = 0;
-  step_da();
-  if (t===3) {
-    return console.log('【途中終了】エラー回数超過\nWP情報取得, Ranking作成(dArguments)')
-  }
-
-  function step_ar() { //arg : デイリーランキング
-    err = {};
-    try {
-      const prefix = 'YouTube急上昇ランキング デイリーまとめ【'+today+'】各カテゴリのレシオ1位のチャンネルはこちら［';
-      const suffix = '］『レシオ！』ではYouTube急上昇ランキングをリアルタイム集計、1時間ごとに最新情報をお届け。';
-      const excerpt = 'YouTube急上昇 レシオ！デイリーランキング ' + today + ((tHour!==4)? '(集計中)': '');
-
-      let content = wpAPI(rURL, tID)[0];
-      content = (content)? JSON.parse(content): {};
-      content[rc] = { title: excerpt, des: prefix + Top.join() + suffix, ranking: Ranking }
-
-      arg = {
-        date: publish,
-        status: (publish<now)? 'publish': 'future',
-        title: bDate+'日',
-        content: JSON.stringify(content),
-        excerpt: excerpt,
-        featured_media: 107,
-        comment_status: 'open',
-        ping_status: 'open',
-        sticky: false,
-        categories: [4],
-        tags: [70,73,74,78,79,52,57,day]
-      };
-
-      console.log('arg : デイリーランキング\n' + excerpt);
-    } catch (e) {
-      console.log('arg : デイリーランキング\n' + e.message);
-      err = e;
-    }
-    finally {
-      if('message' in err && ++t < 3){ step_ar() }
-    }
-  }
-  t = 0;
-  step_ar();
-  if (t===3) {
-    return console.log('【途中終了】エラー回数超過\narg : デイリーランキング')
-  }
-
-  function step_rn() { //デイリーランキング更新
-    err = {};
-    try {
-      const resR = wpAPI(pURL+tID, arg);
-      console.log({m:'デイリーランキング更新', resR:resR});
-    } catch (e) {
-      console.log('デイリーランキング更新\n' + e.message);
-      err = e;
-    }
-    finally {
-      if('message' in err && ++t < 3){ step_rn() }
-    }
-  }
-  t = 0;
-  step_rn();
-  if (t===3) {
-    return console.log('【途中終了】エラー回数超過\nデイリーランキング更新')
-  }
-
-  function step_ms() { //IndexNow送信
-    err = {};
-    try {
-      Channel = [];
-      Video = [];
-      for (let i=0; i<cNo.length; i++) {
-        for (let j=0; j<7; j++) {
-          let url = 'https://ratio100.com/youtube/channel/' + Ranking[cNo[i]][j].ch;
-          Channel.push(url);
-          url = 'https://ratio100.com/youtube/video/' + Ranking[cNo[i]][j].vd;
-          Video.push(url);
-        }
-      }
-      msSubmit(Channel);
-      console.log('IndexNow送信 : '+Channel.length+'件');
-      console.log(Channel.join('\n'));
-      console.log('Google Indexing用 : '+Video.length+'件');
-      console.log(Video.join('\n'));
-    } catch (e) {
-      console.log('IndexNow送信\n' + e.message);
-      err = e;
-    }
-    finally {
-      if('message' in err && ++t < 3){ step_ms() }
-    }
-  }
-  t = 0;
-  if (f===4) { step_ms(); }
-  if (t===3) {
-    return console.log('【途中終了】エラー回数超過\nIndexNow送信')
-  }
-
-  function step_e() { //終了処理
-    err = {};
-    try {
-      fSheet.getRange(2, rCol[rc]).setValue(f+0.1);
       console.log('■■■■■■■■■■ 実行完了 : wpDay ■■■■■■■■■■');
     } catch (e) {
       console.log('終了処理\n' + e.message);

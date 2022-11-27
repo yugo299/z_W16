@@ -243,8 +243,9 @@ function rHour(rc) {
   }
 
   function strSub(f, str) {
+    let val = null;
     let j = 0;
-    const arr = str.split(',');
+    const arr = str.split(',').map(x => (x==='')? '': Number(x));
     if (f==='D') { j = arr.length-1-24 }
     else if (f==='W') { j = arr.length-1-7 }
     else if (f==='M') { j = arr.length-1-bDate }
@@ -253,7 +254,11 @@ function rHour(rc) {
       if (arr[i]!=='') { j = i; break; }
       if (i===arr.length-1) { j = arr.length-1 }
     }
-    return arr[arr.length-1] - arr[j];
+    for (let i=arr.length-1; i>=j; i--) {
+      if (arr[i]==='') { continue; }
+      else { val = arr[arr.length-1]-arr[j]; }
+    }
+    return val;
   }
 
   function strMin(f, str) {
@@ -325,79 +330,29 @@ function rHour(rc) {
       return
     }
 
-    if (wJ.ban!=null) { //非公開化 or BAN
-      a = {
-        id: wJ.id,
-        img: wJ.img,
-        vw: null,
-        lk: null,
-        cm: null,
-        vw_h: strLen(wJ.vw_h +','),
-        vw_d: strLen(wJ.vw_d +','),
-        vw_w: strLen(wJ.vw_w +','),
-        vw_m: strLen(wJ.vw_m +','),
-        lk_h: strLen(wJ.lk_h +','),
-        lk_d: strLen(wJ.lk_d +','),
-        lk_w: strLen(wJ.lk_w +','),
-        lk_m: strLen(wJ.lk_m +','),
-        cm_h: strLen(wJ.cm_h +','),
-        cm_d: strLen(wJ.cm_d +','),
-        cm_w: strLen(wJ.cm_w +','),
-        cm_m: strLen(wJ.cm_m +','),
-        vw_ah: null,
-        vw_ad: null,
-        vw_aw: null,
-        vw_am: null,
-        lk_ah: null,
-        lk_ad: null,
-        lk_aw: null,
-        lk_am: null,
-        cm_ah: null,
-        cm_ad: null,
-        cm_aw: null,
-        cm_am: null,
-      }
-      wY.video_y.push(a);
-      a = {
-        id: wJ.id,
-        rc: wJ.rc,
-        cat: wJ.cat,
-        flag: 24,
-        rn: null,
-        rt: wJ.rt,
-        rn_b: wJ.rn_b,
-        rn_t: wJ.rn_t,
-        rn_h: strLen(wJ.rn_h +','),
-        rn_d: strLen(wJ.rn_d +','),
-        rn_w: strLen(wJ.rn_w +','),
-        rn_m: strLen(wJ.rn_m +','),
-        rt_h: strLen(wJ.rt_h +','),
-        rt_d: strLen(wJ.rt_d +','),
-        rt_w: strLen(wJ.rt_w +','),
-        rt_m: strLen(wJ.rt_m +','),
-        rt_ah: null,
-        rt_ad: null,
-        rt_aw: null,
-        rt_am: null,
-      }
-      wZ.video_z.push(a);
-      return done[0]++;
-    }
-
     const array = (f==='N' || wJ.flag==='24')? []: arrPeriod(wJ.pd_l);
 
     //video_y
-    a = {
-      id: yJ.id,
-      ch: yJ.snippet.channelId,
-      title: yJ.snippet.title,
-      dur: yJ.contentDetails.duration,
-      des: yJ.snippet.description,
-      tags: (yJ.snippet.tags)? yJ.snippet.tags.join(): '',
-      img: imgVideo(yJ.snippet.thumbnails.medium.url),
-      vw: yJ.statistics.viewCount,
-      lk: yJ.statistics.likeCount,
-      cm: yJ.statistics.commentCount,
+    if (wJ.ban==null) {
+      a = {
+        id: yJ.id,
+        ch: yJ.snippet.channelId,
+        title: yJ.snippet.title,
+        dur: yJ.contentDetails.duration,
+        des: yJ.snippet.description,
+        tags: (yJ.snippet.tags)? yJ.snippet.tags.join(): '',
+        img: imgVideo(yJ.snippet.thumbnails.medium.url),
+        vw: yJ.statistics.viewCount,
+        lk: yJ.statistics.likeCount,
+        cm: yJ.statistics.commentCount,
+      }
+    } else { //非公開化 or BAN
+      a = {
+        id: wJ.id,
+        vw: wJ.vw,
+        lk: wJ.lk,
+        cm: wJ.cm,
+      }
     }
     if (wJ) {
       done[0]++;
@@ -549,14 +504,14 @@ function rHour(rc) {
       a.rn_i = tLabel;
       a.rn_b = yJ.rn;
       a.rn_t = tLabel;
-      a.rn_h = Array(hLen).join() + yJ.rn;
-      a.rn_d = Array(dLen).join();
-      a.rn_w = Array(wLen).join();
-      a.rn_m = Array(mLen).join();
-      a.rt_h = Array(hLen).join() + yJ.rt;
-      a.rt_d = Array(dLen).join();
-      a.rt_w = Array(wLen).join();
-      a.rt_m = Array(mLen).join();
+      a.rn_h = Array(hLen).join() + ((a.rn==null)? '': a.rn);
+      a.rn_d = Array(dLen).join() + ((a.rn==null)? '': a.rn);
+      a.rn_w = Array(wLen).join() + ((a.rn==null)? '': a.rn);
+      a.rn_m = Array(mLen).join() + ((a.rn==null)? '': a.rn);
+      a.rt_h = Array(hLen).join() + ((a.rt==null)? '': a.rt);
+      a.rt_d = Array(dLen).join() + ((a.rt==null)? '': a.rt);
+      a.rt_w = Array(wLen).join() + ((a.rt==null)? '': a.rt);
+      a.rt_m = Array(mLen).join() + ((a.rt==null)? '': a.rt);
       a.pd   = 0;
       a.pd_f = tLabel;
       a.pd_l = tLabel;
@@ -584,69 +539,29 @@ function rHour(rc) {
     const yJ = (f)? yC[y]: false;
     let a = {};
 
-    if (!f) { //非公開化 or BAN
-      a = {
-        id: wJ.id,
-        img: wJ.img,
-        vw: null,
-        sb: null,
-        vc: null,
-        vw_h: strLen(wJ.vw_h +','),
-        vw_d: strLen(wJ.vw_d +','),
-        vw_w: strLen(wJ.vw_w +','),
-        vw_m: strLen(wJ.vw_m +','),
-        sb_h: strLen(wJ.sb_h +','),
-        sb_d: strLen(wJ.sb_d +','),
-        sb_w: strLen(wJ.sb_w +','),
-        sb_m: strLen(wJ.sb_m +','),
-        vc_h: strLen(wJ.vc_h +','),
-        vc_d: strLen(wJ.vc_d +','),
-        vc_w: strLen(wJ.vc_w +','),
-        vc_m: strLen(wJ.vc_m +','),
-        vw_ah: null,
-        vw_ad: null,
-        vw_aw: null,
-        vw_am: null,
-        sb_ah: null,
-        sb_ad: null,
-        sb_aw: null,
-        sb_am: null,
-        vc_ah: null,
-        vc_ad: null,
-        vc_aw: null,
-        vc_am: null,
-      }
-      wY.channel_y.push(a);
-      a = {
-        id: wJ.id,
-        rc: rc,
-        rn_b: wJ.rn_b,
-        rn_t: wJ.rn_t,
-        rn_h: strLen(wJ.rn_h +','),
-        rn_d: strLen(wJ.rn_d +','),
-        rn_w: strLen(wJ.rn_w +','),
-        rn_m: strLen(wJ.rn_m +','),
-        rt_h: strLen(wJ.rt_h +','),
-        rt_d: strLen(wJ.rt_d +','),
-        rt_w: strLen(wJ.rt_w +','),
-        rt_m: strLen(wJ.rt_m +',')
-      }
-      wZ.channel_z.push(a);
-      return done[2]++
-    }
-
     const array = (wJ.flag==='24')? []: arrPeriod(wJ.pd_l);
 
     //channel_y
-    a = {
-      id: yJ.id,
-      title: yJ.snippet.title,
-      des: yJ.snippet.description,
-      img: imgChannel(yJ.snippet.thumbnails.medium.url),
-      handle: yJ.snippet.customUrl,
-      vw: yJ.statistics.viewCount,
-      sb: yJ.statistics.subscriberCount,
-      vc: yJ.statistics.videoCount,
+    if (f) {
+      a = {
+        id: yJ.id,
+        title: yJ.snippet.title,
+        des: yJ.snippet.description,
+        img: imgChannel(yJ.snippet.thumbnails.medium.url),
+        handle: yJ.snippet.customUrl,
+        vw: yJ.statistics.viewCount,
+        sb: yJ.statistics.subscriberCount,
+        vc: yJ.statistics.videoCount,
+      }
+      done[0]++;
+    } else { //非公開化 or BAN
+      a = {
+        id: wJ.id,
+        vw: wJ.vw,
+        sb: wJ.sb,
+        vc: wJ.vc
+      }
+      done[2]++;
     }
     if (wJ.date!=null) {
       if (array.length>1 && Number(wJ.flag)<24) { console.log({m:'要確認', id:a.id, len:array.length, pd_l:wJ.pd_l, tHour:tHour}); }
@@ -696,17 +611,18 @@ function rHour(rc) {
     } else {
       a.date = Utilities.formatDate(new Date(yJ.snippet.publishedAt), 'JST', 'yyyy-MM-dd HH:mm:ss'),
       a.vw_h = Array(hLen).join() + ((a.vw==null)? '': a.vw);
-      a.vw_d = Array(dLen).join();
-      a.vw_w = Array(wLen).join();
-      a.vw_m = Array(mLen).join();
+      a.vw_d = Array(dLen).join() + ((a.vw==null)? '': a.vw);
+      a.vw_w = Array(wLen).join() + ((a.vw==null)? '': a.vw);
+      a.vw_m = Array(mLen).join() + ((a.vw==null)? '': a.vw);
       a.sb_h = Array(hLen).join() + ((a.sb==null)? '': a.sb);
-      a.sb_d = Array(dLen).join();
-      a.sb_w = Array(wLen).join();
-      a.sb_m = Array(mLen).join();
+      a.sb_d = Array(dLen).join() + ((a.sb==null)? '': a.sb);
+      a.sb_w = Array(wLen).join() + ((a.sb==null)? '': a.sb);
+      a.sb_m = Array(mLen).join() + ((a.sb==null)? '': a.sb);
       a.vc_h = Array(hLen).join() + ((a.vc==null)? '': a.vc);
-      a.vc_d = Array(dLen).join();
-      a.vc_w = Array(wLen).join();
-      a.vc_m = Array(mLen).join();
+      a.vc_d = Array(dLen).join() + ((a.vc==null)? '': a.vc);
+      a.vc_w = Array(wLen).join() + ((a.vc==null)? '': a.vc);
+      a.vc_m = Array(mLen).join() + ((a.vc==null)? '': a.vc);
+      done[1]++;
     }
     a.vw_ad = (a.vw==null)? null: strSub('D', a.vw_h);
     a.sb_ad = (a.sb==null)? null: strSub('D', a.sb_h);
@@ -774,23 +690,21 @@ function rHour(rc) {
         a.rn_m = strLast(wJ.rn_m, a.rn, false);
         a.rt_m = strLast(wJ.rt_m, a.rt);
       }
-      done[0]++;
     } else {
       a.rn_b = Number(wJ.rn);
       a.rn_t = tLabel;
-      a.rn_h = Array(hLen).join() + Number(wJ.rn);
-      a.rn_d = Array(dLen).join();
-      a.rn_w = Array(wLen).join();
-      a.rn_m = Array(mLen).join();
-      a.rt_h = Array(hLen).join() + Number(wJ.rt);
-      a.rt_d = Array(dLen).join();
-      a.rt_w = Array(wLen).join();
-      a.rt_m = Array(mLen).join();
+      a.rn_h = Array(hLen).join() + ((wJ.rn==null)? '': Number(wJ.rn));
+      a.rn_d = Array(dLen).join() + ((wJ.rn==null)? '': Number(wJ.rn));
+      a.rn_w = Array(wLen).join() + ((wJ.rn==null)? '': Number(wJ.rn));
+      a.rn_m = Array(mLen).join() + ((wJ.rn==null)? '': Number(wJ.rn));
+      a.rt_h = Array(hLen).join() + ((wJ.rt==null)? '': Number(wJ.rt));
+      a.rt_d = Array(dLen).join() + ((wJ.rt==null)? '': Number(wJ.rt));
+      a.rt_w = Array(wLen).join() + ((wJ.rt==null)? '': Number(wJ.rt));
+      a.rt_m = Array(mLen).join() + ((wJ.rt==null)? '': Number(wJ.rt));
       a.pd   = 0;
       a.pd_n = 0;
       a.pd_f = tLabel;
       a.pd_l = tLabel;
-      done[1]++;
     }
     wZ.channel_z.push(a);
   }
