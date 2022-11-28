@@ -47,7 +47,7 @@ function rFetch() {
   x = res.indexOf('Fratio100.com%');
   x = res.slice(x-60,x+100).replace('\n', '').replace(/amp;/g, '');
   console.log(x);
-  regexp = /(.*)out\/(.*)" (.*)/;
+  regexp = /(.*)out\/(.*)(" target.*)/;
   url = 'https://link.blogmura.com/out/' + x.replace(regexp,'$2');
   console.log(url);
 

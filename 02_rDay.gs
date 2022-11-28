@@ -43,10 +43,10 @@ let data = ssData();
 
 let d = new Date(Utilities.formatDate(new Date(), 'Etc/GMT'+'-9', 'yyyy-MM-dd HH:mm:ss'));
 const tHour = d.getHours();
-d = new Date(Utilities.formatDate(new Date(), 'Etc/GMT'+'-4', 'yyyy-MM-dd HH:mm:ss'));
+d = new Date(Utilities.formatDate(new Date(), 'Etc/GMT'+'-4', 'yyyy-MM-dd'));
 const tDate = d.getDate();
 const tDay = d.getDay();
-const bDate = new Date(Utilities.formatDate(new Date(), 'Etc/GMT'+(Number('-4')-1), 'yyyy-MM-dd')).getDate() - 1;
+const tomorrow = new Date(d.getTime() + 86400000);
 
 //d = new Date(new Date(Utilities.formatDate(new Date(), 'Etc/GMT'+(Number('-4')-1), 'yyyy-MM-dd')).getTime() - 86400000);
 d = new Date(new Date(Utilities.formatDate(new Date(), 'Etc/GMT'+'-4', 'yyyy-MM-dd')).getTime());
@@ -192,9 +192,9 @@ function strAdd(f, str, label) {
   let ts = (label)? Math.round((new Date(tLabel).getTime()-new Date(label).getTime())/(1000*60*60)): 0;
 
   let arr = str.split(',').map(x => (x==='')? '': Number(x));
-  if (f==='D') { j = arr.length-1-((tHour+23-4)%24+1) }
-  else if (f==='W') { j = arr.length-1-7 }
-  else if (f==='M') { j = arr.length-1-bDate }
+  if (f==='D') { j = arr.length-1-((tHour+23-4)%24+1); }
+  else if (f==='W') { j = arr.length-1-((tDay+6)%7+1); }
+  else if (f==='M') { j = arr.length-1-tDate; }
 
   for (let i=j; i<arr.length-1; i++) {
     if (arr[i]!=='') { j = i; break; }
@@ -247,7 +247,7 @@ function strSub(f, str) {
   const arr = str.split(',').map(x => (x==='')? '': Number(x));
   if (f==='D') { j = arr.length-1-24 }
   else if (f==='W') { j = arr.length-1-7 }
-  else {f==='M'} { j = arr.length-1-bDate }
+  else {f==='M'} { j = arr.length-1-30 }
 
   for (let i=j; i<arr.length; i++) {
     if (arr[i]!=='') { j = i; break; }
@@ -267,7 +267,7 @@ function rsRange(f, id) {
   id = String(id);
 
   if (f==='W') {
-    d = new Date('20'+id.slice(0,2)+'-'+id.slice(2,4)+'-'+((bDate<10)? '0'+bDate: bDate));
+    d = new Date('20'+id.slice(0,2)+'-'+id.slice(2,4)+'-'+((tDate<10)? '0'+tDate: tDate));
     const mon = (d.getDay()+6) % 7;
     d = d.getTime() - 86400000 * mon;
     for (let i=0; i<7; i++) {
@@ -334,7 +334,7 @@ function rsPublish(f, id) {
   let dd = now;
   id = String(id);
   if (f==='W') {
-    d = new Date('20'+id.slice(0,2)+'-'+id.slice(2,4)+'-'+((bDate<10)? '0'+bDate: bDate));
+    d = new Date('20'+id.slice(0,2)+'-'+id.slice(2,4)+'-'+((tDate<10)? '0'+tDate: tDate));
     let mon = (d.getDay()+6) % 7;
     d = d.getTime() - 86400000 * mon;
     dd = Utilities.formatDate(new Date(d), 'Etc/GMT'+(Number('-4')-1), 'yyyy-MM-dd 04:30:07').replace(' ','T');
@@ -681,7 +681,6 @@ function rArguments(f, id) {
   for (let i=0; i<cNo.length; i++) { Ranking[cNo[i]] = []; }
 
   const range = rsRange(f, id);
-  let cnt = 0;
   if (f!=='Y') { console.log({term:f,range:range}); }
   wpAPI(rURL, range).forEach(arg => {
     if (!(arg==='' || !arg)) {
@@ -787,7 +786,7 @@ function wpDay(rc, f) {
       arg = {
         date: publish,
         status: (publish<now)? 'publish': 'future',
-        title: bDate+'日',
+        title: tDate+'日',
         content: JSON.stringify(content),
         excerpt: excerpt,
         featured_media: 107,
@@ -1166,33 +1165,33 @@ function wpResult(rc, f) {
     return console.log('【途中終了】エラー回数超過\n年間ランキングの更新')
   }
 
-  function step_id() { //期間別集計記事IDの更新, 新規分記事公開
+  function step_id() { //期間別集計記事IDの更新, 新規記事公開
     err = {};
     try {
-      list = JSON.parse(wpAPI(pURL+5).content.raw);
+      console.log({'新規分記事公開':Utilities.formatDate(new Date(tomorrow), 'Etc/GMT'+'-4', 'yyyy-MM-dd'),week:(tomorrow.getDay() === 1),month:(tomorrow.getDate() === 1),year:(tomorrow.getDate() === 1 && tomorrow.getMonth() === 0)});
 
+      list = JSON.parse(wpAPI(pURL+5).content.raw);
       list[rc].d.b = list[rc].d.n;
-      list[rc].d.n = Utilities.formatDate(new Date(), 'Etc/GMT'+(Number('-4')-1), 'yyMMdd');
-      if (tDay === 1) {
-        ts = new Date(Utilities.formatDate(new Date(), 'Etc/GMT'+'-4', 'yyyy-MM-dd'));
-        ts = Utilities.formatDate(new Date(ts.getTime() + (7-ts.getDay()) * (1000*60*60*24)), 'Etc/GMT'+'-4', 'yyMM');
+      list[rc].d.n = Utilities.formatDate(new Date(tomorrow), 'Etc/GMT'+'-4', 'yyMMdd');
+      if (tomorrow.getDay() === 1) {
+        ts = Utilities.formatDate(new Date(ts.getTime() + (7-tomorrow.getDay())*86400000), 'Etc/GMT'+'-4', 'yyMM');
         ts = Number(ts + '40');
         do { done = wpAPI(pURL+(++ts)); } while (done.tags.includes(52));
         list[rc].w.b = list[rc].w.n;
         list[rc].w.n = ts;
         console.log({'記事公開':list[rc].w.n, res:rsOpen('W',list[rc].w.n)});
       }
-      if (tDate === 1) {
+      if (tomorrow.getDate() === 1) {
         list[rc].m.b = list[rc].m.n;
-        list[rc].m.n = Utilities.formatDate(new Date(), 'Etc/GMT'+'-4', 'yyMM00');
+        list[rc].m.n = Utilities.formatDate(new Date(tomorrow), 'Etc/GMT'+'-4', 'yyMM00');
         console.log({'記事公開':list[rc].m.n, res:rsOpen('M',list[rc].m.n)});
-        if (tMonth === 1) {
+        if (tomorrow.getMonth() === 0) {
           list[rc].y.b = list[rc].y.n;
-          list[rc].y.n = Utilities.formatDate(new Date(), 'Etc/GMT'+'-4', 'yy0000');
+          list[rc].y.n = Utilities.formatDate(new Date(tomorrow), 'Etc/GMT'+'-4', 'yy0000');
           console.log({'記事公開':list[rc].y.n, res:rsOpen('Y',list[rc].y.n)});
         }
       }
-      arg = {content: list};
+      arg = {content: JSON.stringify(list)};
       console.log({'期間別集計記事IDの更新':'before（'+rc+'）',arg:arg.content[rc]});
       console.log({'期間別集計記事IDの更新':'after（'+rc+'）', res:JSON.stringify(JSON.parse(wpAPI(pURL+5, arg).content.raw))});
     } catch (e) {

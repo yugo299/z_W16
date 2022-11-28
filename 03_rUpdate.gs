@@ -160,31 +160,31 @@ function rUpdate() {
 
     tr = wpAPI(sURL+'/wp-json/ratio-zid/zid/trending/');
 
-    let title = 'YouTube急上昇 本日ランクインのチャンネル(' + tr.c + ')をピックアップ';
-    let prefix = 'YouTube急上昇 本日は'+tr.c+'のチャンネルの動画が各カテゴリTop100にランクイン。獲得レシオ上位のチャンネルはこちら［';
-    let suffix = '］『レシオ！』ではYouTube急上昇ランキングをリアルタイム集計、1時間ごとに最新情報をお届け。';
-    let excerpt = prefix + tr.channel.map(x => x = x.title).join().replace(/(チャンネル|ちゃんねる|channel|Channel)/g, '') + suffix;
+    if (hour%2) {
+      const title = 'YouTube急上昇 本日ランクインのチャンネル(' + tr.c + ')をピックアップ';
+      const prefix = 'YouTube急上昇 本日は'+tr.c+'のチャンネルの動画が各カテゴリTop100にランクイン。獲得レシオ上位のチャンネルはこちら［';
+      const suffix = '］『レシオ！』ではYouTube急上昇ランキングをリアルタイム集計、1時間ごとに最新情報をお届け。';
+      const excerpt = prefix + tr.channel.map(x => x = x.title).join().replace(/(チャンネル|ちゃんねる|channel|Channel)/g, '') + suffix;
+      arg = {date: time, title: title, excerpt: excerpt, tags: [70,73,74,78,51,day]}
+      console.log(wpAPI(oURL+8, arg));
+    } else {
+      const title = 'YouTube急上昇 本日ランクインの動画(' + tr.v + ')の獲得レシオTop100';
+      const prefix = 'YouTube急上昇 本日は'+tr.v+'本の動画が各カテゴリTop100にランクイン。獲得レシオ上位の動画はこちら［';
+      const suffix = '］『レシオ！』ではYouTube急上昇ランキングをリアルタイム集計、1時間ごとに最新情報をお届け。';
+      const excerpt = prefix + tr.video.map(x => x = x.title).join() + suffix;
+      arg = {date: time, title: title, excerpt: excerpt, tags: [70,73,74,79,51,day]}
+      console.log(wpAPI(oURL+9, arg));
+    }
 
-    arg = {date: time, title: title, excerpt: excerpt, tags: [70,73,74,78,51,day]}
-    console.log(wpAPI(oURL+8, arg));
-
-    title = 'YouTube急上昇 本日ランクインの動画(' + tr.v + ')の獲得レシオTop100';
-    prefix = 'YouTube急上昇 本日は'+tr.v+'本の動画が各カテゴリTop100にランクイン。獲得レシオ上位の動画はこちら［';
-    suffix = '］『レシオ！』ではYouTube急上昇ランキングをリアルタイム集計、1時間ごとに最新情報をお届け。';
-    excerpt = prefix + tr.video.map(x => x = x.title).join() + suffix;
-
-    arg = {date: time, title: title, excerpt: excerpt, tags: [70,73,74,79,51,day]}
-    console.log(wpAPI(oURL+9, arg));
-
-    console.log('アップデート完了 ( 4,8,9 ) : '+time);
+    console.log('アップデート完了 ( 4,'+((hour%2)? 8:9)+' ) : '+time);
   }
 
   if (minutes>20 && minutes<25 && (hour%2===0)) { //カテゴリ別ランキングページ更新
     const time = (Utilities.formatDate(date,'JST','yyyy-MM-dd HH:')+'00:10').replace(' ','T');
     const arg = { date: time }
-    const list = ['https://ratio100.com/youtube/trending/'+cSlug[Math.round(hour/2)]]
+    const list = ['https://ratio100.com/youtube/trending/'+cSlug[tNo[Math.round(hour/2)]]]
     console.log(msSubmit(list));
-    console.log(wpAPI(oURL+cNo[Math.round(hour/2)], arg));
+    console.log(wpAPI(oURL+cNo[tNo[Math.round(hour/2)]], arg));
     console.log('アップデート完了 ( '+Math.round(hour/2)+' ) : '+time);
   }
 
@@ -198,7 +198,7 @@ function rUpdate() {
   if (minutes>25 && minutes<30 && hour>11) { //Twitter投稿カテゴリ別Top10
 
     const wD = wpAPI(vURL+'24/jp');
-    if (Number(wD[0].flag)!==hour) { return console.log('video24未更新'); }
+    if (Number(wD[0].flag)!==hour) { return console.log({'video24未更新':hour,wD:wD[0]}); }
 
     const i = hour-12;
     const no = {'1':'1⃣', '2':'2⃣', '3':'3⃣', '4':'4⃣', '5':'5⃣', '6':'6⃣', '7':'7⃣', '8':'8⃣', '9':'9⃣', '10':'🔟'};

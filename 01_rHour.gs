@@ -438,14 +438,9 @@ function rHour(rc) {
     if (~i && f!=='S') { wY.video_y.unshift(a); }
     else { wY.video_y.push(a); }
 
-    if (a.id==='PiZ-iDSkTCk') {
-      console.log({m:'モニタリング（前） : PiZ-iDSkTCk', wJ:wJ});
-      console.log({m:'モニタリング（y） : PiZ-iDSkTCk', arg:a});
-    }
-
     //video_z
     a = {
-      id: yJ.id,
+      id: (wJ.ban==null)? yJ.id: wJ.id,
       rc: rc,
       cat: cat,
       flag: (f==='D')? 24: tHour,
@@ -459,7 +454,7 @@ function rHour(rc) {
       a.pd   = wJ.pd;
       a.pd_f = wJ.pd_f;
       a.pd_l = wJ.pd_l;
-      a.rt = (yJ.rt==null)? Number(wJ.rt): numR(Number(wJ.rt) + yJ.rt);
+      a.rt = (wJ.ban!=null || yJ.rt==null)? Number(wJ.rt): numR(Number(wJ.rt) + yJ.rt);
 
       let arr = array.fill(numLast(wJ.rn_h));
       arr[arr.length-1] = (wJ.rn==null)? '': wJ.rn;
@@ -524,10 +519,6 @@ function rHour(rc) {
     a.rt_am = (a.rt_am)? Math.round(a.rt_am*10000)/10000: null;
 
     wZ.video_z.push(a);
-
-    if (a.id==='PiZ-iDSkTCk') {
-      console.log({m:'モニタリング（z） : PiZ-iDSkTCk', arg:a});
-    }
 
     if (f!=='D' && wJ.flag!=='30'){Rank[a.rn][a.cat] = a.id;}
     if (a.flag!==tHour && a.flag!==24) { console.log(a); }
