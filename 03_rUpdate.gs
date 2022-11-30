@@ -119,15 +119,15 @@ function rUpdate() {
 
   const cNo = [1,2,10,15,17,20,22,23,24,25,26,28];
   const cSlug = [
-    'movie-anime',
-    'car-bike-train',
+    'film-anime',
+    'autos-vehicles',
     'music',
     'pets-animals',
     'sports',
-    'game',
-    'blog',
+    'gaming',
+    'people-blogs',
     'comedy',
-    'entame',
+    'entertainment',
     'news-politics',
     'howto-style',
     'science-tech'

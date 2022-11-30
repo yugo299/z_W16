@@ -16,6 +16,7 @@ Disallow: */video/science-tech*
 Disallow: */trending/flash*
 Disallow: /other*
 
-Sitemap: https://ratio100.com/sitemap_index.xml
+Sitemap: https://ratio100.com/sitemap.xml
 Sitemap: https://ratio100.com/rss2
 Sitemap: https://ratio100.com/atom
+Sitemap: https://ratio100.com/youtube/feed

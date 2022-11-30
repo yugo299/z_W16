@@ -55,15 +55,15 @@ const cName = [
   '科学とテクノロジー'
 ];
 const cSlug = [
-  'movie-anime',
-  'car-bike-train',
+  'film-anime',
+  'autos-vehicles',
   'music',
   'pets-animals',
   'sports',
-  'game',
-  'blog',
+  'gaming',
+  'people-blogs',
   'comedy',
-  'entame',
+  'entertainment',
   'news-politics',
   'howto-style',
   'science-tech'

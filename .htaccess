@@ -11,20 +11,30 @@ RewriteRule ^(.*)$ https://ratio100.com/$1 [R=301,L]
 RewriteRule video\/....$ https://ratio100.com/youtube/video [R=301,L]
 RewriteRule channel\/....$ https://ratio100.com/youtube/channel [R=301,L]
 # カテゴリ別ランキング リライト
-RewriteRule ^(jp|us|gb)\/.*\/(movie-anime|car-bike-train|music|pets-animals|sports|game|blog|comedy|entame|news-politics|howto-style|science-tech)$ https://ratio100.com/youtube/trending/$2?rc=$1 [L]
+RewriteRule ^(jp|us|gb)(-)(ja|en)\/.*\/(film-anime|autos-vehicles|music|pets-animals|sports|gaming|people-blogs|comedy|entertainment|news-politics|howto-style|science-tech)$ https://ratio100.com/youtube/trending/$2?cl=$1$2$3 [L]
 # リダイレクト search consoleの404エラー
 RewriteRule ^{}$ https://ratio100.com [R=301,L]
+# リダイレクト YouTubeカテゴリSlug変更
+RewriteRule ^youtube\/trending\/movie-anime$ https://ratio100.com/youtube/trending/film-anime [R=301,L]
+RewriteRule ^youtube\/trending\/car-bike-train$ https://ratio100.com/youtube/trending/autos-vehicles [R=301,L]
+RewriteRule ^youtube\/trending\/game$ https://ratio100.com/youtube/trending/gaming [R=301,L]
+RewriteRule ^youtube\/trending\/blog$ https://ratio100.com/youtube/trending/people-blogs [R=301,L]
+RewriteRule ^youtube\/trending\/entame$ https://ratio100.com/youtube/trending/entertainment [R=301,L]
 # リダイレクト 過去404エラー履歴
 RewriteRule ^view-source.$ https://blogmura.com/profiles/11152365?p_cid=11152365 [R=301,L]
 RewriteRule ^misc/ajax.js$ https://blogmura.com/profiles/11152365?p_cid=11152365 [R=301,L]
-RewriteRule ^apple-touch-icon https://blogmura.com/profiles/11152365?p_cid=11152365 [R=301,L]
 RewriteRule ^.wp- https://blogmura.com/profiles/11152365?p_cid=11152365 [R=301,L]
 RewriteRule ^(?!wp-json)wp-.... https://blogmura.com/profiles/11152365?p_cid=11152365 [R=301,L]
 RewriteRule ^\.env$ https://blogmura.com/profiles/11152365?p_cid=11152365 [R=301,L]
 RewriteRule ^vendor\/ https://blogmura.com/profiles/11152365?p_cid=11152365 [R=301,L]
+RewriteRule ^sites\/all\/ https://blogmura.com/profiles/11152365?p_cid=11152365 [R=301,L]
 RewriteRule ^public https://blogmura.com/profiles/11152365?p_cid=11152365 [R=301,L]
 RewriteRule ^(?:public\/)?_ignition https://blogmura.com/profiles/11152365?p_cid=11152365 [R=301,L]
+RewriteRule ^\.git/config$ https://blogmura.com/profiles/11152365?p_cid=11152365 [R=301,L]
+RewriteRule ^\.well-known https://blogmura.com/profiles/11152365?p_cid=11152365 [R=301,L]
 RewriteRule ^cpanel$ https://blogmura.com/profiles/11152365?p_cid=11152365 [R=301,L]
+RewriteRule ^(security.txt|trust.txt)$ https://blogmura.com/profiles/11152365?p_cid=11152365 [R=301,L]
+RewriteRule ^(apple-app-site-association|apple-touch-icon)$ https://blogmura.com/profiles/11152365?p_cid=11152365 [R=301,L]
 # xmlrpc.phpへのアクセス無効化
 <Files xmlrpc.php>
 Order Allow,Deny

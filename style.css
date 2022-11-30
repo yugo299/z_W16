@@ -36,6 +36,7 @@ header>h1 span, header>h2 span {font-size: clamp(12px, 14px, 14px); font-weight:
 
 header, footer, footer h2>a, footer h2>a:visited, footer h3>a, footer h3>a:visited {color: #eee}
 header a, header a:visited, footer a, footer a:visited, footer h3>a:hover {color: #ffc}
+header a:hover, footer a:hover {color: #fc9}
 footer .hamburger h3+p, footer .menu-0 h3+p {color: #ccc}
 footer h2, footer h3 {padding: 5px 0}
 footer li {text-indent: 6px}
@@ -45,6 +46,7 @@ footer .menu-0>div {width: 100%; max-width: 600px; min-width: 370px; margin: 10p
 footer .menu-2>* {margin: 4px auto}
 footer .menu-2>div {width: fit-content; text-align: left}
 footer .categories ul {display: grid; grid-template-columns: 1fr 1fr; gap: 0 6px; text-indent: 6px}
+footer .gg {width: 100%; padding: 0 3px}
 
 .hamburger input, .hamburger label {position: fixed; z-index: 15}
 [id*="radio-"] {visibility: hidden; position: fixed; top:20px ; right: 20px}
@@ -78,7 +80,7 @@ footer .categories ul {display: grid; grid-template-columns: 1fr 1fr; gap: 0 6px
 #radio-3:checked~.menu-2 {display: grid; bottom: 0px; animation-name: a-1}
 @keyframes a-1{0% {opacity: 0} 100% {opacity: 1}}
 @keyframes a-2{0% {opacity: 1} 100% {opacity: 0}}
-.hamburger .g-h {display: none} #radio-2:checked~.menu-1 .g-h {display: unset; padding: 6px 0}
+.hamburger .g-h {display: none} #radio-2:checked~.menu-1 .g-h {display: unset; height: 70px}
 .hamburger .g-h p {font-weight: bold; text-align: center}
 .hamburger .g-h ul {display: flex; justify-content: center; gap: 8px}
 .hamburger .g-h img {width: 110px; height: 31px; object-fit: cover; object-position: 50% 50%}
@@ -154,7 +156,7 @@ div:has(.banner) {width: 100%; height: 140px; position: relative; overflow: hidd
 .heatmap td {padding: 0}
 
 .w2 {width: 20%} .w3 {width: 30%} .w4 {width: 40%} .w5 {width: 50%} .w6 {width: 60%} .w7 {width: 70%} .w8 {width: 80%} .w10 {width: 100%}
-.wa {width: auto} .w20 {width: 20px} .w60 {width: 60px} .w90 {width: 90px} .w100 {width: 100px} .w160 {width: 160px} .w220 {width: 220px} .w320 {width: 320px}
+.wa {width: auto} .wf {width: fit-content} .w20 {width: 20px} .w60 {width: 60px} .w90 {width: 90px} .w100 {width: 100px} .w160 {width: 160px} .w220 {width: 220px} .w320 {width: 320px}
 .ha {height: auto} .h3 {height: 30px} .h4 {height: 40px} .h5 {height: 50px} .h6 {height: 60px} .h7 {height: 70px} .h9 {height: 90px} .h10 {height: 100px} .h22 {height: 220px} .h30 {height: 300px} .h43 {height: 430px}
 .hm40 {max-height: 400px}
 .lh32 {line-height: 32px} .lh60 {line-height: 60px}
@@ -207,7 +209,7 @@ div:has(.banner) {width: 100%; height: 140px; position: relative; overflow: hidd
 .menu1:hover~.menu1, .menu2:hover~.menu2, .menu3:hover~.menu3, .menu4:hover~.menu4 {display: unset; animation-name: a1; animation-duration: 0.2s; animation-fill-mode: both}
 .card:hover {display:unset;}
 
-[class*="tag-"] {margin: 0 4px; border-style: solid; border-width: 2px; border-radius: 8px; padding: 2px 8px 1px; box-sizing: content-box; height: 20px; line-height: 20px; font-size: 13px}
+[class*="tag-"] {margin: 0 4px; border-style: solid; border-width: 2px; border-radius: 8px; padding: 2px 8px 1px; box-sizing: content-box; height: 20px; line-height: 20px; font-size: 13px; white-space: nowrap}
 [class*="btn-"] {margin: 8px 4px; border-style: solid; border-width: 4px; border-radius: 3px; padding: 6px 20px 4px; box-sizing: content-box; height: 20px; line-height: 20px; font-weight: bold}
 [class*="card-"] {margin:4px; border-style: solid; border-width: 4px; border-radius: 3px; padding: 6px; box-sizing: content-box; font-weight: bold}
 [class*="head-"] {width: 80%; margin: auto; ; border-width: 2px 0; border-style: solid; padding: 8px 0}
