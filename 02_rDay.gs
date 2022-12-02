@@ -15,7 +15,7 @@ const cName = [
   '科学とテクノロジー'
 ];
 const tName = { jp: {D:'24時間', W:'週間', M:'月間', Y:'年間'} };
-const zone = { jp:'-9', gb:'', us:'+5' }
+const zone = { jp:'-9', gb:'', us:'+5' };
 const rCol = { jp:2, gb:3, us:4 };
 
 const hLen = 72;
@@ -83,9 +83,9 @@ function rDay(rc) {
   const f1 = data[1][rCol[rc]-1];
   const f2 = data[2][rCol[rc]-1];
   console.log({rc:rc,f1:f1,f2:f2,tHour:tHour,tLabel:tLabel});
-  console.log({'wpDay':!(f1*10%10),'wpDrop':(f2==='Go'),'wpResult':!(f2*10%10)})
+  console.log({'wpDay':(f1*10%10<2),'wpDrop':(f2==='Go'),'wpResult':!(f2*10%10)})
 
-  if (f1===7 || f1===12 || f1===16 || f1===20) { wpFlash(rc); }
+  if (f1===7 || f1===12 || f1===16 || f1===20) { wpFlash(rc, f1); }
   else if (f1*10%10<2) { wpDay(rc, f1); }
   else if (f2==='Go') { wpDrop(rc); }
   else if (!(f2*10%10)) { wpResult(rc, f2); }
@@ -175,23 +175,22 @@ function rDay(rc) {
     return str
   }
 
-  function strAdd(f, str, label) {
+  function strAdd(f, str, label) { //集計（途中）
     let val = null;
     let j = 0;
-    let ii = false;
     let ts = (label)? Math.round((new Date(tLabel).getTime()-new Date(label).getTime())/(1000*60*60)): 0;
 
     let arr = str.split(',').map(x => (x==='')? '': Number(x));
-    if (f==='D') { j = arr.length-1-((tHour+23-4)%24+1); }
-    else if (f==='W') { j = arr.length-1-((tDay+6)%7+1); }
-    else if (f==='M') { j = arr.length-1-tDate; }
+    if (f==='d') { j = arr.length-1-((tHour+23-4)%24+1); }
+    else if (f==='w') { j = arr.length-1-((tDay+6)%7+1); }
+    else if (f==='m') { j = arr.length-1-tDate; }
 
     for (let i=j; i<arr.length-1; i++) {
       if (arr[i]!=='') { j = i; break; }
       else if (i===arr.length-1) { j = arr.length-1; }
     }
     for (let i=arr.length-1-ts; i>=j; i--) {
-      if (arr[i]!=='') { val = arr[i]-arr[j]; ii = i; break; }
+      if (arr[i]!=='') { val = arr[i]-arr[j]; break; }
     }
     return val
   }
@@ -199,9 +198,9 @@ function rDay(rc) {
   function strMin(f, str) {
     let j = 0;
     const arr = str.split(',').map(x => Number(x));
-    if (f==='D') { j = arr.length-1-((tHour+23-4)%24+1); }
-    else if (f==='W') { j = arr.length-1-7; }
-    else if (f==='M') { j = arr.length-1-tDate; }
+    if (f==='d') { j = arr.length-1-((tHour+23-4)%24+1); }
+    else if (f==='w') { j = arr.length-1-7; }
+    else if (f==='m') { j = arr.length-1-tDate; }
 
     val = 100;
     for (let i=j; i<arr.length-1; i++) {
@@ -229,13 +228,13 @@ function rDay(rc) {
     return arr.join();
   }
 
-  function strSub(f, str) {
+  function strSub(f, str) { //デイリーの集計（確定）
     let val = null;
     let j = 0;
     const arr = str.split(',').map(x => (x==='')? '': Number(x));
-    if (f==='D') { j = arr.length-1-24 }
-    else if (f==='W') { j = arr.length-1-7 }
-    else {f==='M'} { j = arr.length-1-30 }
+    if (f==='d') { j = arr.length-1-24 }
+    else if (f==='w') { j = arr.length-1-7 }
+    else {f==='m'} { j = arr.length-1-30 }
 
     for (let i=j; i<arr.length; i++) {
       if (arr[i]!=='') { j = i; break; }
@@ -255,10 +254,10 @@ function rDay(rc) {
     let i = 0;
     id = String(id);
 
-    if (f==='D') {
+    if (f==='d') {
       if (stats) { range = id.slice(0,2) +'-'+ id.slice(2,4) +'-'+ id.slice(4,6); }
     }
-    else if (f==='W') {
+    else if (f==='w') {
       d = (!stats)? today: tomorrow;
       const mon = (d.getDay()+6) % 7;
       d = d.getTime() - 86400000 * mon;
@@ -267,7 +266,7 @@ function rDay(rc) {
         else { range.push(Utilities.formatDate(new Date(d + 86400000 * (i++)), 'Etc/GMT'+zn, 'yyyy-MM-dd')); }
       } while (i<7)
     }
-    else if (f==='M') {
+    else if (f==='m') {
       const mm = Number(id.slice(2,4));
       const first = new Date('20'+id.slice(0,2)+'-'+id.slice(2,4)+'-01').getTime();
       do {
@@ -276,7 +275,7 @@ function rDay(rc) {
         d = new Date(first + 86400000 * (++i)).getMonth()+1;
       } while (d===mm)
     }
-    else if (f==='Y') {
+    else if (f==='y') {
       const yy = Number('20'+id.slice(0,2));
       const first = new Date('20'+id.slice(0,2)+'-01-01').getTime();
       do {
@@ -327,17 +326,17 @@ function rDay(rc) {
 
   function rsPublish(f, id) {
     id = String(id);
-    if (f==='D') {
+    if (f==='d') {
       d = '20'+id.slice(0,2)+'-'+id.slice(2,4)+'-'+id.slice(4,6)+'T04:30:30';
-    } else if (f==='W') {
+    } else if (f==='w') {
       d = (id.slice(5)==='1')? 1: tDate;
       d = new Date('20'+id.slice(0,2)+'-'+id.slice(2,4)+'-'+((d<10)? '0'+d: d));
       let mon = (d.getDay()+6) % 7;
       mon = d.getTime() - 86400000 * mon;
       d = Utilities.formatDate(new Date(mon), 'Etc/GMT', 'yyyy-MM-dd 04:30:07').replace(' ','T');
-    } else if (f==='M') {
+    } else if (f==='m') {
       d = '20'+id.slice(0,2)+'-'+id.slice(2,4)+'-01T04:30:12';
-    } else if (f==='Y') {
+    } else if (f==='y') {
       d = '20'+id.slice(0,2)+'-01-01T04:30:01';
     } else { d = now; }
     return d
@@ -345,17 +344,17 @@ function rDay(rc) {
 
   function rsTitle(f, id) {
     id = String(id);
-    if (f==='W') { return '第' + id.slice(5) + '週'; }
-    else if (f==='M') { return Number(id.slice(2, 4)) + '月'; }
-    else if (f==='Y') { return '20' + id.slice(0, 2) + '年'; }
+    if (f==='w') { return '第' + id.slice(5) + '週'; }
+    else if (f==='m') { return Number(id.slice(2, 4)) + '月'; }
+    else if (f==='y') { return '20' + id.slice(0, 2) + '年'; }
   }
 
   function rsTerm(f, id) {
     id = String(id);
-    if (f==='D') { return id.slice(2,4) + '月' + Number(id.slice(4,6)) + '日'; }
-    else if (f==='W') { return id.slice(2,4) + '月第' + id.slice(5) + '週'; }
-    else if (f==='M') { return '20' + id.slice(0,2) + '年' + Number(id.slice(2,4)) + '月'; }
-    else if (f==='Y') { return '20' + id.slice(0,2) + '年'; }
+    if (f==='d') { return id.slice(2,4) + '月' + Number(id.slice(4,6)) + '日'; }
+    else if (f==='w') { return id.slice(2,4) + '月第' + id.slice(5) + '週'; }
+    else if (f==='m') { return '20' + id.slice(0,2) + '年' + Number(id.slice(2,4)) + '月'; }
+    else if (f==='y') { return '20' + id.slice(0,2) + '年'; }
   }
 
   function rsOpen(f, id) {
@@ -378,9 +377,9 @@ function rDay(rc) {
     sContent[rc] = { title: sExcerpt, des: sExcerpt };
 
     let term = 57;
-    if (f==='W') { term = 56; }
-    else if (f==='M') { term = 55; }
-    else if (f==='Y') { term = 53; }
+    if (f==='w') { term = 56; }
+    else if (f==='m') { term = 55; }
+    else if (f==='y') { term = 53; }
 
     d = rsPublish(f, id);
 
@@ -389,7 +388,7 @@ function rDay(rc) {
       status: (d<now)? 'publish': 'future',
       title: rsTitle(f, id),
       content: JSON.stringify(tContent),
-      excerpt: excerpt,
+      excerpt: tExcerpt,
       adfgsfdfeatured_media: 107,
       comment_status: 'open',
       ping_status: 'open',
@@ -399,7 +398,8 @@ function rDay(rc) {
     };
 
     let sArg = tArg;
-    sArg.content = JSON.stringify(sContent)
+    sArg.content = JSON.stringify(sContent);
+    sArg.excerpt = JSON.stringify(sExcerpt);
     sArg.categories = [6];
 
     return {trending: wpAPI(pURL+id, tArg), stats: wpAPI(pURL+(id+50), sArg)};
@@ -435,7 +435,7 @@ function rDay(rc) {
           lk: wJ.lk,
           cm: wJ.cm
         }
-        return done[2]++;
+        done[2]++;
       }
 
       a.vw_h = strLen(wJ.vw_h +','+ Array(24).fill(a.vw).join(), hLen);
@@ -465,15 +465,15 @@ function rDay(rc) {
       a.vw_ad = null;
       a.lk_ad = null;
       a.cm_ad = null;
-      a.vw_ad = (a.vw==null)? null: strSub('D', a.vw_h);
-      a.lk_ad = (a.lk==null)? null: strSub('D', a.lk_h);
-      a.cm_ad = (a.cm==null)? null: strSub('D', a.cm_h);
-      a.vw_aw = (a.vw==null)? null: strSub('W', a.vw_d);
-      a.lk_aw = (a.lk==null)? null: strSub('W', a.lk_d);
-      a.cm_aw = (a.cm==null)? null: strSub('W', a.cm_d);
-      a.vw_am = (a.vw==null)? null: strSub('M', a.vw_d);
-      a.lk_am = (a.lk==null)? null: strSub('M', a.lk_d);
-      a.cm_am = (a.cm==null)? null: strSub('M', a.cm_d);
+      a.vw_ad = (a.vw==null)? null: strSub('d', a.vw_h);
+      a.lk_ad = (a.lk==null)? null: strSub('d', a.lk_h);
+      a.cm_ad = (a.cm==null)? null: strSub('d', a.cm_h);
+      a.vw_aw = (a.vw==null)? null: strSub('w', a.vw_d);
+      a.lk_aw = (a.lk==null)? null: strSub('w', a.lk_d);
+      a.cm_aw = (a.cm==null)? null: strSub('w', a.cm_d);
+      a.vw_am = (a.vw==null)? null: strSub('m', a.vw_d);
+      a.lk_am = (a.lk==null)? null: strSub('m', a.lk_d);
+      a.cm_am = (a.cm==null)? null: strSub('m', a.cm_d);
 
       wY.video_y.push(a);
     }
@@ -505,9 +505,9 @@ function rDay(rc) {
       a.rn_m = strLast(wJ.rn_m, a.rn, false);
       a.rt_m = strLast(wJ.rt_m, a.rt);
     }
-    a.rt_ad = strSub('D', a.rt_h);
-    a.rt_aw = strSub('W', a.rt_d);
-    a.rt_am = strSub('M', a.rt_d);
+    a.rt_ad = strSub('d', a.rt_h);
+    a.rt_aw = strSub('w', a.rt_d);
+    a.rt_am = strSub('m', a.rt_d);
     a.rt_ad = (a.rt_ad)? a.rt_ad: null;
     a.rt_aw = (a.rt_aw)? a.rt_aw: null;
     a.rt_am = (a.rt_am)? a.rt_am: null;
@@ -517,72 +517,31 @@ function rDay(rc) {
 
   function cArguments(f) {
 
-    done[0]++;
     const wJ = data[w];
     const yJ = todo[y];
     let a = {};
 
-    if (!f) { //非公開化 or BAN
-      a = {
-        id: wJ.id,
-        img: wJ.img,
-        vw: null,
-        sb: null,
-        vc: null,
-        vw_h: strLen(wJ.vw_h +','),
-        vw_d: strLen(wJ.vw_d +','),
-        vw_w: strLen(wJ.vw_w +','),
-        vw_m: strLen(wJ.vw_m +','),
-        sb_h: strLen(wJ.sb_h +','),
-        sb_d: strLen(wJ.sb_d +','),
-        sb_w: strLen(wJ.sb_w +','),
-        sb_m: strLen(wJ.sb_m +','),
-        vc_h: strLen(wJ.vc_h +','),
-        vc_d: strLen(wJ.vc_d +','),
-        vc_w: strLen(wJ.vc_w +','),
-        vc_m: strLen(wJ.vc_m +','),
-        vw_ah: null,
-        vw_ad: null,
-        vw_aw: null,
-        vw_am: null,
-        sb_ah: null,
-        sb_ad: null,
-        sb_aw: null,
-        sb_am: null,
-        vc_ah: null,
-        vc_ad: null,
-        vc_aw: null,
-        vc_am: null,
-      }
-      wY.channel_y.push(a);
-      a = {
-        id: wJ.id,
-        rc: rc,
-        rn_b: wJ.rn_b,
-        rn_t: wJ.rn_t,
-        rn_h: strLen(wJ.rn_h +','),
-        rn_d: strLen(wJ.rn_d +','),
-        rn_w: strLen(wJ.rn_w +','),
-        rn_m: strLen(wJ.rn_m +','),
-        rt_h: strLen(wJ.rt_h +','),
-        rt_d: strLen(wJ.rt_d +','),
-        rt_w: strLen(wJ.rt_w +','),
-        rt_m: strLen(wJ.rt_m +',')
-      }
-      wZ.channel_z.push(a);
-      return done[0]++
-    }
-
     //channel_y
-    a = {
-      id: yJ.id,
-      title: yJ.snippet.title,
-      des: yJ.snippet.description,
-      img: imgChannel(yJ.snippet.thumbnails.medium.url),
-      handle: yJ.snippet.customUrl,
-      vw: yJ.statistics.viewCount,
-      sb: yJ.statistics.subscriberCount,
-      vc: yJ.statistics.videoCount,
+    if (f) {
+      a = {
+        id: yJ.id,
+        title: yJ.snippet.title,
+        des: yJ.snippet.description,
+        img: imgChannel(yJ.snippet.thumbnails.medium.url),
+        handle: yJ.snippet.customUrl,
+        vw: yJ.statistics.viewCount,
+        sb: yJ.statistics.subscriberCount,
+        vc: yJ.statistics.videoCount
+      }
+      done[0]++;
+    } else { //非公開化 or BAN
+      a = {
+        id: wJ.id,
+        vw: wJ.vw,
+        sb: wJ.sb,
+        vc: wJ.vc
+      }
+      done[2]++;
     }
     a.vw_h = strLen(wJ.vw_h +','+ Array(24).fill(a.vw).join(), hLen);
     a.sb_h = strLen(wJ.sb_h +','+ Array(24).fill(a.sb).join(), hLen);
@@ -612,15 +571,15 @@ function rDay(rc) {
     a.vw_ad = null;
     a.sb_ad = null;
     a.vc_ad = null;
-    a.vw_ad = (a.vw==null)? null: strSub('D', a.vw_h);
-    a.sb_ad = (a.sb==null)? null: strSub('D', a.sb_h);
-    a.vc_ad = (a.vc==null)? null: strSub('D', a.vc_h);
-    a.vw_aw = (a.vw==null)? null: strSub('W', a.vw_d);
-    a.sb_aw = (a.sb==null)? null: strSub('W', a.sb_d);
-    a.vc_aw = (a.vc==null)? null: strSub('W', a.vc_d);
-    a.vw_am = (a.vw==null)? null: strSub('M', a.vw_d);
-    a.sb_am = (a.sb==null)? null: strSub('M', a.sb_d);
-    a.vc_am = (a.vc==null)? null: strSub('M', a.vc_d);
+    a.vw_ad = (a.vw==null)? null: strSub('d', a.vw_h);
+    a.sb_ad = (a.sb==null)? null: strSub('d', a.sb_h);
+    a.vc_ad = (a.vc==null)? null: strSub('d', a.vc_h);
+    a.vw_aw = (a.vw==null)? null: strSub('w', a.vw_d);
+    a.sb_aw = (a.sb==null)? null: strSub('w', a.sb_d);
+    a.vc_aw = (a.vc==null)? null: strSub('w', a.vc_d);
+    a.vw_am = (a.vw==null)? null: strSub('m', a.vw_d);
+    a.sb_am = (a.sb==null)? null: strSub('m', a.sb_d);
+    a.vc_am = (a.vc==null)? null: strSub('m', a.vc_d);
 
     wY.channel_y.push(a);
 
@@ -656,17 +615,16 @@ function rDay(rc) {
     const wJ = wD[i];
     d = wJ.id;
     let a = {
-      rt: Math.round(strAdd('D', wJ.rt_h, wJ.pd_l)*10000)/10000,
+      rt: Math.round(strAdd('d', wJ.rt_h, wJ.pd_l)*10000)/10000,
       t_v: wJ.title,
       vd: wJ.id,
-      rn: strMin('D', wJ.rn_h),
-      vw: strAdd('D', wJ.vw_h, wJ.pd_l),
-      lk: strAdd('D', wJ.lk_h, wJ.pd_l),
+      rn: strMin('d', wJ.rn_h),
+      vw: strAdd('d', wJ.vw_h, wJ.pd_l),
+      lk: strAdd('d', wJ.lk_h, wJ.pd_l),
       pd: wJ.pd,
       t_c: wJ.t_c,
       ch: wJ.ch
     }
-  if (d==='-vDlhruON6I') {console.log({id:d, wJ:wJ,a:a})}
 
     Ranking[wJ.cat].push(a);
     r++;
@@ -677,7 +635,7 @@ function rDay(rc) {
     for (let i=0; i<cNo.length; i++) { Ranking[cNo[i]] = []; }
 
     const range = rsRange(f, id);
-    if (f!=='Y') { console.log({term:f,range:range}); }
+    if (f!=='y') { console.log({term:f,range:range}); }
     wpAPI(rURL, range).forEach(arg => {
       if (!(arg==='' || !arg)) {
         const a = JSON.parse(arg);
@@ -689,9 +647,9 @@ function rDay(rc) {
     for (let i=0; i<cNo.length; i++) { Ranking[cNo[i]] = rsSummarize(Ranking[cNo[i]]); }
     Top.sort(() => Math.random()-0.5);
 
-    const prefix = 'YouTube急上昇ランキング '+tName[rc][f]+'まとめ【'+rsTerm(f, id)+'】各カテゴリのレシオ1位のチャンネルはこちら［';
-    const suffix = '］『レシオ！』ではYouTube急上昇ランキングをリアルタイム集計';
-    const excerpt = 'YouTube急上昇 ' + tName[rc][f] + 'ランキング ' + rsTerm(f, id);
+    let prefix = 'YouTube急上昇ランキング '+tName[rc][f]+'まとめ【'+rsTerm(f, id)+'】各カテゴリのレシオ1位のチャンネルはこちら［';
+    let suffix = '］『レシオ！』ではYouTube急上昇ランキングをリアルタイム集計';
+    let excerpt = 'YouTube急上昇 ' + tName[rc][f] + 'ランキング ' + rsTerm(f, id);
 
     let content = wpAPI(rURL, id)[0];
     content = (content)? JSON.parse(content): {};
@@ -699,8 +657,8 @@ function rDay(rc) {
 
     const step = (range[range.length-1]===tID)? 52: 59;
     let term = 56;
-    if (f==='M') { term = 55; }
-    else if (f==='Y') { term = 53; }
+    if (f==='m') { term = 55; }
+    else if (f==='y') { term = 53; }
 
     let arg = {
       title: rsTitle(f, id),
@@ -713,8 +671,26 @@ function rDay(rc) {
       //categories: [4],
       tags: [70,73,74,78,79,step,term]
     };
+    const res = wpAPI(pURL+id, arg);
 
-    return wpAPI(pURL+id, arg);
+    content = JSON.parse(wpAPI(pURL+(id+50)).content.raw);
+    excerpt = 'YouTube急上昇 スタッツ＆ヒートマップ' + rsTerm(f, id);
+    content[rc] = { title: excerpt, des: excerpt }
+
+    arg = {
+      title: rsTitle(f, id),
+      content: JSON.stringify(content),
+      excerpt: excerpt,
+      //adfgsfdfeatured_media: 107,
+      //comment_status: 'open',
+      //ping_status: 'open',
+      //sticky: false,
+      //categories: [4],
+      tags: [70,73,74,78,79,step,term]
+    };
+    wpAPI(pURL+(id+50), arg);
+
+    return res
   }
 
   /** ■■■■ メイン関数 ■■■■ */
@@ -903,7 +879,7 @@ function rDay(rc) {
           if (y === todo.length) { f='B'; }
           if (!f && data[w].id > todo[y].id) { throw new Error('vDrop : エラー (真偽判定ミスの可能性あり)'); }
           if (!f && data[w].id < todo[y].id) { f='B'; }
-          if (!f && data[w].id===todo[y].id) { f='D'; }
+          if (!f && data[w].id===todo[y].id) { f='d'; }
           if (!f) { throw new Error('cArg エラー : 振り分け判定漏れ\n'+ data[w].id +' : '+ todo[y].id); }
           if (f==='B') { data[w].ban = true; }
 
@@ -911,7 +887,7 @@ function rDay(rc) {
           if (!cat) {console.log('Drop動画のArg作成 : カテゴリ『0』エラー\nid : '+data[w].id)}
           vArguments();
           w++;
-          if (f==='D') { y++; }
+          if (f==='d') { y++; }
         }
 
         const ySum = wY.video_y.length;
@@ -1090,7 +1066,7 @@ function rDay(rc) {
     function step_w() { //週間ランキングの更新
       err = {};
       try {
-        let res = rArguments('W', list[rc].w.n);
+        let res = rArguments('w', list[rc].w.n);
         const r = res.content.raw;
         console.log(JSON.parse(r));
         res.content = '文字数 ( 全体 : ' + rc + ' ) = ( ' + r.length + ' : ' + JSON.stringify(JSON.parse(r)[rc]).length + ' )';
@@ -1112,7 +1088,7 @@ function rDay(rc) {
     function step_m() { //月間ランキングの更新
       err = {};
       try {
-        let res = rArguments('M', list[rc].m.n);
+        let res = rArguments('m', list[rc].m.n);
         const r = res.content.raw;
         console.log(JSON.parse(r));
         res.content = '文字数 ( 全体 : ' + rc + ' ) = ( ' + r.length + ' : ' + JSON.stringify(JSON.parse(r)[rc]).length + ' )';
@@ -1134,7 +1110,7 @@ function rDay(rc) {
     function step_y() { //年間ランキングの更新
       err = {};
       try {
-        let res = rArguments('Y', list[rc].y.n);
+        let res = rArguments('y', list[rc].y.n);
         const r = res.content.raw;
         console.log(JSON.parse(r));
         res.content = '文字数 ( 全体 : ' + rc + ' ) = ( ' + r.length + ' : ' + JSON.stringify(JSON.parse(r)[rc]).length + ' )';
@@ -1157,28 +1133,31 @@ function rDay(rc) {
       err = {};
       try {
         console.log({'新規分記事公開':Utilities.formatDate(new Date(tomorrow), 'Etc/GMT'+zone.jp, 'yyyy-MM-dd'),week:(tomorrow.getDay() === 1),month:(tomorrow.getDate() === 1),year:(tomorrow.getDate() === 1 && tomorrow.getMonth() === 0)});
-        console.log({week:tomorrow.getDay(),date:tomorrow.getDate(),month:tomorrow.getMonth()});
+        console.log({week:tomorrow.getDay(),date:tomorrow.getDate(),month:tomorrow.getMonth()+1});
 
-        list = JSON.parse(wpAPI(pURL+5).content.raw);
         list[rc].d.b = list[rc].d.n;
         list[rc].d.n = Number(Utilities.formatDate(new Date(tomorrow), 'Etc/GMT'+zone.jp, 'yyMMdd'));
-        console.log({'記事公開':list[rc].w.n, res:rsOpen('D',list[rc].d.n)});
+        console.log({'公開対象':list[rc].d.n});
+        console.log({'記事公開':list[rc].d.n, res:rsOpen('d',list[rc].d.n)});
         if (tomorrow.getDay() === 1) {
           ts = Utilities.formatDate(new Date(ts.getTime() + (7-tomorrow.getDay())*86400000), 'Etc/GMT'+zone.jp, 'yyMM');
           ts = Number(ts + '40');
           do { done = wpAPI(pURL+(++ts)); } while (done.tags.includes(52));
           list[rc].w.b = list[rc].w.n;
           list[rc].w.n = ts;
-          console.log({'記事公開':list[rc].w.n, res:rsOpen('W',list[rc].w.n)});
+          console.log({'公開対象':list[rc].w.n});
+          console.log({'記事公開':list[rc].w.n, res:rsOpen('w',list[rc].w.n)});
         }
         if (tomorrow.getDate() === 1) {
           list[rc].m.b = list[rc].m.n;
           list[rc].m.n = Number(Utilities.formatDate(new Date(tomorrow), 'Etc/GMT'+zone.jp, 'yyMM00'));
-          console.log({'記事公開':list[rc].m.n, res:rsOpen('M',list[rc].m.n)});
+          console.log({'公開対象':list[rc].m.n});
+          console.log({'記事公開':list[rc].m.n, res:rsOpen('m',list[rc].m.n)});
           if (tomorrow.getMonth() === 0) {
             list[rc].y.b = list[rc].y.n;
             list[rc].y.n = Number(Utilities.formatDate(new Date(tomorrow), 'Etc/GMT'+zone.jp, 'yy0000'));
-            console.log({'記事公開':list[rc].y.n, res:rsOpen('Y',list[rc].y.n)});
+            console.log({'公開対象':list[rc].y.n});
+            console.log({'記事公開':list[rc].y.n, res:rsOpen('y',list[rc].y.n)});
           }
         }
         arg = {content: JSON.stringify(list)};

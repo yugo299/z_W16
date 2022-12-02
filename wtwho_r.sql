@@ -639,7 +639,7 @@ FROM (
 	SELECT z.id AS id, z.rc AS rc, z.cat AS cat, y.vw_ah AS vw_ah, z.flag AS flag
 	FROM video_z AS z
 		LEFT JOIN video_y AS y ON z.id = y.id
-	WHERE vw_ah IS NOT NULL AND flag < 24
+	WHERE vw_ah IS NOT NULL AND vw_ah > 0 AND flag < 24
 ) AS v GROUP BY rc, cat ORDER BY rc, cat ASC
 
 --■■■■ a_62 : スタッツ-高評価数（デイリー/カテゴリ別） ■■■■
@@ -649,7 +649,7 @@ FROM (
 	SELECT z.id AS id, z.rc AS rc, z.cat AS cat, y.lk_ah AS lk_ah
 	FROM video_z AS z
 		LEFT JOIN video_y AS y ON z.id = y.id
-	WHERE y.lk_ah IS NOT NULL AND z.flag < 24
+	WHERE y.lk_ah IS NOT NULL AND y.lk_ah > 0 AND z.flag < 24
 ) AS v GROUP BY rc, cat ORDER BY rc, cat ASC
 
 --■■■■ a_63 : スタッツ-コメント（デイリー/カテゴリ別） ■■■■
@@ -659,7 +659,7 @@ FROM (
 	SELECT z.id AS id, z.rc AS rc, z.cat AS cat, y.cm_ah AS cm_ah
 	FROM video_z AS z
 		LEFT JOIN video_y AS y ON z.id = y.id
-	WHERE y.cm_ah IS NOT NULL AND z.flag < 24
+	WHERE y.cm_ah IS NOT NULL AND y.cm_ah > 0 AND z.flag < 24
 ) AS v GROUP BY rc, cat ORDER BY rc, cat ASC
 
 --■■■■ a_77 : チャンネル-詳細（一覧ページ用） ■■■■

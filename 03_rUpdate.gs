@@ -153,10 +153,12 @@ function rUpdate() {
   const minutes = date.getMinutes();
   const day = date.getDay() + 60;
 
-  if ((minutes>10 && minutes<15) || (minutes>30 && minutes<35) ||(minutes>50 && minutes<55)) { //Youtube,チャンネル,動画ページ更新
+  if ((minutes>10 && minutes<15) || (minutes>30 && minutes<35) ||(minutes>50 && minutes<55)) { //sitemap,Youtube,チャンネル,動画ページ更新
     const time = Utilities.formatDate(new Date(date.getTime()-10800000),'JST','yyyy-MM-dd HH:mm:ss').replace(' ','T');
-    let arg = { date: time }
+    let arg = { date: time };
     console.log(wpAPI(pURL+4, arg));
+    //arg = { id : 3 }
+    //console.log(wpAPI(pURL+3, arg));
 
     tr = wpAPI(sURL+'/wp-json/ratio-zid/zid/trending/');
 

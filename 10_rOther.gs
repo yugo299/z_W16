@@ -68,6 +68,7 @@ const cSlug = [
   'howto-style',
   'science-tech'
 ];
+const zone = { jp:'-9', gb:'', us:'+5' };
 
 const sURL = 'https://ratio100.com';
 const aURL = sURL + '/wp-json/ratio-zid/zid/a/';
