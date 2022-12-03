@@ -163,18 +163,29 @@ function rUpdate() {
     tr = wpAPI(sURL+'/wp-json/ratio-zid/zid/trending/');
 
     if (hour%2) {
-      const title = 'YouTube急上昇 本日ランクインのチャンネル(' + tr.c + ')をピックアップ';
-      const prefix = 'YouTube急上昇 本日は'+tr.c+'のチャンネルの動画が各カテゴリTop100にランクイン。獲得レシオ上位のチャンネルはこちら［';
+      let str = tr.jp.channel.map(x => x = x.title).join();
+      let content = JSON.parse(wpAPI(oURL+8).content.raw);
+      content.jp.num = tr.jp.c;
+      content.jp.str = str;
+
+      const title = 'YouTube急上昇 本日ランクインのチャンネル(' + tr.jp.c + ')をピックアップ';
+      const prefix = 'YouTube急上昇 本日は'+tr.jp.c+'のチャンネルの動画が各カテゴリTop100にランクイン。獲得レシオ上位のチャンネルはこちら［';
       const suffix = '］『レシオ！』ではYouTube急上昇ランキングをリアルタイム集計、1時間ごとに最新情報をお届け。';
-      const excerpt = prefix + tr.channel.map(x => x = x.title).join().replace(/(チャンネル|ちゃんねる|channel|Channel)/g, '') + suffix;
-      arg = {date: time, title: title, excerpt: excerpt, tags: [70,73,74,78,51,day]}
+      const excerpt = prefix + tr.jp.channel.map(x => x = x.title).join().replace(/(チャンネル|ちゃんねる|channel|Channel)/g, '') + suffix;
+      arg = {date: time, title: title, excerpt: excerpt, content: content, tags: [70,73,74,78,51,day]}
       console.log(wpAPI(oURL+8, arg));
+
     } else {
-      const title = 'YouTube急上昇 本日ランクインの動画(' + tr.v + ')の獲得レシオTop100';
-      const prefix = 'YouTube急上昇 本日は'+tr.v+'本の動画が各カテゴリTop100にランクイン。獲得レシオ上位の動画はこちら［';
+      let str = tr.jp.video.map(x => x = x.title).join();
+      let content = JSON.parse(wpAPI(oURL+9).content.raw);
+      content.jp.num = tr.jp.v;
+      content.jp.str = str;
+
+      const title = 'YouTube急上昇 本日ランクインの動画(' + tr.jp.v + ')の獲得レシオTop100';
+      const prefix = 'YouTube急上昇 本日は'+tr.jp.v+'本の動画が各カテゴリTop100にランクイン。獲得レシオ上位の動画はこちら［';
       const suffix = '］『レシオ！』ではYouTube急上昇ランキングをリアルタイム集計、1時間ごとに最新情報をお届け。';
-      const excerpt = prefix + tr.video.map(x => x = x.title).join() + suffix;
-      arg = {date: time, title: title, excerpt: excerpt, tags: [70,73,74,79,51,day]}
+      const excerpt = prefix + str + suffix;
+      arg = {date: time, title: title, excerpt: excerpt, content: content, tags: [70,73,74,79,51,day]}
       console.log(wpAPI(oURL+9, arg));
     }
 

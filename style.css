@@ -30,9 +30,20 @@ p:has(>cite) {width: 100%; text-align: right}
 div:has(iframe) {z-index: 2}
 h3, h4, h5, h6, ul, ol {margin: 0; font-size: 14px}
 
-header {z-index: 10; width: 100vw; padding-right: 45px; display: flex; align-items: center; justify-content: center; position: sticky; position: -webkit-sticky; top: 0; box-shadow: rgba(0,0,0,0.2) 0px 0px 10px, rgba(0,0,0,0.3) 0px 0px 10px}
-header>h1, header>h2 {font-size: clamp(12px, 16px, 16px); white-space: nowrap}
-header>h1 span, header>h2 span {font-size: clamp(12px, 14px, 14px); font-weight: normal}
+header {z-index: 10; width: 100vw; height: 80px; padding-right: 50px; display: flex; align-items: center; justify-content: center; position: sticky; position: -webkit-sticky; top: -40px; box-shadow: rgba(0,0,0,0.2) 0px 0px 10px, rgba(0,0,0,0.3) 0px 0px 10px}
+header.home {height: 40px; top: 0}
+header.home .site {height: 40px} header.home .name {font-weight: bold; font-size: 16px} header.home .site .des {top: 0px}
+header .box {position: relative; width: 100%}
+header .box .site {z-index: 2; display: flex; position: sticky; height: 80px}
+header .name {width: 20%} header .sep {width: 5%}
+header .des {width: 75%; white-space: nowrap}
+header .site .name, header .site span {position: sticky; height: 40px; line-height: 40px}
+header .site .name {top: 0px; text-align: right}
+header .site .sep {top: 0px; text-align: center} header .site .des {top: -40px} header .site .title {position: absolute; bottom: 0px}
+header .box .title {position: absolute; bottom: 0px; height: 40px; width: 100%; display: flex}
+header .title .name {font-weight: bold; font-size: 16px} header .title .sep {text-align: center} header .title .des {line-height: 40px; font-size: 14px; font-weight: normal; overflow: hidden; text-overflow: ellipsis}
+header h1, header h2 {font-size: clamp(12px, 16px, 16px); white-space: nowrap}
+header h1 span, header h2 span {font-size: clamp(12px, 14px, 14px); font-weight: normal}
 
 header, footer, footer h2>a, footer h2>a:visited, footer h3>a, footer h3>a:visited {color: #eee}
 header a, header a:visited, footer a, footer a:visited, footer h3>a:hover {color: #ffc}

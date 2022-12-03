@@ -14,7 +14,7 @@ const cName = [
   'ハウツーとスタイル',
   '科学とテクノロジー'
 ];
-const tName = { jp: {D:'24時間', W:'週間', M:'月間', Y:'年間'} };
+const tName = { jp: {d:'24時間', w:'週間', m:'月間', y:'年間'} };
 const zone = { jp:'-9', gb:'', us:'+5' };
 const rCol = { jp:2, gb:3, us:4 };
 
@@ -344,7 +344,8 @@ function rDay(rc) {
 
   function rsTitle(f, id) {
     id = String(id);
-    if (f==='w') { return '第' + id.slice(5) + '週'; }
+    if (f==='d') { return Number(id.slice(4, 6)) + '日'; }
+    else if (f==='w') { return '第' + id.slice(5) + '週'; }
     else if (f==='m') { return Number(id.slice(2, 4)) + '月'; }
     else if (f==='y') { return '20' + id.slice(0, 2) + '年'; }
   }
@@ -402,7 +403,7 @@ function rDay(rc) {
     sArg.excerpt = JSON.stringify(sExcerpt);
     sArg.categories = [6];
 
-    return {trending: wpAPI(pURL+id, tArg), stats: wpAPI(pURL+(id+50), sArg)};
+    return {title:tArg.title, trending: wpAPI(pURL+id, tArg), stats: wpAPI(pURL+(id+50), sArg)};
   }
 
   /** ■■■■ Arg関数 ■■■■ */
@@ -653,7 +654,7 @@ function rDay(rc) {
 
     let content = wpAPI(rURL, id)[0];
     content = (content)? JSON.parse(content): {};
-    content[rc] = { title: excerpt, des: prefix + Top.join() + suffix, ranking: Ranking }
+    content[rc] = { title: excerpt, str: Top.join(), des: prefix + Top.join() + suffix, ranking: Ranking }
 
     const step = (range[range.length-1]===tID)? 52: 59;
     let term = 56;
@@ -747,10 +748,11 @@ function rDay(rc) {
 
         let content = wpAPI(rURL, tID)[0];
         content = (content)? JSON.parse(content): {};
-        content[rc] = { title: excerpt, des: prefix + Top.join() + suffix, ranking: Ranking }
+        content[rc] = { title: excerpt, str: Top.join(), des: prefix + Top.join() + suffix, ranking: Ranking }
+        const step = (tHour===4)? 52: 59;
 
         arg = {
-          title: tDate,
+          title: rsTitle('d', tID),
           content: JSON.stringify(content),
           excerpt: excerpt,
           featured_media: 107,
@@ -758,7 +760,7 @@ function rDay(rc) {
           ping_status: 'open',
           sticky: false,
           categories: [4],
-          tags: [70,73,74,78,79,52,57,day]
+          tags: [70,73,74,78,79,step,57,day]
         };
 
         console.log('arg : デイリーランキング\n' + excerpt);
@@ -1132,7 +1134,7 @@ function rDay(rc) {
     function step_id() { //期間別集計記事IDの更新, 新規記事公開
       err = {};
       try {
-        console.log({'新規分記事公開':Utilities.formatDate(new Date(tomorrow), 'Etc/GMT'+zone.jp, 'yyyy-MM-dd'),week:(tomorrow.getDay() === 1),month:(tomorrow.getDate() === 1),year:(tomorrow.getDate() === 1 && tomorrow.getMonth() === 0)});
+        console.log({'新規記事公開':Utilities.formatDate(new Date(tomorrow), 'Etc/GMT'+zone.jp, 'yyyy-MM-dd'),week:(tomorrow.getDay() === 1),month:(tomorrow.getDate() === 1),year:(tomorrow.getDate() === 1 && tomorrow.getMonth() === 0)});
         console.log({week:tomorrow.getDay(),date:tomorrow.getDate(),month:tomorrow.getMonth()+1});
 
         list[rc].d.b = list[rc].d.n;
@@ -1233,6 +1235,7 @@ function rDay(rc) {
     function step_1() { //速報（11～15）
       err = {};
       try {
+        Ranking = {}
         Title = '';
         Excerpt = [];
         Channel = [];
@@ -1260,10 +1263,12 @@ function rDay(rc) {
           }
         }
 
+        Top = Array.from(new Set(Excerpt)).join();
         const prefix = 'YouTube急上昇ランキング動画まとめ【'+date+':'+time[id]+'】各カテゴリでランキング1位にランクインしたチャンネルはこちら［';
         const suffix = '］『レシオ！』ではYouTube急上昇ランキングをリアルタイム集計、1時間ごとに最新情報をお届け。';
-        Excerpt = prefix + Array.from(new Set(Excerpt)).join() + suffix;
+        Excerpt = prefix + Top + suffix;
         Title = '【速報】YouTube急上昇ランキングまとめ【'+date+':'+time[id]+'】';
+        Ranking[rc].str = Top;
 
         let c = JSON.parse(wpAPI(pURL+(id)).content.raw);
         c[rc] = Ranking;
