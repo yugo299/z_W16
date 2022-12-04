@@ -12,6 +12,9 @@ RewriteRule video\/....$ https://ratio100.com/youtube/video [R=301,L]
 RewriteRule channel\/....$ https://ratio100.com/youtube/channel [R=301,L]
 # カテゴリ別ランキング リライト
 RewriteRule ^(jp|us|gb)(-)(ja|en)\/.*\/(film-anime|autos-vehicles|music|pets-animals|sports|gaming|people-blogs|comedy|entertainment|news-politics|howto-style|science-tech)$ https://ratio100.com/youtube/trending/$2?cl=$1$2$3 [L]
+# 過去リンク リダイレクト
+RewriteRule ^youtube\/(trending|stats)\/2022\/11 https://ratio100.com/youtube/$1 [R=301,L]
+RewriteRule ^youtube\/hw$ https://ratio100.com/youtube/trending [R=301,L]
 # リダイレクト search consoleの404エラー
 RewriteRule ^{}$ https://ratio100.com [R=301,L]
 RewriteRule ^(.*sitemap\.xml|sitemap_index\.xml|m\.xml|youtube.feed)$ https://ratio100.com/sitemap [R=301,L]

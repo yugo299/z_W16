@@ -86,7 +86,7 @@ function rDay(rc) {
   console.log({'wpDay':(f1*10%10<2),'wpDrop':(f2==='Go'),'wpResult':!(f2*10%10)})
 
   if (f1===7 || f1===12 || f1===16 || f1===20) { wpFlash(rc, f1); }
-  else if (f1*10%10<2) { wpDay(rc, f1); }
+  if (f1*10%10<2) { wpDay(rc, f1); }
   else if (f2==='Go') { wpDrop(rc); }
   else if (!(f2*10%10)) { wpResult(rc, f2); }
   else { console.log('実施対象外'); }
@@ -1227,7 +1227,7 @@ function rDay(rc) {
 
 
     /** ■■■■ 実施判定 ■■■■ */
-    const flag = Content[rc];
+    const flag = Content[rc].f;
     if (flag == parent) { return console.log('実施済み : '+date+' '+time[id])}
 
     const wD = wpAPI(aURL+'11/'+rc);
@@ -1268,7 +1268,6 @@ function rDay(rc) {
         const suffix = '］『レシオ！』ではYouTube急上昇ランキングをリアルタイム集計、1時間ごとに最新情報をお届け。';
         Excerpt = prefix + Top + suffix;
         Title = '【速報】YouTube急上昇ランキングまとめ【'+date+':'+time[id]+'】';
-        Ranking[rc].str = Top;
 
         let c = JSON.parse(wpAPI(pURL+(id)).content.raw);
         c[rc] = Ranking;
@@ -1310,11 +1309,12 @@ function rDay(rc) {
     function step_2() { //速報（31～35,Twitter）
       err = {};
       try {
-        Content[rc] = parent;
+        Content[rc].f = parent;
+        Content[rc].str = Top;
         let arg = {
           status: 'publish',
           title: Title,
-          content: Content,
+          content: JSON.stringify(Content),
           excerpt: Excerpt,
           featured_media: fm,
           comment_status: 'open',

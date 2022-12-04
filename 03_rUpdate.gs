@@ -147,6 +147,7 @@ function rUpdate() {
     '科学とテクノロジー'
   ];
   const tNo = [9,10,11,6,2,0,1,3,7,8,4,5];
+  const rc = ['jp','gb','us'];
 
   const date = new Date(Utilities.formatDate(new Date(), 'JST', 'yyyy-MM-dd HH:mm:ss'));
   const hour = date.getHours();
@@ -163,29 +164,49 @@ function rUpdate() {
     tr = wpAPI(sURL+'/wp-json/ratio-zid/zid/trending/');
 
     if (hour%2) {
-      let str = tr.jp.channel.map(x => x = x.title).join();
       let content = JSON.parse(wpAPI(oURL+8).content.raw);
-      content.jp.num = tr.jp.c;
-      content.jp.str = str;
+      for (let i in rc) {
+        if (tr[rc[i]]) {
+          content[rc[i]].num = tr[rc[i]].c;
+          content[rc[i]].str = tr[rc[i]].channel.map(x => x = x.title).join();
+          console.log({rc:rc[i],num:content[rc[i]].num,str:content[rc[i]].str});
+        }
+      }
 
       const title = 'YouTube急上昇 本日ランクインのチャンネル(' + tr.jp.c + ')をピックアップ';
       const prefix = 'YouTube急上昇 本日は'+tr.jp.c+'のチャンネルの動画が各カテゴリTop100にランクイン。獲得レシオ上位のチャンネルはこちら［';
       const suffix = '］『レシオ！』ではYouTube急上昇ランキングをリアルタイム集計、1時間ごとに最新情報をお届け。';
       const excerpt = prefix + tr.jp.channel.map(x => x = x.title).join().replace(/(チャンネル|ちゃんねる|channel|Channel)/g, '') + suffix;
-      arg = {date: time, title: title, excerpt: excerpt, content: content, tags: [70,73,74,78,51,day]}
+      arg = {
+        date: time,
+        title: title,
+        excerpt: excerpt,
+        content: JSON.stringify(content),
+        tags: [70,73,74,78,51,day]
+      }
       console.log(wpAPI(oURL+8, arg));
 
     } else {
-      let str = tr.jp.video.map(x => x = x.title).join();
       let content = JSON.parse(wpAPI(oURL+9).content.raw);
-      content.jp.num = tr.jp.v;
-      content.jp.str = str;
+      for (let i in rc) {
+        if (tr[rc[i]]) {
+          content[rc[i]].num = tr[rc[i]].v;
+          content[rc[i]].str = tr[rc[i]].video.map(x => x = x.title).join();
+          console.log({rc:rc[i],num:content[rc[i]].num,str:content[rc[i]].str});
+        }
+      }
 
       const title = 'YouTube急上昇 本日ランクインの動画(' + tr.jp.v + ')の獲得レシオTop100';
       const prefix = 'YouTube急上昇 本日は'+tr.jp.v+'本の動画が各カテゴリTop100にランクイン。獲得レシオ上位の動画はこちら［';
       const suffix = '］『レシオ！』ではYouTube急上昇ランキングをリアルタイム集計、1時間ごとに最新情報をお届け。';
       const excerpt = prefix + str + suffix;
-      arg = {date: time, title: title, excerpt: excerpt, content: content, tags: [70,73,74,79,51,day]}
+      arg = {
+        date: time,
+        title: title,
+        excerpt: excerpt,
+        content: JSON.stringify(content),
+        tags: [70,73,74,79,51,day]
+      }
       console.log(wpAPI(oURL+9, arg));
     }
 
@@ -193,7 +214,7 @@ function rUpdate() {
   }
 
   if (minutes>20 && minutes<25 && (hour%2===0)) { //カテゴリ別ランキングページ更新
-    const time = (Utilities.formatDate(date,'JST','yyyy-MM-dd HH:')+'00:10').replace(' ','T');
+    const time = (Utilities.formatDate(date,'JST','yyyy-MM-dd HH:')+'20:20').replace(' ','T');
     const arg = { date: time }
     const list = ['https://ratio100.com/youtube/trending/'+cSlug[tNo[Math.round(hour/2)]]]
     console.log(msSubmit(list));

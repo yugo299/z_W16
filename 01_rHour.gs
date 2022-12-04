@@ -1063,6 +1063,9 @@ function rHour(rc) {
     err = {};
     try {
       for (let i=0; i<cNo.length; i++) {
+        let content = JSON.parse(wpAPI(oURL+cNo[i]).content.raw);
+        content[rc] = { str: Utilities.formatDate(new Date(), 'JST', 'MM-dd-HH:00') };
+
         const update = Utilities.formatDate(new Date(), 'JST', 'M月d日H時');
 
         const prefix = 'YouTube急上昇ランキング動画まとめ【'+cName[i]+':'+update+'】トップ10にランクインしたチャンネルはこちら［';
@@ -1071,6 +1074,7 @@ function rHour(rc) {
 
         const arg = {
           title: '【速報】YouTube急上昇 '+cTitle[i]+'【'+update+'集計】',
+          content: JSON.stringify(content),
           excerpt: excerpt,
           featured_media: 100+cNo[i],
           tags: [cNo[i],70,73,74,78,79,51,(tDay+60)]
