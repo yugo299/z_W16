@@ -1024,7 +1024,7 @@ function rDay(rc) {
         wD = wpAPI(vURL +'25/'+rc);
         d = 0;
         wpAPI(vURL +'25/'+rc).forEach(wJ => { if (wJ.flag === '24') { d++; } });
-        console.log('■■■■ Dropアップデート漏れ ■■■■/n'+d+'件');
+        console.log('■■■■ Dropアップデート漏れ ■■■■\n'+d+'件');
 
       } catch (e) {
         console.log('Dropアップデート\n' + e.message);
@@ -1142,7 +1142,7 @@ function rDay(rc) {
         console.log({'公開対象':list[rc].d.n});
         console.log({'記事公開':list[rc].d.n, res:rsOpen('d',list[rc].d.n)});
         if (tomorrow.getDay() === 1) {
-          ts = Utilities.formatDate(new Date(ts.getTime() + (7-tomorrow.getDay())*86400000), 'Etc/GMT'+zone.jp, 'yyMM');
+          ts = Utilities.formatDate(new Date(new Date.getTime() + (7-tomorrow.getDay())*86400000), 'Etc/GMT'+zone.jp, 'yyMM');
           ts = Number(ts + '40');
           do { done = wpAPI(pURL+(++ts)); } while (done.tags.includes(52));
           list[rc].w.b = list[rc].w.n;
@@ -1224,7 +1224,6 @@ function rDay(rc) {
     let Title = '';
     let Excerpt = [];
     let Content = JSON.parse(wpAPI(pURL+(id+20)).content.raw);
-
 
     /** ■■■■ 実施判定 ■■■■ */
     const flag = Content[rc].f;

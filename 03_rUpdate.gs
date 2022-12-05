@@ -195,11 +195,10 @@ function rUpdate() {
           console.log({rc:rc[i],num:content[rc[i]].num,str:content[rc[i]].str});
         }
       }
-
       const title = 'YouTube急上昇 本日ランクインの動画(' + tr.jp.v + ')の獲得レシオTop100';
       const prefix = 'YouTube急上昇 本日は'+tr.jp.v+'本の動画が各カテゴリTop100にランクイン。獲得レシオ上位の動画はこちら［';
       const suffix = '］『レシオ！』ではYouTube急上昇ランキングをリアルタイム集計、1時間ごとに最新情報をお届け。';
-      const excerpt = prefix + str + suffix;
+      const excerpt = prefix + tr.jp.video.map(x => x = x.title) + suffix;
       arg = {
         date: time,
         title: title,
