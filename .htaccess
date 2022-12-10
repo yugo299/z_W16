@@ -7,6 +7,9 @@ RewriteBase /
 RewriteCond %{HTTPS} off [NC,OR]
 RewriteCond %{HTTP_HOST} ^www.ratio100\.com
 RewriteRule ^(.*)$ https://ratio100.com/$1 [R=301,L]
+# author リダイレクト
+RewriteCond %{QUERY_STRING} ^author=([0-9]*)
+RewriteRule .* https://blogmura.com/profiles/11152365?p_cid=11152365 [R=301,L]
 # video/channel ID4桁リダイレクト
 RewriteRule video\/....$ https://ratio100.com/youtube/video [R=301,L]
 RewriteRule channel\/....$ https://ratio100.com/youtube/channel [R=301,L]
@@ -14,7 +17,7 @@ RewriteRule channel\/....$ https://ratio100.com/youtube/channel [R=301,L]
 RewriteRule ^(jp|us|gb)(-)(ja|en)\/.*\/(film-anime|autos-vehicles|music|pets-animals|sports|gaming|people-blogs|comedy|entertainment|news-politics|howto-style|science-tech)$ https://ratio100.com/youtube/trending/$2?cl=$1$2$3 [L]
 # 過去リンク リダイレクト
 RewriteRule ^youtube\/(trending|stats)\/2022\/(10|11) https://ratio100.com/youtube/$1 [R=301,L]
-RewriteRule (rario100-)favicon(.*\.jpg)$ https://ratio100.com/img/$1$2 [R=301,L]
+RewriteRule rario100-favicon-.*\.jpg$ https://ratio100.com/img/ratio100.ico [R=301,L]
 RewriteRule ^youtube\/hw$ https://ratio100.com/youtube/trending [R=301,L]
 # リダイレクト search consoleの404エラー
 RewriteRule ^{}$ https://ratio100.com [R=301,L]
