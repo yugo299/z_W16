@@ -57,7 +57,7 @@ function rDay(rc) {
   const tDay = today.getDay();
   const day = tDay+60;
 
-  const tID = Utilities.formatDate(today, 'Etc/GMT'+zn, 'yyMMdd');
+  const tID = Utilities.formatDate(d, 'Etc/GMT'+zn, 'yyMMdd');
   const publish = Utilities.formatDate(d, 'Etc/GMT'+zone.jp, 'yyyy-MM-dd') + 'T05:30:00';
   const tLabel = Utilities.formatDate(d, 'Etc/GMT'+zone[rc], 'yyyy-MM-dd HH:00:00').replace(' ','T');
 
@@ -82,7 +82,7 @@ function rDay(rc) {
   let data = ssData();
   const f1 = data[1][rCol[rc]-1];
   const f2 = data[2][rCol[rc]-1];
-  console.log({rc:rc,f1:f1,f2:f2,tHour:tHour,tLabel:tLabel});
+  console.log({rc:rc,f1:f1,f2:f2,tHour:tHour,tLabel:tLabel,tID:tID});
   console.log({'wpDay':(f1*10%10<2),'wpDrop':(f2==='Go'),'wpResult':!(f2*10%10)})
 
   if (f1===7 || f1===12 || f1===16 || f1===20) { wpFlash(rc, f1); }
@@ -302,6 +302,7 @@ function rDay(rc) {
           arg.lk += a.lk;
           arg.pd++;
           list[i] = arg;
+  if (arg.vd==='bV0VA2AOYJc') {console.log({'arg_rt':arg.rt,'a_rt':a.rt});}
         } else {
           arg = {
             rt: a.rt,
@@ -626,7 +627,6 @@ function rDay(rc) {
       t_c: wJ.t_c,
       ch: wJ.ch
     }
-
     Ranking[wJ.cat].push(a);
     r++;
   }
@@ -655,7 +655,7 @@ function rDay(rc) {
     let content = wpAPI(rURL, id)[0];
     content = (content)? JSON.parse(content): {};
     content[rc] = { title: excerpt, str: Top.join(), des: prefix + Top.join() + suffix, ranking: Ranking }
-
+console.log({range:range,tID:tID,flag:range[range.length-1]===tID});
     const step = (range[range.length-1]===tID)? 52: 59;
     let term = 56;
     if (f==='m') { term = 55; }
@@ -782,6 +782,7 @@ function rDay(rc) {
       err = {};
       try {
         const resR = wpAPI(pURL+tID, arg);
+        wpAPI(pURL+(Number(tID)+50), {tags:arg.tags});
         console.log({m:'デイリーランキング更新', resR:resR});
       } catch (e) {
         console.log('デイリーランキング更新\n' + e.message);
@@ -1142,7 +1143,7 @@ function rDay(rc) {
         console.log({'公開対象':list[rc].d.n});
         console.log({'記事公開':list[rc].d.n, res:rsOpen('d',list[rc].d.n)});
         if (tomorrow.getDay() === 1) {
-          ts = Utilities.formatDate(new Date(new Date.getTime() + (7-tomorrow.getDay())*86400000), 'Etc/GMT'+zone.jp, 'yyMM');
+          ts = Utilities.formatDate(new Date(new Date().getTime() + (7-tomorrow.getDay())*86400000), 'Etc/GMT'+zone.jp, 'yyMM');
           ts = Number(ts + '40');
           do { done = wpAPI(pURL+(++ts)); } while (done.tags.includes(52));
           list[rc].w.b = list[rc].w.n;
